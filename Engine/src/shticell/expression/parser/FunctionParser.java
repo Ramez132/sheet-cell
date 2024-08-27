@@ -24,9 +24,11 @@ public enum FunctionParser {
             String actualValue = arguments.get(0).trim();
             if (isBoolean(actualValue)) {
                 return new IdentityExpression(Boolean.parseBoolean(actualValue), CellType.BOOLEAN);
-            } else if (isNumeric(actualValue)) {
+            }
+            else if (isNumeric(actualValue)) {
                 return new IdentityExpression(Double.parseDouble(actualValue), CellType.NUMERIC);
-            } else {
+            }
+            else {
                 return new IdentityExpression(actualValue, CellType.STRING);
             }
         }
