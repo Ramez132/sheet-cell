@@ -18,6 +18,7 @@ public class SheetImpl implements Sheet {
     private Map<Coordinate, Cell> activeCells;
 
     public SheetImpl() {
+
         this.activeCells = new HashMap<>();
     }
 

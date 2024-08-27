@@ -5,7 +5,7 @@ import shticell.sheet.api.Sheet;
 
 public interface Manager {
     Sheet getSheetFromFile(String fileName);
-    Sheet displayMostRecentSheet();
+    Sheet getMostRecentSheet();
     //Sheet displaySheet(Sheet sheet);
     Cell getCellFromSheet(Sheet sheet, int row, int col);
     Sheet updateValueOfCellAndDisplayNewSheet(Sheet sheet, int row, int col, String value);
