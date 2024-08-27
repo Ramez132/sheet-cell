@@ -6,11 +6,11 @@ import shticell.cell.impl.EffectiveValueImpl;
 import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
-public class DivExpression implements Expression {
+public class DivideExpression implements Expression {
     private Expression dividend;
     private Expression divisor;
 
-    public DivExpression(Expression dividend, Expression divisor) {
+    public DivideExpression(Expression dividend, Expression divisor) {
         this.dividend = dividend;
         this.divisor = divisor;
     }
@@ -21,9 +21,9 @@ public class DivExpression implements Expression {
         EffectiveValue divisorValue = divisor.eval(sheet);
         Double divisor = divisorValue.extractValueWithExpectation(Double.class);
         if (divisor == 0) {
-            throw new ArithmeticException("Division by zero");
+            throw new ArithmeticException("Division by zero is not possible.");
         }
-        double result = dividendValue.extractValueWithExpectation(Double.class) / divisorValue.extractValueWithExpectation(Double.class);
+        double result = dividendValue.extractValueWithExpectation(Double.class) / divisor;
         return new EffectiveValueImpl(CellType.NUMERIC, result);
     }
 
