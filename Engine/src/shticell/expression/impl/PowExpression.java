@@ -6,8 +6,8 @@ import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
 public class PowExpression implements Expression {
-    private Expression base;
-    private Expression exponent;
+    private final Expression base;
+    private final Expression exponent;
 
     public PowExpression(Expression base, Expression exponent) {
         this.base = base;
