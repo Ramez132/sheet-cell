@@ -154,10 +154,100 @@ public enum FunctionParser {
         }
     },
     ABS {
+        @Override
+        public Expression parse(List<String> arguments) {
+            // Ensure there is exactly one argument
+            if (arguments.size() != 1) {
+                throw new IllegalArgumentException("Invalid number of arguments for ABS function. Expected 1, but got " + arguments.size());
+            }
 
+            // Parse the argument
+            Expression argument = parseExpression(arguments.get(0).trim());
 
+            // Validate that the argument is numeric or unknown
+            CellType argumentCellType = argument.getFunctionResultType();
+            if (!argumentCellType.equals(CellType.NUMERIC) && !argumentCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for ABS function. Expected NUMERIC, but got " + argumentCellType);
+            }
+
+            // Create and return the AbsExpression
+            return new AbsExpression(argument);
+        }
+    },
+    POW {
+        @Override
+        public Expression parse(List<String> arguments) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for POW function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression base = parseExpression(arguments.get(0).trim());
+            Expression exponent = parseExpression(arguments.get(1).trim());
+
+            // Validate that the arguments are numeric or unknown
+            CellType baseCellType = base.getFunctionResultType();
+            CellType exponentCellType = exponent.getFunctionResultType();
+            if ((!baseCellType.equals(CellType.NUMERIC) && !baseCellType.equals(CellType.UNKNOWN)) ||
+                (!exponentCellType.equals(CellType.NUMERIC) && !exponentCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for POW function. Expected NUMERIC, but got " + baseCellType + " and " + exponentCellType);
+            }
+
+            // Create and return the PowExpression
+            return new PowExpression(base, exponent);
+        }
+    },
+
+    MODULO {
+        @Override
+        public Expression parse(List<String> arguments) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for MODULO function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression dividend = parseExpression(arguments.get(0).trim());
+            Expression divisor = parseExpression(arguments.get(1).trim());
+
+            // Validate that the arguments are numeric or unknown
+            CellType dividendCellType = dividend.getFunctionResultType();
+            CellType divisorCellType = divisor.getFunctionResultType();
+            if ((!dividendCellType.equals(CellType.NUMERIC) && !dividendCellType.equals(CellType.UNKNOWN)) ||
+                (!divisorCellType.equals(CellType.NUMERIC) && !divisorCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for MODULO function. Expected NUMERIC, but got " + dividendCellType + " and " + divisorCellType);
+            }
+
+            // Create and return the ModuloExpression
+            return new ModuloExpression(dividend, divisor);
+        }
+    },
+
+    DIVIDE {
+        @Override
+        public Expression parse(List<String> arguments) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for DIVIDE function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression dividend = parseExpression(arguments.get(0).trim());
+            Expression divisor = parseExpression(arguments.get(1).trim());
+
+            // Validate that the arguments are numeric or unknown
+            CellType dividendCellType = dividend.getFunctionResultType();
+            CellType divisorCellType = divisor.getFunctionResultType();
+            if ((!dividendCellType.equals(CellType.NUMERIC) && !dividendCellType.equals(CellType.UNKNOWN)) ||
+                (!divisorCellType.equals(CellType.NUMERIC) && !divisorCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for DIVIDE function. Expected NUMERIC, but got " + dividendCellType + " and " + divisorCellType);
+            }
+
+            // Create and return the DivideExpression
+            return new DivideExpression(dividend, divisor);
+        }
     }
-
     ;
 
     abstract public Expression parse(List<String> arguments);
