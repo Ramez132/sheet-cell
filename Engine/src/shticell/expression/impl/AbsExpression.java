@@ -7,7 +7,11 @@ import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
 public class AbsExpression implements Expression {
-    private Expression val;
+    private final Expression val;
+
+    public AbsExpression(Expression argument) {
+        this.val = argument;
+    }
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
