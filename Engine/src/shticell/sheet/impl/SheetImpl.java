@@ -7,18 +7,19 @@ import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SheetImpl implements Sheet {
 
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
-    private int maxRowNumber;
-    private int maxColumnNumber;
-    private int thisSheetVersion;
+    private int maxRowNumber = 50;
+    private int maxColumnNumber = 20;
+    private int thisSheetVersion = 1;
+    private final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
 
     public SheetImpl(int maxRowNumber, int maxColumnNumber, int thisSheetVersion) {
@@ -51,7 +52,7 @@ public class SheetImpl implements Sheet {
     public Cell getCell(int row, int column) throws IllegalArgumentException {
 
         try {
-            boolean isCoordinateValid = checkIfCoordinateIsValid(row, column);
+            boolean isCoordinateValid = isCoordinateInSheetRange(row, column);
 
             if (isCoordinateValid) {
                 return activeCells.get(CoordinateFactory.createCoordinate(row, column));
@@ -64,7 +65,8 @@ public class SheetImpl implements Sheet {
         return null;
     }
 
-    private boolean checkIfCoordinateIsValid(int row, int column) throws IllegalArgumentException {
+    @Override
+    public boolean isCoordinateInSheetRange(int row, int column) throws IllegalArgumentException {
 
         if (row > maxRowNumber) {
             throw new IllegalArgumentException("Row number provided is greater than the maximum row number of the sheet");
@@ -81,16 +83,61 @@ public class SheetImpl implements Sheet {
         return true;
     }
 
+    /**
+     * @return true if the cell is empty, false otherwise
+     */
     @Override
-    public Sheet updateCellValueAndCalculate(int row, int column, String value) throws IllegalArgumentException {
+    public boolean isCellEmpty(int row, int column) {
+        Coordinate coordinate = CoordinateFactory.createCoordinate(row, column);
+        boolean isCellEmptyBoolean;
+        if (activeCells.containsKey(coordinate)) {
+            isCellEmptyBoolean = activeCells.get(coordinate).getIsCellEmptyBoolean();
+        } else {
+            isCellEmptyBoolean = true;
+        }
+
+        return isCellEmptyBoolean;
+
+        // return (activeCells.containsKey(coordinate) && activeCells.get(coordinate).getIsCellEmptyBoolean());
+
+
+//        Cell cellThatMightBeEmpty = activeCells.get(coordinate);
+//        isCellEmptyBoolean = cellThatMightBeEmpty == null || cellThatMightBeEmpty.getIsCellEmptyBoolean();
+//        return Optional.ofNullable(activeCells.get(coordinate)).isEmpty();
+    }
+
+    @Override
+    public Cell setNewEmptyCell(int row, int column) {
+        Cell emptyCell = new CellImpl(row, column, "", versionNumForEmptyCellWithoutPreviousValues, this);
+        activeCells.put(CoordinateFactory.createCoordinate(row, column), emptyCell);
+
+        return emptyCell;
+    }
+
+    @Override
+    public boolean isCellsCollectionContainsCoordinate(int row, int column) {
+        return activeCells.containsKey(CoordinateFactory.createCoordinate(row, column));
+    }
+
+    @Override
+    public Sheet updateCellValueAndCalculate
+                        (int row, int column, String value,
+                         boolean isUpdatePartOfSheetInitialization)
+                         throws IllegalArgumentException {
 
         try {
-            if (checkIfCoordinateIsValid(row, column)) {
+            if (isCoordinateInSheetRange(row, column)) {
 
                 Coordinate coordinate = CoordinateFactory.createCoordinate(row, column);
 
                 SheetImpl newSheetVersion = copySheet();
-                Cell newCell = new CellImpl(row, column, value, newSheetVersion.getVersion() + 1, newSheetVersion);
+                int sheetVersionForNewCell;
+                if (isUpdatePartOfSheetInitialization) {
+                    sheetVersionForNewCell = 1;
+                } else {
+                    sheetVersionForNewCell = newSheetVersion.getVersion() + 1;
+                }
+                Cell newCell = new CellImpl(row, column, value, sheetVersionForNewCell, newSheetVersion);
                 newSheetVersion.activeCells.put(coordinate, newCell);
 
                 try {
@@ -98,7 +145,7 @@ public class SheetImpl implements Sheet {
                             newSheetVersion
                                     .orderCellsForCalculation()
                                     .stream()
-                                    .filter(Cell::calculateEffectiveValue)
+                                    .filter(Cell::calculateEffectiveValue) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
                                     .collect(Collectors.toList());
 
                     // successful calculation. update sheet and relevant cells version
@@ -116,6 +163,21 @@ public class SheetImpl implements Sheet {
             throw e;
         }
         return null;
+    }
+
+    private Map<Cell, List<Cell>> buildGraphAdjacencyList() {
+
+        Map<Cell, List<Cell>> adjacencyList = new HashMap<>();
+
+        for (Cell cell : activeCells.values()) {
+            int row = cell.getCoordinate().getRow();
+            int column = cell.getCoordinate().getColumn();
+            if (!isCellEmpty( row, column)) {
+                adjacencyList.put(cell, new ArrayList<>(cell.getDependsOn()));
+            }
+        }
+
+        return adjacencyList;
     }
 
     private List<Cell> orderCellsForCalculation() {

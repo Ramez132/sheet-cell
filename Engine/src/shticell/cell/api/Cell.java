@@ -6,11 +6,12 @@ import java.util.List;
 
 public interface Cell {
     Coordinate getCoordinate();
-    String getOriginalValue();
+    String getOriginalValueStr();
     void setCellOriginalValue(String value);
     EffectiveValue getEffectiveValue();
     boolean calculateEffectiveValue();
-    int getVersionNum();
+    int getLastVersionInWhichCellHasChanged();
     List<Cell> getDependsOn();
     List<Cell> getInfluencingOn();
+    boolean getIsCellEmptyBoolean();
 }

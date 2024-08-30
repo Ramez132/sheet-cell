@@ -50,7 +50,7 @@ public class ManagerImpl implements Manager {
     @Override
     public Sheet updateValueOfCellAndDisplayNewSheet(Sheet sheet, int row, int col, String value) throws RuntimeException {
         try {
-            return sheet.updateCellValueAndCalculate(row, col, value);
+            return sheet.updateCellValueAndCalculate(row, col, value, false);
         }
         catch (Exception e) { //should we catch a more specific Exception? could there be a few types?
             throw new RuntimeException(e);
