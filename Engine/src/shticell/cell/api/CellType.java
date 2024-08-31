@@ -1,6 +1,8 @@
 package shticell.cell.api;
 
-public enum CellType {
+import java.io.Serializable;
+
+public enum CellType implements Serializable {
 
     NUMERIC(Double.class) ,
     STRING(String.class) ,

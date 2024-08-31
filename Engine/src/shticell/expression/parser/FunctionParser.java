@@ -289,6 +289,9 @@ public enum FunctionParser {
 
             //remove the first element from the array
             topLevelParts.remove(0);
+            if (!isValidFunctionName(functionName)) {
+                throw new IllegalArgumentException("Invalid function name: " + functionName);
+            }
             return FunctionParser.valueOf(functionName).parse(topLevelParts);
             //valueOf - If the name does not match any existing enum constant, it throws an IllegalArgumentException.
             //should we through an exception if the function name is not found?
@@ -299,6 +302,24 @@ public enum FunctionParser {
         // handle identity expression
         ///////         return FunctionParser.IDENTITY.parse(List.of(input.trim())); //should we trim or not?
         return FunctionParser.IDENTITY.parse(List.of(input)); //should we trim or not?
+    }
+
+
+    public static boolean isValidFunctionName(String functionName) {
+
+        boolean isValidFuncName;
+
+        if (functionName == null) {
+            isValidFuncName = false;
+        }
+        try {
+            FunctionParser.valueOf(functionName);
+            isValidFuncName = true;
+        } catch (IllegalArgumentException e) {
+            isValidFuncName = false;
+        }
+
+        return isValidFuncName;
     }
 
 //    public class EnumUtils {

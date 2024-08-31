@@ -3,6 +3,7 @@ package shticell.cell.api;
 import shticell.coordinate.Coordinate;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Cell {
     Coordinate getCoordinate();
@@ -11,7 +12,10 @@ public interface Cell {
     EffectiveValue getEffectiveValue();
     boolean calculateEffectiveValue();
     int getLastVersionInWhichCellHasChanged();
-    List<Cell> getDependsOn();
-    List<Cell> getInfluencingOn();
+    Map<Coordinate, Cell> getDependsOnMap();
+    Map<Coordinate, Cell> getInfluencingOnMap();
+    //List<Cell> getDependsOnMap();
+    //List<Cell> getInfluencingOnMap();
     boolean getIsCellEmptyBoolean();
+    void insertInfluencingOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> influencingOnMap);
 }

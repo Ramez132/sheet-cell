@@ -1,19 +1,18 @@
 package shticell.sheet.impl;
 
 import shticell.cell.impl.CellImpl;
+import shticell.expression.api.Expression;
+import shticell.expression.parser.FunctionParser;
 import shticell.sheet.api.Sheet;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class SheetImpl implements Sheet {
+public class SheetImpl implements Sheet, Serializable {
 
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
     private int maxRowNumber = 50;
@@ -128,35 +127,96 @@ public class SheetImpl implements Sheet {
         try {
             if (isCoordinateInSheetRange(row, column)) {
 
-                Coordinate coordinate = CoordinateFactory.createCoordinate(row, column);
+                Coordinate coordinateOfNewCellOrCellToBeUpdated = CoordinateFactory.createCoordinate(row, column);
+                Cell cellBeforeUpdate = activeCells.get(coordinateOfNewCellOrCellToBeUpdated);
+
+                Map<Coordinate,Cell> influencingOnMapOfCellThatMightBeUpdated = new HashMap<>();
+                if (cellBeforeUpdate != null) { //this coordinate already have a cell
+                    //get the cells that already depends on the cell\coordinate that is updating - to update their dependsOnMap to reference the updated cell
+                    influencingOnMapOfCellThatMightBeUpdated = activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+                }
 
                 SheetImpl newSheetVersion = copySheet();
-                int sheetVersionForNewCell;
+                int sheetVersionNumForNewCell;
                 if (isUpdatePartOfSheetInitialization) {
-                    sheetVersionForNewCell = 1;
+                    sheetVersionNumForNewCell = 1;
                 } else {
-                    sheetVersionForNewCell = newSheetVersion.getVersion() + 1;
+                    sheetVersionNumForNewCell = newSheetVersion.getVersion() + 1;
                 }
-                Cell newCell = new CellImpl(row, column, value, sheetVersionForNewCell, newSheetVersion);
-                newSheetVersion.activeCells.put(coordinate, newCell);
+
+                Cell newCell = new CellImpl(row, column, value, sheetVersionNumForNewCell, newSheetVersion);
+                newSheetVersion.activeCells.put(coordinateOfNewCellOrCellToBeUpdated, newCell);
+
+                //if the cell updated - needs to know who he dependsOn his coordinate - update with influencingOnMap from the cell before the update
+                newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCellThatMightBeUpdated); //if deep copied - it's still needed?
+
+                for (Coordinate coordinateOfCellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.keySet()) {
+                    Cell cellInNewVersionThatAlreadyDependsOnThisCoordinate = newSheetVersion.activeCells.get(coordinateOfCellThatAlreadyDependsOnThisCoordinate);
+                    cellInNewVersionThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, newCell);
+
+                    newCell.getInfluencingOnMap().put(coordinateOfCellThatAlreadyDependsOnThisCoordinate, cellInNewVersionThatAlreadyDependsOnThisCoordinate);
+                }
+
+//                //updating dependsOnMap of cells that reference this coordinate - to reference the new cell object
+//                for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
+//                    cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, newCell);
+//                }
+//                //what happens if the update fails? reverts this change - so the cells will reference the cell object from before the update
+
+//                Map<Coordinate,Cell> influencingOnMapOfNewCell = newCell.getInfluencingOnMap();
+
+//                for (Cell influencedCell : influencingOnMapOfNewCell.values()) { //update dependsOnMap of to reference the newCell
+//                   Map<Coordinate, Cell> dependsOnMapOfInfluencedCell = influencedCell.getDependsOnMap();
+//                    dependsOnMapOfInfluencedCell.put(newCell.getCoordinate(), newCell);
+//                }
+//
+//                for (Map.Entry<Coordinate, Cell> entry : influencingOnMapOfNewCell.entrySet()) {
+//                    Coordinate influencingOnCoordinate = entry.getKey();
+//                    Cell influencingOnCell = entry.getValue();
+//                    if (newSheetVersion.isCellsCollectionContainsCoordinate(influencingOnCoordinate.getRow(), influencingOnCoordinate.getColumn())) {
+//                        newSheetVersion.activeCells.put(influencingOnCoordinate, influencingOnCell);
+//                    }
+//                }
+
+                Map<Cell, List<Cell>> adjacencyList = newSheetVersion.buildGraphAdjacencyList();
+                if (newSheetVersion.hasCycle(adjacencyList)) {
+//                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
+//                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
+//                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
+//                    }
+                    throw new IllegalArgumentException("The sheet has circular dependencies."); //this is what we want to do?
+                }
 
                 try {
-                    List<Cell> cellsThatHaveChanged =
-                            newSheetVersion
-                                    .orderCellsForCalculation()
-                                    .stream()
-                                    .filter(Cell::calculateEffectiveValue) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
-                                    .collect(Collectors.toList());
-
-                    // successful calculation. update sheet and relevant cells version
-                    // int newVersion = newSheetVersion.increaseVersion();
-                    // cellsThatHaveChanged.forEach(cell -> cell.updateVersion(newVersion));
-
-                    return newSheetVersion;
-                } catch (Exception e) {
-                    // deal with the runtime error that was discovered as part of invocation
+                    Expression expression = FunctionParser.parseExpression(newCell.getOriginalValueStr());
+//                    newCell.calculateEffectiveValue();
+                } catch (IllegalArgumentException e) { //in case a function is not recognized or number of arguments is incorrect
+//                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
+//                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
+//                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
+//                    }
                     return this;
                 }
+
+                return newSheetVersion;
+
+//                try {
+//                    List<Cell> cellsThatHaveChanged =
+//                            newSheetVersion
+//                                    .orderCellsForCalculation()
+//                                    .stream()
+//                                    .filter(Cell::calculateEffectiveValue) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
+//                                    .collect(Collectors.toList());
+//
+//                    // successful calculation. update sheet and relevant cells version
+//                    // int newVersion = newSheetVersion.increaseVersion();
+//                    // cellsThatHaveChanged.forEach(cell -> cell.updateVersion(newVersion));
+//
+//                    return newSheetVersion;
+//                } catch (Exception e) {
+//                    // deal with the runtime error that was discovered as part of invocation
+//                    return this;
+//                }
         }
         } catch (IllegalArgumentException e) {
             // deal with the runtime error that was discovered as part of invocation
@@ -173,12 +233,64 @@ public class SheetImpl implements Sheet {
             int row = cell.getCoordinate().getRow();
             int column = cell.getCoordinate().getColumn();
             if (!isCellEmpty( row, column)) {
-                adjacencyList.put(cell, new ArrayList<>(cell.getDependsOn()));
+
+                List<Cell> dependsOnList = new ArrayList<>(cell.getDependsOnMap().values());;
+                List<Cell> dependsOnListWithoutEmptyCells = new ArrayList<>();
+
+                for (Cell neighbor : dependsOnList) {
+                    if (!neighbor.getIsCellEmptyBoolean()) { //ignore empty cells for adjacency list - can not create a cycle
+                        dependsOnListWithoutEmptyCells.add(neighbor);
+                    }
+                }
+                adjacencyList.put(cell, dependsOnListWithoutEmptyCells);
             }
         }
 
         return adjacencyList;
     }
+
+    public boolean hasCycle(Map<Cell, List<Cell>> adjacencyList) {
+        Map<Cell, Integer> inDegree = new HashMap<>();
+        Queue<Cell> queue = new LinkedList<>();
+
+        // Initialize in-degree of all cells
+        for (Cell cell : adjacencyList.keySet()) {
+            inDegree.put(cell, 0);
+        }
+
+        // Calculate in-degree of each cell
+        for (List<Cell> neighbors : adjacencyList.values()) {
+            for (Cell neighbor : neighbors) {
+                inDegree.put(neighbor, inDegree.get(neighbor) + 1);
+            }
+        }
+
+        // Add cells with in-degree 0 to the queue
+        for (Map.Entry<Cell, Integer> entry : inDegree.entrySet()) {
+            if (entry.getValue() == 0) {
+                queue.add(entry.getKey());
+            }
+        }
+
+        int processedNodes = 0;
+
+        // Process nodes with in-degree 0
+        while (!queue.isEmpty()) {
+            Cell cell = queue.poll();
+            processedNodes++;
+
+            for (Cell neighbor : adjacencyList.get(cell)) {
+                inDegree.put(neighbor, inDegree.get(neighbor) - 1);
+                if (inDegree.get(neighbor) == 0) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        // If all nodes are processed, there is no cycle
+        return processedNodes != adjacencyList.size();
+    }
+
 
     private List<Cell> orderCellsForCalculation() {
         // data structure 1 0 1: Topological sort...

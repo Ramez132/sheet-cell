@@ -45,7 +45,8 @@ public class RefExpression implements Expression {
         }
 
         if (sheet.isCellEmpty(coordinate.getRow(), coordinate.getColumn())) { //change it because implemented logic for empty cell?
-            throw new IllegalArgumentException("The referencedCell is empty");
+            //throw new IllegalArgumentException("The referencedCell is empty");
+
         }
 
         EffectiveValue returnValue = sheet.getCell(coordinate.getRow(), coordinate.getColumn()).getEffectiveValue();

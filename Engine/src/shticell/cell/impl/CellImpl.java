@@ -7,30 +7,36 @@ import shticell.coordinate.CoordinateFactory;
 import shticell.coordinate.CoordinateImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
+import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class CellImpl implements Cell {
+public class CellImpl implements Cell, Serializable {
 
     private final Coordinate coordinate;
     private String originalValueStr;
     private EffectiveValue effectiveValue;
     private int lastVersionInWhichCellHasChanged;
-    private final List<Cell> dependsOn;
-    private final List<Cell> influencingOn;
-    private final SheetReadActions sheet;
+    private Map<Coordinate, Cell> dependsOnMap;
+    private Map<Coordinate, Cell> influencingOnMap;
+//    private final List<Cell> dependsOnMap;
+//    private final List<Cell> influencingOnMap;
+    private final Sheet sheet;
     private final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
 
-    public CellImpl(int row, int column, String originalValueStr, int lastVersionInWhichCellHasChanged, SheetReadActions sheet)  {
+    public CellImpl(int row, int column, String originalValueStr, int lastVersionInWhichCellHasChanged, Sheet sheet)  {
         this.sheet = sheet;
         this.coordinate = new CoordinateImpl(row, column);
         this.originalValueStr = originalValueStr;
         this.lastVersionInWhichCellHasChanged = lastVersionInWhichCellHasChanged;
-        this.dependsOn = new ArrayList<>();
-        this.influencingOn = new ArrayList<>();
+        this.dependsOnMap = new HashMap<>();
+        this.influencingOnMap = new HashMap<>();
         isCellEmptyBoolean = originalValueStr.isEmpty();
         handleOriginalValueStrWithRef();
     }
@@ -90,10 +96,17 @@ public class CellImpl implements Cell {
                 referencedCell = sheet.getCell(currentReferencedRow, currentReferencedColumn);
             }
 
-            referencedCell.getInfluencingOn().add(this);
-            this.dependsOn.add(referencedCell);
+            referencedCell.getInfluencingOnMap().put(this.getCoordinate(), this);
+            this.dependsOnMap.put(referencedCell.getCoordinate(), referencedCell);
+//            referencedCell.getInfluencingOnMap().add(this);
+//            this.dependsOnMap.add(referencedCell);
         }
 
+    }
+
+    @Override
+    public void insertInfluencingOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> influencingOnMapFromCellBeforeUpdate) {
+        influencingOnMap = influencingOnMapFromCellBeforeUpdate;
     }
 
     @Override
@@ -141,15 +154,18 @@ public class CellImpl implements Cell {
     }
 
     @Override
-    public List<Cell> getDependsOn() {
-        return dependsOn;
+    public Map<Coordinate, Cell> getDependsOnMap() {
+        return dependsOnMap;
     }
 
     @Override
-    public List<Cell> getInfluencingOn() {
-        return influencingOn;
+    public Map<Coordinate, Cell> getInfluencingOnMap() {
+        return influencingOnMap;
     }
 
+    /**
+     @return true if the cell is empty, false otherwise
+    */
     @Override
     public boolean getIsCellEmptyBoolean() {
         return isCellEmptyBoolean;
