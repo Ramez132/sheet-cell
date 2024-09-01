@@ -1,5 +1,6 @@
 package shticell.cell.impl;
 
+import shticell.cell.api.CellType;
 import shticell.cell.api.EffectiveValue;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
@@ -8,7 +9,6 @@ import shticell.coordinate.CoordinateImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
 import shticell.sheet.api.Sheet;
-import shticell.sheet.api.SheetReadActions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class CellImpl implements Cell, Serializable {
 
     private final Coordinate coordinate;
     private String originalValueStr;
-    private EffectiveValue effectiveValue;
+    private EffectiveValue currentEffectiveValue; //null means: no effective value - empty cell or reference to an empty cell
     private int lastVersionInWhichCellHasChanged;
     private Map<Coordinate, Cell> dependsOnMap;
     private Map<Coordinate, Cell> influencingOnMap;
@@ -30,7 +30,8 @@ public class CellImpl implements Cell, Serializable {
     private final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
 
-    public CellImpl(int row, int column, String originalValueStr, int lastVersionInWhichCellHasChanged, Sheet sheet)  {
+    public CellImpl(int row, int column, String originalValueStr,
+                    int lastVersionInWhichCellHasChanged, Sheet sheet)  {
         this.sheet = sheet;
         this.coordinate = new CoordinateImpl(row, column);
         this.originalValueStr = originalValueStr;
@@ -86,6 +87,10 @@ public class CellImpl implements Cell, Serializable {
         for (String rowAndColStr : rowAndColStringsAfterRef) {
             Cell referencedCell;
             Coordinate referencedCoordinate = CoordinateFactory.getCoordinateFromStr(rowAndColStr);
+            if (referencedCoordinate.getRow() == this.coordinate.getRow() && referencedCoordinate.getColumn() == this.coordinate.getColumn()) {
+                throw new IllegalArgumentException("Error - A cell can't reference itself. Cell " + rowAndColStr + " tried to reference " + rowAndColStr);
+            }
+
             int currentReferencedRow = referencedCoordinate.getRow();
             int currentReferencedColumn = referencedCoordinate.getColumn();
             boolean isCellsCollectionInSheetContainsCoordinate = sheet.isCellsCollectionContainsCoordinate(currentReferencedRow, currentReferencedColumn);
@@ -125,27 +130,57 @@ public class CellImpl implements Cell, Serializable {
     }
 
     @Override
-    public EffectiveValue getEffectiveValue() {
-        if (effectiveValue == null) {
-            calculateEffectiveValue();
-        }
-        return effectiveValue;
+    public EffectiveValue getCurrentEffectiveValue() {
+//        if (currentEffectiveValue == null) { //is it the proper impl?
+//            calculateNewEffectiveValueAndDetermineIfItChanged();
+//        }
+        return currentEffectiveValue;
     }
 
     @Override
-    public boolean calculateEffectiveValue() {
+    public boolean calculateNewEffectiveValueAndDetermineIfItChanged() {
         // build the expression object out of the original value...
         // it can be {PLUS, 4, 5} OR {CONCAT, {ref, A4}, world}
         Expression expression = FunctionParser.parseExpression(originalValueStr);
 
         EffectiveValue newEffectiveValue = expression.eval(sheet);
 
-        if (newEffectiveValue.equals(effectiveValue)) {
-            return false;
-        } else {
-            effectiveValue = newEffectiveValue;
+        //if the received newEffectiveValue is not already null (indicating no effective value) and the cell is empty or references an empty cell
+        if (newEffectiveValue != null && newEffectiveValue.getCellType() == CellType.Empty) {
+            //null for effectiveValue means: no effective value - empty cell or reference to an empty cell
+            newEffectiveValue = null;
+        }
+
+
+        if (newEffectiveValue == null) {  //no effectiveValue
+            if (currentEffectiveValue == null) { //the cell did not have an effective value and stays like that
+                return false; // return false to indicate no change
+            }
+            else {  //the cell had an effective value before, now it doesn't have
+                currentEffectiveValue = null;
+                return true; // return true to indicate a change
+            }
+        } else if (currentEffectiveValue == null) {  //the cell did not have an effective value before, now it has
+            currentEffectiveValue = newEffectiveValue; //update to the new value
+            return true; //indicate a change
+        } else if (newEffectiveValue.equals(currentEffectiveValue)) { //the cell had an effective value before and now
+            return false; // the effective value stayed the same - indicating no change
+        } else {  // the effective value has changed - update and indicate change
+            currentEffectiveValue = newEffectiveValue;
             return true;
         }
+
+
+//        if (newEffectiveValue.getCellType() == CellType.Empty) { //if the cell is empty, null will represent it's effective value
+//            newEffectiveValue = null;
+//        }
+//
+//        if (newEffectiveValue.equals(currentEffectiveValue)) {
+//            return false;
+//        } else {
+//            currentEffectiveValue = newEffectiveValue;
+//            return true;
+//        }
     }
 
     @Override

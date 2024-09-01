@@ -49,10 +49,10 @@ public class RefExpression implements Expression {
 
         }
 
-        EffectiveValue returnValue = sheet.getCell(coordinate.getRow(), coordinate.getColumn()).getEffectiveValue();
+        sheet.getCell(coordinate.getRow(), coordinate.getColumn()).calculateNewEffectiveValueAndDetermineIfItChanged();
 
         // error handling if the referencedCell is empty or not found
-        return sheet.getCell(coordinate.getRow(), coordinate.getColumn()).getEffectiveValue();
+        return sheet.getCell(coordinate.getRow(), coordinate.getColumn()).getCurrentEffectiveValue();
     }
 
     @Override

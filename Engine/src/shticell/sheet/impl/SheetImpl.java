@@ -10,7 +10,6 @@ import shticell.coordinate.CoordinateFactory;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SheetImpl implements Sheet, Serializable {
 
@@ -18,6 +17,7 @@ public class SheetImpl implements Sheet, Serializable {
     private int maxRowNumber = 50;
     private int maxColumnNumber = 20;
     private int thisSheetVersion = 1;
+    private int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;
     private final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
 
@@ -134,6 +134,7 @@ public class SheetImpl implements Sheet, Serializable {
                 if (cellBeforeUpdate != null) { //this coordinate already have a cell
                     //get the cells that already depends on the cell\coordinate that is updating - to update their dependsOnMap to reference the updated cell
                     influencingOnMapOfCellThatMightBeUpdated = activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+                    cellBeforeUpdate.calculateNewEffectiveValueAndDetermineIfItChanged();
                 }
 
                 SheetImpl newSheetVersion = copySheet();
@@ -145,12 +146,16 @@ public class SheetImpl implements Sheet, Serializable {
                 }
 
                 Cell newCell = new CellImpl(row, column, value, sheetVersionNumForNewCell, newSheetVersion);
+                if (newSheetVersion.activeCells.containsKey(coordinateOfNewCellOrCellToBeUpdated)) { //the cell existed before
+                    Map<Coordinate, Cell> influencingOnMapOfCopiedCell = newSheetVersion.activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+                    newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCopiedCell);
+                }
                 newSheetVersion.activeCells.put(coordinateOfNewCellOrCellToBeUpdated, newCell);
 
                 //if the cell updated - needs to know who he dependsOn his coordinate - update with influencingOnMap from the cell before the update
-                newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCellThatMightBeUpdated); //if deep copied - it's still needed?
+                //newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCellThatMightBeUpdated); //if deep copied - it's still needed?
 
-                for (Coordinate coordinateOfCellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.keySet()) {
+                for (Coordinate coordinateOfCellThatAlreadyDependsOnThisCoordinate : newCell.getInfluencingOnMap().keySet()) {
                     Cell cellInNewVersionThatAlreadyDependsOnThisCoordinate = newSheetVersion.activeCells.get(coordinateOfCellThatAlreadyDependsOnThisCoordinate);
                     cellInNewVersionThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, newCell);
 
@@ -189,7 +194,6 @@ public class SheetImpl implements Sheet, Serializable {
 
                 try {
                     Expression expression = FunctionParser.parseExpression(newCell.getOriginalValueStr());
-//                    newCell.calculateEffectiveValue();
                 } catch (IllegalArgumentException e) { //in case a function is not recognized or number of arguments is incorrect
 //                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
 //                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
@@ -198,6 +202,18 @@ public class SheetImpl implements Sheet, Serializable {
                     return this;
                 }
 
+                boolean effectiveValueChanged;
+                for (Cell currentCellToCalcEffectiveValue : newSheetVersion.activeCells.values())
+                {
+                    effectiveValueChanged = currentCellToCalcEffectiveValue.calculateNewEffectiveValueAndDetermineIfItChanged();
+                    if (effectiveValueChanged) {
+                        newSheetVersion.numOfCellsWhichEffectiveValueChangedInNewVersion++;
+                    }
+                }
+                //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+
+
+
                 return newSheetVersion;
 
 //                try {
@@ -205,7 +221,7 @@ public class SheetImpl implements Sheet, Serializable {
 //                            newSheetVersion
 //                                    .orderCellsForCalculation()
 //                                    .stream()
-//                                    .filter(Cell::calculateEffectiveValue) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
+//                                    .filter(Cell::calculateNewEffectiveValueAndDetermineIfItChanged) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
 //                                    .collect(Collectors.toList());
 //
 //                    // successful calculation. update sheet and relevant cells version

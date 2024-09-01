@@ -1,6 +1,5 @@
 package shticell;
 
-import shticell.cell.impl.CellImpl;
 import shticell.sheet.api.Sheet;
 import shticell.cell.api.Cell;
 import shticell.sheet.impl.SheetImpl;
@@ -13,8 +12,8 @@ public class Main {
         sheet = sheet.updateCellValueAndCalculate(5, 5, "{REF,B2}", true);
         Cell cell3 = sheet.getCell(5, 5);
         try {
-            cell3.calculateEffectiveValue();
-            Object value3 = cell3.getEffectiveValue().getValue();
+            cell3.calculateNewEffectiveValueAndDetermineIfItChanged();
+            Object value3 = cell3.getCurrentEffectiveValue().getValue();
             System.out.println(value3);
         } catch (Exception e) {
             System.out.println("The cell is empty.");
@@ -31,14 +30,14 @@ public class Main {
 
         Object  value;
         Cell cell = sheet.getCell(1, 1);
-//        cell.calculateEffectiveValue();
-//        Object value = cell.getEffectiveValue().getValue();
-//        System.out.println(value);
+        cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+        value = cell.getCurrentEffectiveValue().getValue();
+        System.out.println(value);
 
         try {
            sheet = sheet.updateCellValueAndCalculate(2, 2, "{PLUS,{REF,C3},4}", true);
             cell = sheet.getCell(2, 2);
-            cell.calculateEffectiveValue();
+            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
@@ -47,7 +46,7 @@ public class Main {
         try {
             sheet = sheet.updateCellValueAndCalculate(3, 3, "{plus,{REF,A1},5}", true);
             cell = sheet.getCell(3, 3);
-            cell.calculateEffectiveValue();
+            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
@@ -56,26 +55,26 @@ public class Main {
 
 
         try {
-            sheet = sheet.updateCellValueAndCalculate(1, 1, "{plus,{REF,B2},3}", true);
+            sheet = sheet.updateCellValueAndCalculate(1, 1, "{plus,{REF,A1},3}", true);
             cell = sheet.getCell(1, 1);
-            cell.calculateEffectiveValue();
+            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        Double result = cell.getEffectiveValue().extractValueWithExpectation(Double.class);
+        Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
         System.out.println("result: " + result);
 
         sheet = sheet.updateCellValueAndCalculate(3,5,"{REF,A1}", true);
         Cell newCell = sheet.getCell(3,5);
-        //newCell.calculateEffectiveValue();
-        System.out.println("The cell A1 has: " + newCell.getEffectiveValue().getValue());
+        //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+        System.out.println("The cell A1 has: " + newCell.getCurrentEffectiveValue().getValue());
 
         sheet = sheet.updateCellValueAndCalculate(4,4, "{concat,{REF,C3}, up}", true);
         Cell cell2 = sheet.getCell(4, 4);
-        cell2.calculateEffectiveValue();
-        value = cell2.getEffectiveValue().getValue();
+        cell2.calculateNewEffectiveValueAndDetermineIfItChanged();
+        value = cell2.getCurrentEffectiveValue().getValue();
         System.out.println("The cell D4 has value: " + value);
     }
 }
@@ -87,8 +86,8 @@ public class Main {
 //        sheet.updateCellValueAndCalculate(5, 5, "{REF,B2}", true);
 //        Cell cell3 = sheet.getCell(5, 5);
 //        try {
-//            cell3.calculateEffectiveValue();
-//            Object value3 = cell3.getEffectiveValue().getValue();
+//            cell3.calculateNewEffectiveValueAndDetermineIfItChanged();
+//            Object value3 = cell3.getCurrentEffectiveValue().getValue();
 //            System.out.println(value3);
 //        } catch (Exception e) {
 //            System.out.println("The cell is empty.");
@@ -104,8 +103,8 @@ public class Main {
 //        sheet.updateCellValueAndCalculate(2, 2, "Hello, World!", true);
 //
 //        Cell cell = sheet.getCell(2, 2);
-//        cell.calculateEffectiveValue();
-//        Object value = cell.getEffectiveValue().getValue();
+//        cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        Object value = cell.getCurrentEffectiveValue().getValue();
 //        System.out.println(value);
 //
 //        sheet.updateCellValueAndCalculate(3, 3, "6", true);
@@ -113,7 +112,7 @@ public class Main {
 //        try {
 //            sheet.updateCellValueAndCalculate(1, 1, "{kop, {REF,D3}, 2}", true);
 //            cell = sheet.getCell(1, 1);
-//            cell.calculateEffectiveValue();
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
 //        }
 //        catch (Exception e) {
 //            System.out.println(e.getMessage());
@@ -122,7 +121,7 @@ public class Main {
 //        try {
 //            sheet.updateCellValueAndCalculate(1, 1, "{plus,5,2,6}", true);
 //            cell = sheet.getCell(1, 1);
-//            cell.calculateEffectiveValue();
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
 //        }
 //        catch (Exception e) {
 //            System.out.println(e.getMessage());
@@ -131,24 +130,24 @@ public class Main {
 //        try {
 //            sheet.updateCellValueAndCalculate(1, 1, "{plus,{REF,B2},3}", true);
 //            cell = sheet.getCell(1, 1);
-//            cell.calculateEffectiveValue();
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
 //        }
 //        catch (Exception e) {
 //            System.out.println(e.getMessage());
 //        }
 //
-//        Double result = cell.getEffectiveValue().extractValueWithExpectation(Double.class);
+//        Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
 //        System.out.println("result: " + result);
 //
 //        sheet.updateCellValueAndCalculate(3,5,"{REF,A1}", true);
 //        Cell newCell = sheet.getCell(3,5);
-//        //newCell.calculateEffectiveValue();
-//        System.out.println("The cell A1 has: " + newCell.getEffectiveValue().getValue());
+//        //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        System.out.println("The cell A1 has: " + newCell.getCurrentEffectiveValue().getValue());
 //
 //        sheet.updateCellValueAndCalculate(4,4, "{concat,{REF,C3}, up}", true);
 //        Cell cell2 = sheet.getCell(4, 4);
-//        cell2.calculateEffectiveValue();
-//        value = cell2.getEffectiveValue().getValue();
+//        cell2.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        value = cell2.getCurrentEffectiveValue().getValue();
 //        System.out.println("The cell D4 has value: " + value);
 //    }
 //}
@@ -162,8 +161,8 @@ public class Main {
 //        sheet.updateCellValueAndCalculate(2, 2, "Hello, World!");
 //
 //        Cell cell = sheet.getCell(2, 2);
-//        cell.calculateEffectiveValue();
-//        Object value = cell.getEffectiveValue().getValue();
+//        cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        Object value = cell.getCurrentEffectiveValue().getValue();
 //        System.out.println(value);
 //
 //        sheet.updateCellValueAndCalculate(3, 3, "5");
@@ -171,13 +170,13 @@ public class Main {
 //
 //        cell = sheet.getCell(1, 1);
 //
-//        cell.calculateEffectiveValue();
-//        Double result = cell.getEffectiveValue().extractValueWithExpectation(Double.class);
+//        cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
 //        System.out.println("result: " + result);
 //
 //        Cell newCell = new CellImpl(3, 5, "{REF,B2}", 0, sheet);
-//        newCell.calculateEffectiveValue();
-//        System.out.println("The cell B2 has: " + newCell.getEffectiveValue().getValue());
+//        newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        System.out.println("The cell B2 has: " + newCell.getCurrentEffectiveValue().getValue());
 //    }
 //}
 
@@ -189,8 +188,8 @@ public class Main {
 //    sheet.updateCellValueAndCalculate(2, 2, "Hello, World!");
 //
 //    Cell cell = sheet.getCell(2, 2);
-//    cell.calculateEffectiveValue();
-//    Object value = cell.getEffectiveValue().getValue();
+//    cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//    Object value = cell.getCurrentEffectiveValue().getValue();
 //    System.out.println(value);
 //
 //    sheet.updateCellValueAndCalculate(1,1, "{plus, {REF,B2}, 2}");
@@ -198,11 +197,11 @@ public class Main {
 //
 //    cell = sheet.getCell(1, 1);
 //
-//    cell.calculateEffectiveValue();
-//    Double result = cell.getEffectiveValue().extractValueWithExpectation(Double.class);
+//    cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//    Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
 //    System.out.println("result: " + result);
 //
 //    Cell newCell = new CellImpl(3, 5, "{REF,B2}", 0, sheet);
-//    newCell.calculateEffectiveValue();
-//    System.out.println("The cell B2 has: " + newCell.getEffectiveValue().getValue());
+//    newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//    System.out.println("The cell B2 has: " + newCell.getCurrentEffectiveValue().getValue());
 //}

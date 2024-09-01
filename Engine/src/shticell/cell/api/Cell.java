@@ -2,15 +2,14 @@ package shticell.cell.api;
 
 import shticell.coordinate.Coordinate;
 
-import java.util.List;
 import java.util.Map;
 
 public interface Cell {
     Coordinate getCoordinate();
     String getOriginalValueStr();
     void setCellOriginalValue(String value);
-    EffectiveValue getEffectiveValue();
-    boolean calculateEffectiveValue();
+    EffectiveValue getCurrentEffectiveValue();
+    boolean calculateNewEffectiveValueAndDetermineIfItChanged();
     int getLastVersionInWhichCellHasChanged();
     Map<Coordinate, Cell> getDependsOnMap();
     Map<Coordinate, Cell> getInfluencingOnMap();

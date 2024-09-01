@@ -1,5 +1,6 @@
 package shticell.expression.parser;
 
+import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.expression.api.Expression;
@@ -29,9 +30,16 @@ public enum FunctionParser {
             else if (isNumeric(actualValue)) {
                 return new IdentityExpression(Double.parseDouble(actualValue), CellType.NUMERIC);
             }
+            else if (isEmptyStringToRepresentEmptyCell(actualValue)) {
+                return new IdentityExpression(actualValue, CellType.Empty);
+            }
             else {
                 return new IdentityExpression(actualValue, CellType.STRING);
             }
+        }
+
+        private boolean isEmptyStringToRepresentEmptyCell(String actualValue) {
+            return actualValue.isEmpty();
         }
 
         private boolean isBoolean(String value) {
