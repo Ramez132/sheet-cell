@@ -16,9 +16,9 @@ public class SheetImpl implements Sheet, Serializable {
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
     private int maxRowNumber = 50;
     private int maxColumnNumber = 20;
-    private int thisSheetVersion = 1;
+    private int thisSheetVersion = 1; //need to update?
     private int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;
-    private final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
+    private static final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
 
     public SheetImpl(int maxRowNumber, int maxColumnNumber, int thisSheetVersion) {

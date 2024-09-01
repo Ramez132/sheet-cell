@@ -27,21 +27,21 @@ public class RefExpression implements Expression {
 
         //handle throwing exceptions if referencedCell references itself or the wanted referencedCell references this referencedCell?
 
-        Cell referencedCell = sheet.getCell(coordinate.getRow(), coordinate.getColumn());
-        Expression expression = FunctionParser.parseExpression(referencedCell.getOriginalValueStr());
-        //need to check if the referencedCell is also of type refExpression
-        if (expression instanceof RefExpression) {
-            RefExpression refExpression = (RefExpression) expression;
-            if (refExpression.coordinate.equals(coordinate)) {
-                throw new IllegalArgumentException("The referencedCell references itself");
-            }
-        }
+//        Cell referencedCell = sheet.getCell(coordinate.getRow(), coordinate.getColumn());
+//        Expression expression = FunctionParser.parseExpression(referencedCell.getOriginalValueStr());
+//        //need to check if the referencedCell is also of type refExpression
+//        if (expression instanceof RefExpression) {
+//            RefExpression refExpression = (RefExpression) expression;
+//            if (refExpression.coordinate.equals(coordinate)) {
+//                throw new IllegalArgumentException("The referencedCell references itself");
+//            }
+//        }
 
         try {
             boolean isCoordinateInSheetRange = sheet.isCoordinateInSheetRange(coordinate.getRow(), coordinate.getColumn());
         }
         catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("The referencedCell is not in the sheet range" + e.getMessage());
+            throw new IllegalArgumentException("The referenced cell is not in the sheet range" + e.getMessage());
         }
 
         if (sheet.isCellEmpty(coordinate.getRow(), coordinate.getColumn())) { //change it because implemented logic for empty cell?

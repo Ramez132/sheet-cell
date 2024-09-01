@@ -16,7 +16,7 @@ public class Main {
             Object value3 = cell3.getCurrentEffectiveValue().getValue();
             System.out.println(value3);
         } catch (Exception e) {
-            System.out.println("The cell is empty.");
+            System.out.println("The cell 5,5 is empty.");
         }
 
 
@@ -24,7 +24,7 @@ public class Main {
             sheet = sheet.updateCellValueAndCalculate(51, 51, "{REF,Z51}", true);
         }
         catch (IllegalArgumentException e) {
-            System.out.println("The cell is out of range.");
+            System.out.println("The cell 51,51 is out of range.");
         }
         sheet = sheet.updateCellValueAndCalculate(1, 1, "{Plus,{REF,B2},5}", true);
 
@@ -32,12 +32,14 @@ public class Main {
         Cell cell = sheet.getCell(1, 1);
         cell.calculateNewEffectiveValueAndDetermineIfItChanged();
         value = cell.getCurrentEffectiveValue().getValue();
-        System.out.println(value);
+        System.out.println("value of cell A1: " + value);
 
         try {
            sheet = sheet.updateCellValueAndCalculate(2, 2, "{PLUS,{REF,C3},4}", true);
             cell = sheet.getCell(2, 2);
             cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+            value = cell.getCurrentEffectiveValue().getValue();
+            System.out.println("value of cell B2: " + value);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());

@@ -27,7 +27,7 @@ public class CellImpl implements Cell, Serializable {
 //    private final List<Cell> dependsOnMap;
 //    private final List<Cell> influencingOnMap;
     private final Sheet sheet;
-    private final int versionNumForEmptyCellWithoutPreviousValues = -1;
+    private static final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
 
     public CellImpl(int row, int column, String originalValueStr,
