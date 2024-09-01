@@ -3,9 +3,10 @@ package shticell.cell.impl;
 import shticell.cell.api.CellType;
 import shticell.cell.api.EffectiveValue;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class EffectiveValueImpl implements EffectiveValue {
+public class EffectiveValueImpl implements EffectiveValue, Serializable {
 
     private CellType cellType;
     private Object value;

@@ -1,5 +1,6 @@
 package shticell.expression.parser;
 
+import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.expression.api.Expression;
@@ -21,16 +22,24 @@ public enum FunctionParser {
             }
 
             // all is good. create the relevant function instance
-            String actualValue = arguments.get(0).trim();
+            ///    String actualValue = arguments.get(0).trim(); //should we trim or not?
+            String actualValue = arguments.get(0); //should we trim or not? if not - what happens?
             if (isBoolean(actualValue)) {
                 return new IdentityExpression(Boolean.parseBoolean(actualValue), CellType.BOOLEAN);
             }
             else if (isNumeric(actualValue)) {
                 return new IdentityExpression(Double.parseDouble(actualValue), CellType.NUMERIC);
             }
+            else if (isEmptyStringToRepresentEmptyCell(actualValue)) {
+                return new IdentityExpression(actualValue, CellType.Empty);
+            }
             else {
                 return new IdentityExpression(actualValue, CellType.STRING);
             }
+        }
+
+        private boolean isEmptyStringToRepresentEmptyCell(String actualValue) {
+            return actualValue.isEmpty();
         }
 
         private boolean isBoolean(String value) {
@@ -121,7 +130,7 @@ public enum FunctionParser {
             }
 
             // verify indeed argument represents a reference to a cell and create a Coordinate instance. if not ok returns a null. need to verify it
-            Coordinate target = CoordinateFactory.from(arguments.get(0).trim());
+            Coordinate target = CoordinateFactory.getCoordinateFromStr(arguments.get(0).trim());
             if (target == null) {
                 throw new IllegalArgumentException("Invalid argument for REF function. Expected a valid cell reference, but got " + arguments.get(0));
             }
@@ -198,7 +207,6 @@ public enum FunctionParser {
             return new PowExpression(base, exponent);
         }
     },
-
     MODULO {
         @Override
         public Expression parse(List<String> arguments) {
@@ -223,7 +231,6 @@ public enum FunctionParser {
             return new ModuloExpression(dividend, divisor);
         }
     },
-
     DIVIDE {
         @Override
         public Expression parse(List<String> arguments) {
@@ -247,6 +254,32 @@ public enum FunctionParser {
             // Create and return the DivideExpression
             return new DivideExpression(dividend, divisor);
         }
+    },
+    CONCAT {
+        @Override
+        public Expression parse(List<String> arguments) {
+            // Ensure there are at least two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for CONCAT function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            List<Expression> expressions = new ArrayList<>();
+            for (String argument : arguments) {
+                expressions.add(parseExpression(argument));
+            }
+
+            // Validate that the arguments are strings or unknown
+            for (Expression currentExpression : expressions) {
+                CellType expressionCellType = currentExpression.getFunctionResultType();
+                if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
+                    throw new IllegalArgumentException("Invalid argument types for CONCAT function. Expected STRING, but got " + expressionCellType);
+                }
+            }
+
+            // Create and return the ConcatExpression
+            return new ConcatExpression(expressions.get(0), expressions.get(1));
+        }
     }
     ;
 
@@ -264,12 +297,52 @@ public enum FunctionParser {
 
             //remove the first element from the array
             topLevelParts.remove(0);
+            if (!isValidFunctionName(functionName)) {
+                throw new IllegalArgumentException("Invalid function name: " + functionName);
+            }
             return FunctionParser.valueOf(functionName).parse(topLevelParts);
+            //valueOf - If the name does not match any existing enum constant, it throws an IllegalArgumentException.
+            //should we through an exception if the function name is not found?
+
+            //where do I check if the number of arguments is correct?
         }
 
         // handle identity expression
-        return FunctionParser.IDENTITY.parse(List.of(input.trim()));
+        ///////         return FunctionParser.IDENTITY.parse(List.of(input.trim())); //should we trim or not?
+        return FunctionParser.IDENTITY.parse(List.of(input)); //should we trim or not?
     }
+
+
+    public static boolean isValidFunctionName(String functionName) {
+
+        boolean isValidFuncName;
+
+        if (functionName == null) {
+            isValidFuncName = false;
+        }
+        try {
+            FunctionParser.valueOf(functionName);
+            isValidFuncName = true;
+        } catch (IllegalArgumentException e) {
+            isValidFuncName = false;
+        }
+
+        return isValidFuncName;
+    }
+
+//    public class EnumUtils {
+//    public static <T extends Enum<T>> boolean isValidEnum(Class<T> enumClass, String enumName) {
+//        if (enumName == null) {
+//            return false;
+//        }
+//        try {
+//            Enum.valueOf(enumClass, enumName);
+//            return true;
+//        } catch (IllegalArgumentException e) {
+//            return false;
+//        }
+//    }
+//}
 
     private static List<String> parseMainParts(String input) {
         List<String> parts = new ArrayList<>();
@@ -285,7 +358,8 @@ public enum FunctionParser {
 
             if (c == ',' && stack.isEmpty()) {
                 // If we are at a comma and the stack is empty, it's a separator for top-level parts
-                parts.add(buffer.toString().trim());
+                //////////   parts.add(buffer.toString().trim());  //should we trim or not?
+                parts.add(buffer.toString());  //should we trim or not?
                 buffer.setLength(0); // Clear the buffer for the next part
             } else {
                 buffer.append(c);
@@ -294,7 +368,8 @@ public enum FunctionParser {
 
         // Add the last part
         if (buffer.length() > 0) {
-            parts.add(buffer.toString().trim());
+            /////// parts.add(buffer.toString().trim());  //should we trim or not?
+            parts.add(buffer.toString());  //should we trim or not?
         }
 
         return parts;
