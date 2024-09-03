@@ -140,6 +140,11 @@ public class SheetImpl implements Sheet, Serializable {
     }
 
     @Override
+    public Map<Coordinate, Cell> getActiveCells() {
+        return activeCells;
+    }
+
+    @Override
     public Sheet updateCellValueAndCalculate
                         (int row, int column, String value,
                          boolean isUpdatePartOfSheetInitialization)

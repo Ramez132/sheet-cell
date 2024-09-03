@@ -30,6 +30,10 @@ public class CoordinateFactory {
 //        }
 //    }
 
+    public static Coordinate getCoordinate(int row, int column) {
+        return createCoordinate(row, column);
+    }
+
     public static Coordinate getCoordinateFromStr(String rowAndColStr) {
 
         int columnNumFromChar, rowNum, firstIndex = 0;
