@@ -14,17 +14,23 @@ import java.util.*;
 public class SheetImpl implements Sheet, Serializable {
 
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
-    private int maxRowNumber = 50;
-    private int maxColumnNumber = 20;
+    private String nameOfSheet;
+    private int numOfRows;
+    private int numbOfColumns;
+    private int rowHeight;
+    private int columnWidth;
     private int thisSheetVersion = 1; //need to update?
     private int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
 
-    public SheetImpl(int maxRowNumber, int maxColumnNumber, int thisSheetVersion) {
+    public SheetImpl(String nameOfSheet, int numOfRows, int numbOfColumns, int rowHeight, int columnWidth, int thisSheetVersion) {
         this();
-        this.maxRowNumber = maxRowNumber;
-        this.maxColumnNumber = maxColumnNumber;
+        this.nameOfSheet = nameOfSheet;
+        this.numOfRows = numOfRows;
+        this.numbOfColumns = numbOfColumns;
+        this.rowHeight = rowHeight;
+        this.columnWidth = columnWidth;
         this.thisSheetVersion = thisSheetVersion;
     }
 
@@ -33,18 +39,33 @@ public class SheetImpl implements Sheet, Serializable {
     }
 
     @Override
+    public String getNameOfSheet() {
+        return nameOfSheet;
+    }
+
+    @Override
     public int getVersion() {
         return thisSheetVersion;
     }
 
     @Override
-    public int getMaximumRowNumber() {
-        return maxRowNumber;
+    public int getNumOfRows() {
+        return numOfRows;
     }
 
     @Override
-    public int getMaximumColumnNumber() {
-        return maxColumnNumber;
+    public int getNumOfColumns() {
+        return numbOfColumns;
+    }
+
+    @Override
+    public int getColumnWidth() {
+        return columnWidth;
+    }
+
+    @Override
+    public int getRowHeight() {
+        return rowHeight;
     }
 
     @Override
@@ -67,10 +88,10 @@ public class SheetImpl implements Sheet, Serializable {
     @Override
     public boolean isCoordinateInSheetRange(int row, int column) throws IllegalArgumentException {
 
-        if (row > maxRowNumber) {
+        if (row > numOfRows) {
             throw new IllegalArgumentException("Row number provided is greater than the maximum row number of the sheet");
         }
-        if (column > maxColumnNumber) {
+        if (column > numbOfColumns) {
             throw new IllegalArgumentException("Column number provided is greater than the maximum column number of the sheet");
         }
         if (row < 1) {
@@ -199,7 +220,11 @@ public class SheetImpl implements Sheet, Serializable {
 //                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
 //                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
 //                    }
-                    return this;
+                    if (isUpdatePartOfSheetInitialization)
+                        throw new IllegalArgumentException("The file could not be loaded - there is an error in cell " + newCell.getCoordinate().toString()
+                                + ": " + e.getMessage());
+                    else
+                        return this;
                 }
 
                 boolean effectiveValueChanged;

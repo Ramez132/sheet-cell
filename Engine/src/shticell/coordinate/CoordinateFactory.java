@@ -33,7 +33,7 @@ public class CoordinateFactory {
     public static Coordinate getCoordinateFromStr(String rowAndColStr) {
 
         int columnNumFromChar, rowNum, firstIndex = 0;
-        char letterChar = rowAndColStr.charAt(firstIndex);
+        char letterChar = rowAndColStr.toUpperCase().charAt(firstIndex);
 
         if (rowAndColStr.length() <= 1) {
             throw new IllegalArgumentException("Row and column string must be longer than 1 character.");
@@ -43,7 +43,7 @@ public class CoordinateFactory {
             columnNumFromChar = letterChar - 'A' + 1;
         } else {
             throw new IllegalArgumentException
-                ("First character, representing a column number, must be a capital letter from A to T (for columns 1 to 20)");
+                ("First character, representing a column number, must be a letter from A to T (for columns 1 to max 20)");
         }
 
         String numberPart = rowAndColStr.substring(1);
@@ -59,6 +59,4 @@ public class CoordinateFactory {
 
         return createCoordinate(rowNum,columnNumFromChar);
     }
-
-
 }

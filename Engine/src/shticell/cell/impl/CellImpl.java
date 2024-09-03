@@ -48,26 +48,27 @@ public class CellImpl implements Cell, Serializable {
         //List<int[]> indices = new ArrayList<>();
         List<Integer> indicesAfterRefAndComma = new ArrayList<>();
         List<String> rowAndColStringsAfterRef = new ArrayList<>();
-        String refAndCommaSTR = "REF,";
+        String upperCaseRefAndCommaSTR = "REF,";
+        String upperCaseOriginalStr = originalValueStr.toUpperCase();
 
-        if (!originalValueStr.contains(refAndCommaSTR))
+        if (!upperCaseOriginalStr.contains(upperCaseRefAndCommaSTR))
             return;
 
-//        int startIndex = originalValueStr.indexOf(refAndCommaSTR);
+//        int startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR);
 //
 //        while (startIndex != -1) {
-//            firstIndexAfterRef = startIndex + refAndCommaSTR.length();
+//            firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
 //            indices.add(new int[]{startIndex, firstIndexAfterRef});
-//            startIndex = originalValueStr.indexOf(refAndCommaSTR, firstIndexAfterRef);
+//            startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
 //        }
 
-        int startIndex = originalValueStr.indexOf(refAndCommaSTR);
+        int startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR);
         int firstIndexAfterRef;
 
         while (startIndex != -1) {
-            firstIndexAfterRef = startIndex + refAndCommaSTR.length();
+            firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
             indicesAfterRefAndComma.add(firstIndexAfterRef);
-            startIndex = originalValueStr.indexOf(refAndCommaSTR, firstIndexAfterRef);
+            startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
         }
 
         for (int index : indicesAfterRefAndComma) {
@@ -75,9 +76,9 @@ public class CellImpl implements Cell, Serializable {
             int indexAfterRefWithComma = index;
             StringBuilder rowAndColStr = new StringBuilder();
 
-            while (indexAfterRefWithComma < originalValueStr.length()
-                    && originalValueStr.charAt(indexAfterRefWithComma) != '}') {
-                rowAndColStr.append(originalValueStr.charAt(indexAfterRefWithComma));
+            while (indexAfterRefWithComma < upperCaseOriginalStr.length()
+                    && upperCaseOriginalStr.charAt(indexAfterRefWithComma) != '}') {
+                rowAndColStr.append(upperCaseOriginalStr.charAt(indexAfterRefWithComma));
                 indexAfterRefWithComma++;
             }
 
