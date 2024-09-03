@@ -38,4 +38,10 @@ public class CoordinateImpl implements Coordinate, Serializable {
         result = 31 * result + column;
         return result;
     }
+
+    @Override
+    public String toString() {
+        String columnLetter = Character.toString((char) (column - 1 + 'A'));
+        return columnLetter + row;
+    }
 }

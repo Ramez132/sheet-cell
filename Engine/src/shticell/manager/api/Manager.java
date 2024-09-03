@@ -4,7 +4,7 @@ import shticell.cell.api.Cell;
 import shticell.sheet.api.Sheet;
 
 public interface Manager {
-    Sheet getSheetFromFile(String fileName);
+    Sheet getSheetFromFile(String fileName) throws Exception;
     Sheet getMostRecentSheet();
     //Sheet displaySheet(Sheet sheet);
     Cell getCellFromSheet(Sheet sheet, int row, int col);

@@ -1,6 +1,7 @@
 package shticell.manager.impl;
 
 import shticell.cell.api.Cell;
+import shticell.jaxb.SheetFromFilesFactory;
 import shticell.manager.api.Manager;
 import shticell.sheet.api.Sheet;
 
@@ -10,20 +11,32 @@ import java.util.NoSuchElementException;
 
 public class ManagerImpl implements Manager {
     private List<Sheet> sheetVersionsArray;
+    private Sheet currentSheet;
 
     public ManagerImpl() {
         this.sheetVersionsArray = new ArrayList<Sheet>();
     }
 
     @Override
-    public Sheet getSheetFromFile(String fileName) {
+    public Sheet getSheetFromFile(String fileName) throws Exception {
         // check if the name ends with .xml - > not? throw an exception
+        if (!fileName.endsWith(".xml")) {
+            throw new IllegalArgumentException("The file must be in XML format.");
+        }
+        try {
+            currentSheet = SheetFromFilesFactory.CreateSheetObjectFromXmlFile(fileName);
+            sheetVersionsArray.clear();
+            sheetVersionsArray.add(currentSheet);
+        }
+        catch (Exception e) {
+            throw e;
+        }
         // try to open the file - > fails? throw an exception
         // make the file go through auto-generated classes
         // check parameters - i.e. all cells in sheet range - > fails? throw an exception
         // if all is good - clear sheetVersionsArray and add the new sheet to the array
 
-        return null;
+        return sheetVersionsArray.getLast();
     }
 
     @Override
