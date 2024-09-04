@@ -245,9 +245,6 @@ public class ConsoleUiManager {
         }
     }
 
-
-
-
     public void Run() {
         boolean goOn = true;
         do {
