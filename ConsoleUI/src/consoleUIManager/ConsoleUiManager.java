@@ -13,6 +13,7 @@ import shticell.coordinate.CoordinateFactory;
 import shticell.manager.api.Manager;
 import shticell.manager.impl.ManagerImpl;
 import shticell.sheet.api.Sheet;
+import shticell.sheet.impl.SheetImpl;
 
 public class ConsoleUiManager {
 
@@ -121,35 +122,36 @@ public class ConsoleUiManager {
 //        return false;
 //    }
 
-//    private String selectCell(){
-//        System.out.println("Enter the desired cell identity");
-//        String coordinate = scanner.nextLine();
-//        while(!CoordinateFactory.isValidCoordinate(coordinate)
-//                || Integer.parseInt(coordinate.substring(1)) > manager.getSheet().numberOfColumns()){
-//
-//            System.out.println("Cell " + coordinate + " does not exists");
-//            System.out.println("Enter the desired cell identity");
-//            coordinate = scanner.nextLine();
-//        }
-//
-//        return coordinate;
-//    }
+    private Coordinate selectCell(){
+        System.out.println("Enter the desired cell identity");
+        String coordinate = scanner.nextLine();
+        Coordinate realCoordinate = CoordinateFactory.getCoordinateFromStr(coordinate);
+        while(!manager.getMostRecentSheet().isCoordinateInSheetRange(realCoordinate.getRow(), realCoordinate.getColumn())) {
+
+            System.out.println("Cell " + coordinate + " does not exists");
+            System.out.println("Enter the desired cell identity");
+            coordinate = scanner.nextLine();
+            realCoordinate = CoordinateFactory.getCoordinateFromStr(coordinate);
+        }
+
+        return realCoordinate;
+    }
 
 //    private void printCellValue(){
 //        String cell = selectCell();
 //        System.out.println(manager.GetCellByCoordinate(cell));
 //    }
 //
-//    private void insertData(){
-//        String cell = selectCell();
-//        System.out.println("Enter the desired cell data");
-//        try {
-//            manager.UpdateCellByIndex(cell, scanner.nextLine());
-//        }
-//        catch (Exception e){
-//            System.out.println(e.getMessage());
-//        }
-//    }
+    private void insertData(){
+        String cell = selectCell();
+        System.out.println("Enter the desired cell data");
+        try {
+            manager.updateValueOfCellAndDisplayNewSheet(cell, scanner.nextLine());
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
 
 //    private void showCountOfChangesPerVersions(List<Integer> countsOfChangesPerVersion) {
 //        System.out.println("Count of Changes Per Version:");
@@ -199,17 +201,19 @@ public class ConsoleUiManager {
         }
     }
     //
-    private void createMangerFromFile() throws Exception{
-        System.out.println("Enter File Path");
-        String fileDirectory = scanner.nextLine();
-        try {
-            manager = new ManagerImpl();
-            manager.getSheetFromFile(fileDirectory);
-        }
-        catch (Exception e){
-            throw e;
-        }
-    }
+//    private void createMangerFromFile() throws Exception{
+//        System.out.println("Enter File Path");
+//        String fileDirectory = scanner.nextLine();
+//        try {
+//            manager = new ManagerImpl();
+//            manager.getSheetFromFile(fileDirectory);
+//        }
+//        catch (Exception e){
+//            throw e;
+//        }
+//    }
+
+
 
 
 //    private void createManger(){
@@ -218,32 +222,32 @@ public class ConsoleUiManager {
 //        manager = new Controller(new SheetDto(sheetName,VERSION,NUM_OF_ROWS,NUM_OF_COLS,COLS_WIDTH,ROWS_HEIGHT));
 //    }
 
-    void FirstMenuRun() {
-        Scanner scanner = new Scanner(System.in);
-        boolean validSelection = false;
-        while (!validSelection) {
-            try {
-                MainMenu.PrintMenu();
-                System.out.print("Please select an option (1-6): ");
-                String choice = scanner.nextLine();
-                switch (choice) {
-                    case "1":
-                        createMangerFromFile();
-                        validSelection = true;
-                        break;
-                    case "6":
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Invalid selection. Please choose a number between 1 and 4.");
-                        break;
-                }
-            }
-            catch (Exception e) {
-                System.out.println("Invalid Path");
-            }
-        }
-    }
+//    void FirstMenuRun() {
+//        Scanner scanner = new Scanner(System.in);
+//        boolean validSelection = false;
+//        while (!validSelection) {
+//            try {
+//                MainMenu.PrintMenu();
+//                System.out.print("Please select an option (1-6): ");
+//                String choice = scanner.nextLine();
+//                switch (choice) {
+//                    case "1":
+//                        createMangerFromFile();
+//                        validSelection = true;
+//                        break;
+//                    case "6":
+//                        System.exit(0);
+//                        break;
+//                    default:
+//                        System.out.println("Invalid selection. Please choose a number between 1 and 4.");
+//                        break;
+//                }
+//            }
+//            catch (Exception e) {
+//                System.out.println("Invalid Path");
+//            }
+//        }
+//    }
 
     public void Run() {
         boolean goOn = true;

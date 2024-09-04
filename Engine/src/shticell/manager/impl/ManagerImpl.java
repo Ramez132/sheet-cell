@@ -56,14 +56,14 @@ public class ManagerImpl implements Manager {
 //    }
 
     @Override
-    public Cell getCellFromSheet(Sheet sheet, int row, int column) {
-        return sheet.getCell(row, column); //is it the expected behavior?
+    public Cell getCellFromSheet(int row, int column) {
+        return sheetVersionsArray.getLast().getCell(row, column); //is it the expected behavior?
     }
 
     @Override
-    public Sheet updateValueOfCellAndDisplayNewSheet(Sheet sheet, int row, int col, String value) throws RuntimeException {
+    public Sheet updateValueOfCellAndDisplayNewSheet(int row, int col, String value) throws RuntimeException {
         try {
-            return sheet.updateCellValueAndCalculate(row, col, value, false);
+            return sheetVersionsArray.getLast().updateCellValueAndCalculate(row, col, value, false);
         }
         catch (Exception e) { //should we catch a more specific Exception? could there be a few types?
             throw new RuntimeException(e);

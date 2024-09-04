@@ -7,8 +7,8 @@ public interface Manager {
     Sheet getSheetFromFile(String fileName) throws Exception;
     Sheet getMostRecentSheet();
     //Sheet displaySheet(Sheet sheet);
-    Cell getCellFromSheet(Sheet sheet, int row, int col);
-    Sheet updateValueOfCellAndDisplayNewSheet(Sheet sheet, int row, int col, String value);
+    Cell getCellFromSheet(int row, int col);
+    Sheet updateValueOfCellAndDisplayNewSheet(int row, int col, String value);
     Sheet getSheetOfSpecificVersion(int version);
     int getLatestVersionNumber();
 }
