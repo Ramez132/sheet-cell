@@ -1,6 +1,8 @@
 package shticell.coordinate;
 
-public class CoordinateImpl implements Coordinate {
+import java.io.Serializable;
+
+public class CoordinateImpl implements Coordinate, Serializable {
     private final int row;
     private final int column;
 
@@ -35,5 +37,11 @@ public class CoordinateImpl implements Coordinate {
         int result = row;
         result = 31 * result + column;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        String columnLetter = Character.toString((char) (column - 1 + 'A'));
+        return columnLetter + row;
     }
 }

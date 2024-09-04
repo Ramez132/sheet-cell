@@ -1,10 +1,13 @@
 package shticell.cell.api;
 
-public enum CellType {
+import java.io.Serializable;
+
+public enum CellType implements Serializable {
 
     NUMERIC(Double.class) ,
     STRING(String.class) ,
     BOOLEAN(Boolean.class),
+    Empty(Void.class),   //???
     UNKNOWN(Void.class);
 
     private Class<?> type;
