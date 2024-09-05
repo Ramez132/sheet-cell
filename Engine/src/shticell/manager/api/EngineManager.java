@@ -6,7 +6,6 @@ import shticell.sheet.api.Sheet;
 public interface EngineManager {
     Sheet getSheetFromFile(String fileName) throws Exception;
     Sheet getMostRecentSheet();
-    //Sheet displaySheet(Sheet sheet);
 
     /**
      * Returns a cell from the most recent sheet.
@@ -24,5 +23,4 @@ public interface EngineManager {
     Sheet getSheetOfSpecificVersion(int version);
     int getLatestVersionNumber();
     boolean isThereASheetLoadedToTheSystem();
-//    boolean isCoordinateInMostRecentSheetRange(int row, int col);
 }

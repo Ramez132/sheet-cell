@@ -22,16 +22,6 @@ public class CoordinateFactory {
         return coordinate;
     }
 
-//    public static Coordinate from(String trim) {
-//        try {
-//            cell_id = trim.toUpperCase();
-//            int[] parts = convertCellIdToIndex(cell_id);
-//            return createCoordinate(parts[0], parts[1]);
-//        } catch (NumberFormatException e) {
-//            return null;
-//        }
-//    }
-
     public static Coordinate getCoordinate(int row, int column) {
         return createCoordinate(row, column);
     }

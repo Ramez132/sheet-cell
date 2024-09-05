@@ -25,8 +25,6 @@ public class CellImpl implements Cell, Serializable {
     private int lastVersionInWhichCellHasChanged = -1;
     private Map<Coordinate, Cell> dependsOnMap;
     private Map<Coordinate, Cell> influencingOnMap;
-//    private final List<Cell> dependsOnMap;
-//    private final List<Cell> influencingOnMap;
     private final Sheet sheet;
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
@@ -47,7 +45,6 @@ public class CellImpl implements Cell, Serializable {
     public void handleOriginalValueStrWithRef() {
 
         try {
-            //List<int[]> indices = new ArrayList<>();
             List<Integer> indicesAfterRefAndComma = new ArrayList<>();
             List<String> rowAndColStringsAfterRef = new ArrayList<>();
             String upperCaseRefAndCommaSTR = "REF,";
@@ -55,14 +52,6 @@ public class CellImpl implements Cell, Serializable {
 
             if (!upperCaseOriginalStr.contains(upperCaseRefAndCommaSTR))
                 return;
-
-//        int startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR);
-//
-//        while (startIndex != -1) {
-//            firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
-//            indices.add(new int[]{startIndex, firstIndexAfterRef});
-//            startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
-//        }
 
             int startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR);
             int firstIndexAfterRef;
@@ -108,8 +97,6 @@ public class CellImpl implements Cell, Serializable {
 
                     referencedCell.getInfluencingOnMap().put(this.getCoordinate(), this);
                     this.dependsOnMap.put(referencedCell.getCoordinate(), referencedCell);
-//            referencedCell.getInfluencingOnMap().add(this);
-//            this.dependsOnMap.add(referencedCell);
                 }
 
                 catch(IllegalArgumentException e){
@@ -120,10 +107,6 @@ public class CellImpl implements Cell, Serializable {
         catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-//        catch (Exception e) {
-//            throw new IllegalArgumentException("Error - The original value string is not in the correct format: " + e.getMessage());
-//        }
-
     }
 
     @Override
@@ -148,9 +131,6 @@ public class CellImpl implements Cell, Serializable {
 
     @Override
     public EffectiveValue getCurrentEffectiveValue() {
-//        if (currentEffectiveValue == null) { //is it the proper impl?
-//            calculateNewEffectiveValueAndDetermineIfItChanged();
-//        }
         return currentEffectiveValue;
     }
 
@@ -166,11 +146,6 @@ public class CellImpl implements Cell, Serializable {
 
     @Override
     public boolean calculateNewEffectiveValueAndDetermineIfItChanged() {
-        // build the expression object out of the original value...
-        // it can be {PLUS, 4, 5} OR {CONCAT, {ref, A4}, world}
-//        if (originalValueStr.isEmpty()) {
-//            throw new IllegalArgumentException("Error - The cell doesn't have an original value so there is no effective value to calculate.");
-//        }
         try {
             Expression expression = FunctionParser.parseExpression(originalValueStr, sheet);
 
@@ -204,18 +179,6 @@ public class CellImpl implements Cell, Serializable {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error - The original value string is not in the correct format: " + e.getMessage());
         }
-
-
-//        if (newEffectiveValue.getCellType() == CellType.Empty) { //if the cell is empty, null will represent it's effective value
-//            newEffectiveValue = null;
-//        }
-//
-//        if (newEffectiveValue.equals(currentEffectiveValue)) {
-//            return false;
-//        } else {
-//            currentEffectiveValue = newEffectiveValue;
-//            return true;
-//        }
     }
 
     @Override

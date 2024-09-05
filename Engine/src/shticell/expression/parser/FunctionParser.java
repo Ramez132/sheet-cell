@@ -124,9 +124,6 @@ public enum FunctionParser {
                 throw new IllegalArgumentException("There is a referenced cell which is not in the sheet range: " + e.getMessage());
             }
 
-            // should verify if the coordinate is within boundaries of the sheet ?
-            // ...
-
             return new RefExpression(target);
         }
     },
@@ -335,12 +332,8 @@ public enum FunctionParser {
             return FunctionParser.valueOf(functionName).parse(topLevelParts, sheet);
             //valueOf - If the name does not match any existing enum constant, it throws an IllegalArgumentException.
             //should we through an exception if the function name is not found?
-
-            //where do I check if the number of arguments is correct?
         }
 
-        // handle identity expression
-        ///////         return FunctionParser.IDENTITY.parse(List.of(input.trim())); //should we trim or not?
         return FunctionParser.IDENTITY.parse(List.of(input), sheet); //should we trim or not?
     }
 
@@ -361,20 +354,6 @@ public enum FunctionParser {
 
         return isValidFuncName;
     }
-
-//    public class EnumUtils {
-//    public static <T extends Enum<T>> boolean isValidEnum(Class<T> enumClass, String enumName) {
-//        if (enumName == null) {
-//            return false;
-//        }
-//        try {
-//            Enum.valueOf(enumClass, enumName);
-//            return true;
-//        } catch (IllegalArgumentException e) {
-//            return false;
-//        }
-//    }
-//}
 
     private static List<String> parseMainParts(String input) {
         List<String> parts = new ArrayList<>();
@@ -406,20 +385,5 @@ public enum FunctionParser {
 
         return parts;
     }
-
-//    public static void main(String[] args) {
-//
-//        //String input = "plus, {plus, 1, 2}, {plus, 1, {plus, 1, 2}}";
-////        String input = "1";
-////        parseMainParts(input).forEach(System.out::println);
-//
-////        String input = "{plus, 1, 2}";
-//        String input = "{plus, {minus, 44, 22}, {plus, 1, 2}}";
-////        String input = "{upper_case, hello world}";
-////        String input = "4";
-//        Expression expression = parseExpression(input);
-//        EffectiveValue result = expression.eval(null);
-//        System.out.println("result: " + result.getValue() + " of type " + result.getCellType());
-//    }
 
 }

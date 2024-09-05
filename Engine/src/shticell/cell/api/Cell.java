@@ -16,8 +16,6 @@ public interface Cell {
     void setLastVersionInWhichCellHasChanged(int version);
     Map<Coordinate, Cell> getDependsOnMap();
     Map<Coordinate, Cell> getInfluencingOnMap();
-    //List<Cell> getDependsOnMap();
-    //List<Cell> getInfluencingOnMap();
     boolean getIsCellEmptyBoolean();
     void insertInfluencingOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> influencingOnMap);
 }

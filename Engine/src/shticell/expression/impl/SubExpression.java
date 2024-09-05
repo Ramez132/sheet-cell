@@ -59,23 +59,6 @@ public class SubExpression implements Expression {
             return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
         }
 
-//        EffectiveValue startIndexDoubleValue = start_index.eval(sheet);
-//        EffectiveValue endIndexDoubleValue = end_index.eval(sheet);
-
-//        // Convert the values to appropriate types
-//        String source_string = sourceValue.extractValueWithExpectation(String.class);
-//        Double converted_start_index = startIndexEffectiveValue.extractValueWithExpectation(Double.class);
-//        Double converted_end_index = endIndexEffectiveValue.extractValueWithExpectation(Double.class);
-
-//        // Check for type conversion issues
-//        if (source_string == null) {
-//            throw new IllegalArgumentException("Error: The sourceStrExpression provided to the SUB function is not a valid string. " +
-//                    "Please ensure that the sourceStrExpression argument is a valid string value.");
-//        }
-//        if (converted_start_index == null || converted_end_index == null) {
-//            throw new IllegalArgumentException("Error: The start or end index provided to the SUB function is not numeric. " +
-//                    "Please ensure that both indices are valid numeric values.");
-//        }
         if (startIndexDoubleValue % 1 != 0 || endIndexDoubleValue % 1 != 0) {
             return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
         }

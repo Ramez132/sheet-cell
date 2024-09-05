@@ -182,7 +182,6 @@ public class SheetImpl implements Sheet, Serializable {
                     newSheetVersion.thisSheetVersion = sheetVersionNumForNewCell = 1;;
                 }
                 else {
-                    //sheetVersionNumForNewCell = lastVersionInWhichCellBeforeUpdateHasChanged;
                     newSheetVersion.thisSheetVersion = sheetVersionNumForNewCell = this.thisSheetVersion + 1;
                 }
 
@@ -206,33 +205,8 @@ public class SheetImpl implements Sheet, Serializable {
                     newCell.getInfluencingOnMap().put(coordinateOfCellThatAlreadyDependsOnThisCoordinate, cellInNewVersionThatAlreadyDependsOnThisCoordinate);
                 }
 
-//                //updating dependsOnMap of cells that reference this coordinate - to reference the new cell object
-//                for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
-//                    cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, newCell);
-//                }
-//                //what happens if the update fails? reverts this change - so the cells will reference the cell object from before the update
-
-//                Map<Coordinate,Cell> influencingOnMapOfNewCell = newCell.getInfluencingOnMap();
-
-//                for (Cell influencedCell : influencingOnMapOfNewCell.values()) { //update dependsOnMap of to reference the newCell
-//                   Map<Coordinate, Cell> dependsOnMapOfInfluencedCell = influencedCell.getDependsOnMap();
-//                    dependsOnMapOfInfluencedCell.put(newCell.getCoordinate(), newCell);
-//                }
-//
-//                for (Map.Entry<Coordinate, Cell> entry : influencingOnMapOfNewCell.entrySet()) {
-//                    Coordinate influencingOnCoordinate = entry.getKey();
-//                    Cell influencingOnCell = entry.getValue();
-//                    if (newSheetVersion.isCellsCollectionContainsCoordinate(influencingOnCoordinate.getRow(), influencingOnCoordinate.getColumn())) {
-//                        newSheetVersion.activeCells.put(influencingOnCoordinate, influencingOnCell);
-//                    }
-//                }
-
                 Map<Cell, List<Cell>> adjacencyList = newSheetVersion.buildGraphAdjacencyList();
                 if (newSheetVersion.hasCycle(adjacencyList)) {
-//                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
-//                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
-//                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
-//                    }
                     throw new IllegalArgumentException("Could not update the value of cell: " + coordinateOfNewCellOrCellToBeUpdated +
                             ". The requested update would cause the sheet to have a circular dependencies, and that is not allowed in this system."); //this is what we want to do?
                 }
@@ -240,10 +214,6 @@ public class SheetImpl implements Sheet, Serializable {
                 try {
                     Expression expression = FunctionParser.parseExpression(newCell.getOriginalValueStr(), newSheetVersion);
                 } catch (IllegalArgumentException e) { //in case a function is not recognized or number of arguments is incorrect
-//                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
-//                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
-//                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
-//                    }
                     if (isUpdatePartOfSheetInitialization)
                         throw new IllegalArgumentException("The file could not be loaded - there is an error in cell " + newCell.getCoordinate().toString()
                                 + ": " + e.getMessage());
@@ -264,7 +234,6 @@ public class SheetImpl implements Sheet, Serializable {
                         currentCellToCalcEffectiveValue.setLastVersionInWhichCellHasChanged(newSheetVersion.thisSheetVersion);
                     }
                 }
-                //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
 
                 if (isUpdatePartOfSheetInitialization) {
                     newSheetVersion.numOfCellsWhichEffectiveValueChangedInNewVersion = newSheetVersion.activeCells.size();
@@ -273,25 +242,7 @@ public class SheetImpl implements Sheet, Serializable {
                 }
 
                 return newSheetVersion;
-
-//                try {
-//                    List<Cell> cellsThatHaveChanged =
-//                            newSheetVersion
-//                                    .orderCellsForCalculation()
-//                                    .stream()
-//                                    .filter(Cell::calculateNewEffectiveValueAndDetermineIfItChanged) //is it "checking" here if effective value is valid after calculation? or it's better to do it before?
-//                                    .collect(Collectors.toList());
-//
-//                    // successful calculation. update sheet and relevant cells version
-//                    // int newVersion = newSheetVersion.increaseVersion();
-//                    // cellsThatHaveChanged.forEach(cell -> cell.updateVersion(newVersion));
-//
-//                    return newSheetVersion;
-//                } catch (Exception e) {
-//                    // deal with the runtime error that was discovered as part of invocation
-//                    return this;
-//                }
-        }
+            }
         } catch (IllegalArgumentException e) {
             // deal with the runtime error that was discovered as part of invocation
             throw e;
@@ -368,14 +319,6 @@ public class SheetImpl implements Sheet, Serializable {
 
         // If all nodes are processed, there is no cycle
         return processedNodes != adjacencyList.size();
-    }
-
-
-    private List<Cell> orderCellsForCalculation() {
-        // data structure 1 0 1: Topological sort...
-        // build graph from the cells. each cell is a node. each cell that has ref(s) constitutes an edge
-        // handle case of circular dependencies -> should fail
-        return null;
     }
 
     private SheetImpl copySheet() {

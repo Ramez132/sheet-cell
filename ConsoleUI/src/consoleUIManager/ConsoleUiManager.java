@@ -130,9 +130,6 @@ public class ConsoleUiManager {
                         } else {
                             effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
                         }
-//                        effectiveValueOfCellAsString = addThousandsSeparator(
-//                                        sheet.getActiveCells().get(coordinate).
-//                                        getCurrentEffectiveValue().getValue().toString());
                     } else {
                         effectiveValueOfCellAsString = addThousandsSeparator(" ");
                     }
@@ -165,13 +162,6 @@ public class ConsoleUiManager {
             Sheet sheet = engineManager.getMostRecentSheet();
             System.out.println("Please write the details of the cell you want to select (for example 'C4' for cell in column 3, row 4), then press Enter.");
             String coordinateStr = scanner.nextLine().trim().toUpperCase();
-//            boolean isCoordinateInSheetRange = engineManager.isCoordinateInMostRecentSheetRange(realCoordinate.getRow(), realCoordinate.getColumn());
-//            if (isCoordinateInSheetRange) {
-//                throw new IllegalArgumentException("The coordinate provided " +  coordinateStr +  " is not in the sheet range.");
-//            }
-//            else {
-//                return realCoordinate;
-//            }
             return CoordinateFactory.getCoordinateFromStr(coordinateStr, sheet);
         }
         catch (NoSuchElementException e) { //could come from line: sheet = engineManager.getMostRecentSheet();

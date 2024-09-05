@@ -1,9 +1,9 @@
 package menu;
 
 public enum MainMenu{
-    READ_FILE("Load a sheet-cell from an XML file."),
-    SHOW_SHEET("Print the most recent sheet to the console."),
-    SHOW_CELL_VALUE("Print the data of a specific cell."),
+    READ_SHEET_FROM_FILE("Load a sheet-cell from an XML file."),
+    PRINT_RECENT_SHEET("Print the most recent sheet to the console."),
+    PRINT_CELL_DATA("Print the data of a specific cell."),
     UPDATE_CELL_VALUE("Update the original value of a specific cell and print the new sheet."),
     SHOW_VERSIONS("Print a sheet from a specific version."),
     EXIT("Exit the system");

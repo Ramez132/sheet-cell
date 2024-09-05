@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 
 public class EngineManagerImpl implements EngineManager {
     private List<Sheet> sheetVersionsArray;
-//    private Sheet currentSheet;
 
     public EngineManagerImpl() {
         this.sheetVersionsArray = new ArrayList<Sheet>();
@@ -37,10 +36,6 @@ public class EngineManagerImpl implements EngineManager {
         catch (Exception e) {
             throw e;
         }
-        // try to open the file - > fails? throw an exception
-        // make the file go through auto-generated classes
-        // check parameters - i.e. all cells in sheet range - > fails? throw an exception
-        // if all is good - clear sheetVersionsArray and add the new sheet to the array
 
         return sheetVersionsArray.getLast();
     }
@@ -54,12 +49,6 @@ public class EngineManagerImpl implements EngineManager {
             throw new NoSuchElementException("There is no sheet in the system.");
         }
     }
-
-//    @Override
-//    public Sheet displaySheet(Sheet sheet) {
-//        int index = sheetVersionsArray.indexOf(sheet);
-//        return List<>
-//    }
 
     @Override
     public Cell getCellFromMostRecentSheet(int row, int column) {
@@ -83,7 +72,6 @@ public class EngineManagerImpl implements EngineManager {
         }
 
     }
-
 
 
     /**

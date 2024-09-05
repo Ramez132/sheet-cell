@@ -20,10 +20,8 @@ public class SheetFromFilesFactory {
     private static final int maxPossibleNumOfColumns = 20;
 
     public static Sheet CreateSheetObjectFromXmlFile(File file) throws Exception {
-        //File file = new File(fileName);
         STLSheet stlSheet;
         Sheet newSheet = new SheetImpl();
-        //InputStream inputStreamFromFile = new FileInputStream(file);
 
         try (InputStream inputStreamFromFile = new FileInputStream(file)) {
             stlSheet = unMarshalFromFile(inputStreamFromFile);
