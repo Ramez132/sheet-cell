@@ -9,8 +9,11 @@ public interface Cell {
     String getOriginalValueStr();
     void setCellOriginalValue(String value);
     EffectiveValue getCurrentEffectiveValue();
+    EffectiveValue getPreviousEffectiveValue();
+    void setPreviousEffectiveValue(EffectiveValue effectiveValue);
     boolean calculateNewEffectiveValueAndDetermineIfItChanged();
     int getLastVersionInWhichCellHasChanged();
+    void setLastVersionInWhichCellHasChanged(int version);
     Map<Coordinate, Cell> getDependsOnMap();
     Map<Coordinate, Cell> getInfluencingOnMap();
     //List<Cell> getDependsOnMap();

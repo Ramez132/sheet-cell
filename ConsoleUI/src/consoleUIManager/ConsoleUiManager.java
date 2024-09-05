@@ -1,8 +1,8 @@
 package consoleUIManager;
 
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import menu.MainMenu;
@@ -10,41 +10,93 @@ import shticell.cell.api.Cell;
 import shticell.cell.api.EffectiveValue;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
-import shticell.manager.api.Manager;
-import shticell.manager.impl.ManagerImpl;
+import shticell.manager.api.EngineManager;
+import shticell.manager.impl.EngineManagerImpl;
 import shticell.sheet.api.Sheet;
-import shticell.sheet.impl.SheetImpl;
 
 public class ConsoleUiManager {
 
 
-    private Manager manager = new ManagerImpl();//important new!!!
+    private EngineManager engineManager = new EngineManagerImpl();//important new!!!
     private final Scanner scanner = new Scanner(System.in);
-    private final int VERSION = 1;
-    private final int NUM_OF_COLS = 8;
-    private final int NUM_OF_ROWS = 8;
-    private final int ROWS_HEIGHT = 1;
-    private final int COLS_WIDTH = 7;
 
     ConsoleUiManager(){}
 
-    private void printColsLetters(Sheet sheet) {
+    public void Run() {
+        boolean isSystemStillRunning = true;
+        do {
+            try {
+                MainMenu.PrintMenuAndAskForInput();
+                String choice = scanner.nextLine();
+                switch (choice) {
+                    case "1" -> getSheetFromXMLFile();
+                    case "2" -> printMostRecentSheet();
+                    case "3" -> printTheDataOfSpecificCell();
+                    case "4" -> updateOriginalValueOfSpecificCellAndPrintTheNewSheet();
+                    case "5" -> handlePrintingOfSheetFromSpecificVersion();
+                    case "6" -> isSystemStillRunning = false;
+                    default -> System.out.println("Invalid choice. Please write only the number of your choice (1-6), and then press enter.");
+                }
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        } while (isSystemStillRunning);
+        System.out.println("The program has ended.");
+        System.out.println("Thank you for using the system.");
+    }
+
+    private void getSheetFromXMLFile(){
+        System.out.println("Please write the full path of the XML file you wish to load the sheet from.");
+        System.out.println("For example: C:\\Users\\user\\Desktop\\sheet.xml");
+        String filePathStr = scanner.nextLine().trim();
+        try {
+            engineManager.getSheetFromFile(filePathStr);
+            System.out.println("The sheet was loaded successfully.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println();
+        System.out.println("Going back to the main menu...");
+    }
+
+    void printMostRecentSheet(){
+        try {
+            printSheetToConsole(engineManager.getMostRecentSheet());
+        }
+        catch (NoSuchElementException e) {
+            System.out.println("Error while trying to print a sheet: " + e.getMessage());
+        }
+
+        System.out.println();
+        System.out.println("Going back to the main menu...");
+    }
+
+    private void printSheetToConsole(Sheet sheet){
+        printFirstLineOfSheetWithLettersRepresentingColumns(sheet);
+        printAllRowsWithEffectiveValueOfCells(sheet);
+    }
+
+    private void printFirstLineOfSheetWithLettersRepresentingColumns(Sheet sheet) {
         String space = " ";
         int maxRowNumber = sheet.getNumOfRows();
         int rowNumberWidth = String.valueOf(maxRowNumber).length() + 2;
-        System.out.println("Sheet name: " + sheet.getNameOfSheet());
-        System.out.println("Version: " + sheet.getVersion());
+        System.out.println("Printing a sheet...");
+        System.out.println("The name of the sheet is: " + sheet.getNameOfSheet());
+        System.out.println("The version of the sheet is: " + sheet.getVersion());
+        System.out.println();
         System.out.print(space.repeat(rowNumberWidth) + "|");
 
-        for (int col = 0; col < sheet.getNumOfColumns(); col++) {
-            int colWidth = sheet.getColumnWidth();
-            colWidth = colWidth % 2 == 0 ? colWidth + 1 : colWidth;
+        for (int columnNum = 0; columnNum < sheet.getNumOfColumns(); columnNum++) {
+            int widthOfColumn = sheet.getColumnWidth();
+            widthOfColumn = widthOfColumn % 2 == 0 ? widthOfColumn + 1 : widthOfColumn;
 
-            int leftPadding = colWidth / 2;
-            int rightPadding = colWidth - leftPadding - 1;
+            int leftPadding = widthOfColumn / 2;
+            int rightPadding = widthOfColumn - leftPadding - 1;
 
             System.out.print(space.repeat(leftPadding));
-            System.out.print((char) (col + 'A'));
+            System.out.print((char) (columnNum + 'A'));
             System.out.print(space.repeat(rightPadding));
             System.out.print("|");
         }
@@ -52,43 +104,45 @@ public class ConsoleUiManager {
         System.out.println();
     }
 
-
-    private void printSheetBody(Sheet sheet) {
+    private void printAllRowsWithEffectiveValueOfCells(Sheet sheet) {
         String space = " ";
         int rowHeight = sheet.getRowHeight();
         int numOfRows = sheet.getNumOfRows();
         int numOfColumns = sheet.getNumOfColumns();
         int rowNumberWidth = String.valueOf(numOfRows).length() + 2;
-        int colWidth = sheet.getColumnWidth() % 2 == 0 ? sheet.getColumnWidth() + 1 : sheet.getColumnWidth();
+        int columnWidth = sheet.getColumnWidth() % 2 == 0 ? sheet.getColumnWidth() + 1 : sheet.getColumnWidth();
 
-        for (int row = 1; row <= numOfRows; row++) {
-            for (int h = 0; h < rowHeight; h++) {  // Repeat for the row height
+        for (int rowNum = 1; rowNum <= numOfRows; rowNum++) {
+            for (int h = 0; h < rowHeight; h++) {  // Repeat for the rowNum height
                 if (h == rowHeight / 2) {
-                    System.out.print(String.format("%" + rowNumberWidth + "d", row));
+                    System.out.print(String.format("%" + rowNumberWidth + "d", rowNum));
                 } else {
                     System.out.print(space.repeat(rowNumberWidth));
                 }
                 System.out.print("|");
-                for (int col = 1; col <= numOfColumns; col++) {
-                    Coordinate coordinate = CoordinateFactory.getCoordinate(row, col);
-                    String cellValue;
+                for (int columnNum = 1; columnNum <= numOfColumns; columnNum++) {
+                    Coordinate coordinate = CoordinateFactory.getCoordinate(rowNum, columnNum);
+                    String effectiveValueOfCellAsString;
                     if (sheet.getActiveCells().containsKey(coordinate)) {
-                        cellValue = addThousandsSeparator(
-                                sheet.getActiveCells().get(coordinate).
-                                        getCurrentEffectiveValue().getValue().toString());
+                        EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
+                        if (effectiveValueOfCell == null) {
+                            effectiveValueOfCellAsString = addThousandsSeparator(" ");
+                        } else {
+                            effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
+                        }
+//                        effectiveValueOfCellAsString = addThousandsSeparator(
+//                                        sheet.getActiveCells().get(coordinate).
+//                                        getCurrentEffectiveValue().getValue().toString());
                     } else {
-                        cellValue = addThousandsSeparator(" ");
+                        effectiveValueOfCellAsString = addThousandsSeparator(" ");
                     }
-//                    String cellValue = addThousandsSeparator(
-//                            sheet.getActiveCells().get(coordinate).
-//                                    getCurrentEffectiveValue().getValue().toString());
 
                     if (h == rowHeight / 2) {
-                        System.out.print(cellValue);
-                        int count = colWidth - cellValue.length();
+                        System.out.print(effectiveValueOfCellAsString);
+                        int count = columnWidth - effectiveValueOfCellAsString.length();
                         System.out.print(space.repeat(Math.abs(count)));
                     } else {
-                        System.out.print(space.repeat(colWidth));
+                        System.out.print(space.repeat(columnWidth));
                     }
                     System.out.print("|");
                 }
@@ -96,7 +150,6 @@ public class ConsoleUiManager {
             }
         }
     }
-
 
     private String addThousandsSeparator(String number) throws NumberFormatException {
         try {
@@ -107,170 +160,145 @@ public class ConsoleUiManager {
         }
     }
 
-    private void printSheetCell(Sheet sheet){
-        printColsLetters(sheet);
-        printSheetBody(sheet);
-    }
-
-//    public boolean isValidCoordinate(String input) {
-//        String pattern = "(?i)^[a-z][1-9][0-9]*$";
-//        if (input.matches(pattern)) {
-//            int numberPart = Integer.parseInt(input.substring(1));
-//            return numberPart <= manager.getSheet().numberOfColumns();
-//        }
-//
-//        return false;
-//    }
-
-    private Coordinate selectCell(){
-        System.out.println("Enter the desired cell identity");
-        String coordinate = scanner.nextLine();
-        Coordinate realCoordinate = CoordinateFactory.getCoordinateFromStr(coordinate);
-        while(!manager.getMostRecentSheet().isCoordinateInSheetRange(realCoordinate.getRow(), realCoordinate.getColumn())) {
-
-            System.out.println("Cell " + coordinate + " does not exists");
-            System.out.println("Enter the desired cell identity");
-            coordinate = scanner.nextLine();
-            realCoordinate = CoordinateFactory.getCoordinateFromStr(coordinate);
-        }
-
-        return realCoordinate;
-    }
-
-//    private void printCellValue(){
-//        String cell = selectCell();
-//        System.out.println(manager.GetCellByCoordinate(cell));
-//    }
-//
-    private void insertData(){
-        String cell = selectCell();
-        System.out.println("Enter the desired cell data");
+    private Coordinate selectCoordinate(){
         try {
-            manager.updateValueOfCellAndDisplayNewSheet(cell, scanner.nextLine());
+            Sheet sheet = engineManager.getMostRecentSheet();
+            System.out.println("Please write the details of the cell you want to select (for example 'C4' for cell in column 3, row 4), then press Enter.");
+            String coordinateStr = scanner.nextLine().trim().toUpperCase();
+//            boolean isCoordinateInSheetRange = engineManager.isCoordinateInMostRecentSheetRange(realCoordinate.getRow(), realCoordinate.getColumn());
+//            if (isCoordinateInSheetRange) {
+//                throw new IllegalArgumentException("The coordinate provided " +  coordinateStr +  " is not in the sheet range.");
+//            }
+//            else {
+//                return realCoordinate;
+//            }
+            return CoordinateFactory.getCoordinateFromStr(coordinateStr, sheet);
+        }
+        catch (NoSuchElementException e) { //could come from line: sheet = engineManager.getMostRecentSheet();
+            throw new IllegalArgumentException("There is no sheet to select a cell from. Please load a sheet first.");
+        }
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    private void printTheDataOfSpecificCell()
+    {
+        try {
+            Coordinate selectedCoordinate = selectCoordinate();
+            Sheet sheet = engineManager.getMostRecentSheet();
+
+            //if the cell is not present in activeCells in the sheet, it will be created as a new empty cell
+            Cell cell = engineManager.getCellFromMostRecentSheet(selectedCoordinate.getRow(), selectedCoordinate.getColumn());
+            System.out.println("Printing the data of the selected cell:");
+            System.out.println("The coordinate of the cell is: " + selectedCoordinate.toString());
+
+            boolean isCellEmpty = cell.getIsCellEmptyBoolean();
+            int lastVersionInWhichCellHasChanged = cell.getLastVersionInWhichCellHasChanged();
+
+            if (isCellEmpty) {
+                System.out.println("The cell doesn't have an original value - it is empty.");
+                System.out.println("The cell has no effective value - it is empty.");
+
+                if (lastVersionInWhichCellHasChanged == sheet.getVersionNumForEmptyCellWithoutPreviousValues()) { //empty cell without previous values
+                    System.out.println("Cannot print the last version in which the cell was updated - the cell is empty and didn't have a value before.");
+                } else { //cell which is empty now but had a value before
+                    System.out.println("The last version in which the cell was updated is: " + lastVersionInWhichCellHasChanged);
+                }
+            }
+            else { //the cell is not empty
+                System.out.println("The original value of the cell is: " + cell.getOriginalValueStr());
+                String effectiveValueOfCellAsString = addThousandsSeparator(
+                        sheet.getActiveCells().get(selectedCoordinate).
+                                getCurrentEffectiveValue().getValue().toString());
+                System.out.println("The effective value of the cell is: " + effectiveValueOfCellAsString);
+                System.out.println("The last version in which the cell was updated is: " + lastVersionInWhichCellHasChanged);
+            }
+
+            if (cell.getDependsOnMap().isEmpty()) {
+                System.out.println("The selected cell doesn't depend on any other cell.");
+            }
+            else {
+                System.out.println("The selected cell directly depends on the cells:");
+                for (Coordinate coordinateTheCellDependsOn : cell.getDependsOnMap().keySet()) {
+                    System.out.println(coordinateTheCellDependsOn.toString());
+                }
+                System.out.println();
+            }
+
+            if (cell.getInfluencingOnMap().isEmpty()) {
+                System.out.println("The selected cell doesn't influence any other cell.");
+            }
+            else {
+                System.out.println("The selected cell is influencing directly on the cells:");
+                for (Coordinate coordinateTheCellInfluencingOn : cell.getInfluencingOnMap().keySet()) {
+                    System.out.println(coordinateTheCellInfluencingOn.toString());
+                }
+                System.out.println();
+            }
         }
         catch (Exception e){
             System.out.println(e.getMessage());
         }
+
+        System.out.println();
+        System.out.println("Going back to the main menu...");
     }
 
-//    private void showCountOfChangesPerVersions(List<Integer> countsOfChangesPerVersion) {
-//        System.out.println("Count of Changes Per Version:");
-//        for (int i = 0; i < countsOfChangesPerVersion.size(); i++) {
-//            System.out.printf("Version %d: %d changes%n", i + 1, countsOfChangesPerVersion.get(i));
-//        }
-//
-//        System.out.println();
-//
-//    }
-    private static boolean isInteger(String str) {
-        return str.matches("-?\\d+");
-    }
-
-//    private int showSheetVersionByUserChoice(List<Integer> countsOfChangesPerVersion){
-//        String versionNumber;
-//
-//        while (true) {
-//            System.out.print("Enter the version number (1 to " + countsOfChangesPerVersion.size() + "): ");
-//            versionNumber = scanner.nextLine();
-//            if(isInteger(versionNumber)){
-//                if (Integer.parseInt(versionNumber) >= 1 && Integer.parseInt(versionNumber) <= countsOfChangesPerVersion.size()) {
-//                    break;
-//                }
-//            }
-//
-//            System.out.println("Invalid input. Please enter a number between 1 and " + countsOfChangesPerVersion.size() + ".");
-//        }
-//
-//        return Integer.parseInt(versionNumber);
-//    }
-
-//    private void showVersions(){
-//        List<Integer> countsOfChangesPerVersion = manager.GetCountOfChangesPerVersion();
-//        showCountOfChangesPerVersions(countsOfChangesPerVersion);
-//        int selectedVersion = showSheetVersionByUserChoice(countsOfChangesPerVersion);
-//        printSheetCell(manager.GetSheetByVersion(selectedVersion));
-//    }
-
-    private void sheetFromXMLFile(){
-        System.out.println("Enter File Path");
-        String fileDirectory = scanner.nextLine();
+    private void updateOriginalValueOfSpecificCellAndPrintTheNewSheet(){
         try {
-            manager.getSheetFromFile(fileDirectory);
-        } catch (Exception e) {
+            Coordinate selectedCoordinate = selectCoordinate();
+            System.out.println("Please write the new value for the cell, then press Enter.");
+            System.out.println("Pressing just enter will set the cell to be empty.");
+            String dataToEnterTheCell = scanner.nextLine().trim();
+            Sheet possibleNewSheet = engineManager.updateValueOfCellAndGetNewSheet(selectedCoordinate.getRow(), selectedCoordinate.getColumn(), dataToEnterTheCell);
+            printSheetToConsole(possibleNewSheet);
+        }
+        catch (Exception e){
             System.out.println(e.getMessage());
         }
+
+        System.out.println();
+        System.out.println("Going back to the main menu...");
     }
-    //
-//    private void createMangerFromFile() throws Exception{
-//        System.out.println("Enter File Path");
-//        String fileDirectory = scanner.nextLine();
-//        try {
-//            manager = new ManagerImpl();
-//            manager.getSheetFromFile(fileDirectory);
-//        }
-//        catch (Exception e){
-//            throw e;
-//        }
-//    }
 
+    private void handlePrintingOfSheetFromSpecificVersion(){
+        try {
+            if (!engineManager.isThereASheetLoadedToTheSystem()) {
+                throw new NoSuchElementException("There is no sheet loaded to the system, so there are no versions to display.");
+            }
+            System.out.println("These are all the versions of the sheet, and the number of cells that their effective value has changed in this version:");
+            System.out.println();
+            for (int i = 1; i <= engineManager.getLatestVersionNumber(); i++) {
+                Sheet sheetOfSpecificVersion = engineManager.getSheetOfSpecificVersion(i);
+                System.out.println("Version " + i + " : There are "
+                        + sheetOfSpecificVersion.getNumOfCellsWhichEffectiveValueChangedInNewVersion() + " cells that have changed their effective value.");
+            }
+            System.out.println();
 
+            System.out.println("Please write the version number of the sheet you want to print, then press Enter.");
+            System.out.println("The version number should be a number between 1 and " + engineManager.getLatestVersionNumber() + ".");
+            String versionNumber = scanner.nextLine().trim();
 
-
-//    private void createManger(){
-//        System.out.println("Enter Sheet Name");
-//        String sheetName = scanner.nextLine();
-//        manager = new Controller(new SheetDto(sheetName,VERSION,NUM_OF_ROWS,NUM_OF_COLS,COLS_WIDTH,ROWS_HEIGHT));
-//    }
-
-//    void FirstMenuRun() {
-//        Scanner scanner = new Scanner(System.in);
-//        boolean validSelection = false;
-//        while (!validSelection) {
-//            try {
-//                MainMenu.PrintMenu();
-//                System.out.print("Please select an option (1-6): ");
-//                String choice = scanner.nextLine();
-//                switch (choice) {
-//                    case "1":
-//                        createMangerFromFile();
-//                        validSelection = true;
-//                        break;
-//                    case "6":
-//                        System.exit(0);
-//                        break;
-//                    default:
-//                        System.out.println("Invalid selection. Please choose a number between 1 and 4.");
-//                        break;
-//                }
-//            }
-//            catch (Exception e) {
-//                System.out.println("Invalid Path");
-//            }
-//        }
-//    }
-
-    public void Run() {
-        boolean goOn = true;
-        do {
             try {
-                MainMenu.PrintMenu();
-                String choice = scanner.nextLine();
-                switch (choice) {
-                    case "1" -> sheetFromXMLFile();
-                    case "2" -> printSheetCell(manager.getMostRecentSheet());
-//                    case "3" -> printCellValue();
-//                    case "4" -> insertData();
-//                    case "5" -> showVersions();
-                    case "6" -> goOn = false;
-                    default -> {
-                        System.out.println("Invalid choice. Please choose a number 1-8");
-                    }
+                int version = Integer.parseInt(versionNumber);
+                if (version < 1 || version > engineManager.getLatestVersionNumber()) {
+                    throw new IllegalArgumentException("The version number provided is not in the correct range.");
+                } else {
+                    Sheet selectedSheet = engineManager.getSheetOfSpecificVersion(version);
+                    printSheetToConsole(selectedSheet);
                 }
             }
-            catch (Exception e){
-                System.out.println(e.getMessage());
+            catch (NumberFormatException e) {
+                throw new IllegalArgumentException("The system expected a number.");
             }
-        } while (goOn);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println();
+        System.out.println("Going back to the main menu...");
     }
 }
 

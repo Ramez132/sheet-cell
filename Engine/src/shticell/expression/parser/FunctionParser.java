@@ -7,6 +7,7 @@ import shticell.expression.api.Expression;
 import shticell.expression.impl.*;
 import shticell.cell.api.CellType;
 import shticell.cell.api.EffectiveValue;
+import shticell.sheet.api.SheetReadActions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Stack;
 public enum FunctionParser {
     IDENTITY {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // validations of the function. it should have exactly one argument
             if (arguments.size() != 1) {
                 throw new IllegalArgumentException("Invalid number of arguments for IDENTITY function. Expected 1, but got " + arguments.size());
@@ -23,7 +24,7 @@ public enum FunctionParser {
 
             // all is good. create the relevant function instance
             ///    String actualValue = arguments.get(0).trim(); //should we trim or not?
-            String actualValue = arguments.get(0); //should we trim or not? if not - what happens?
+            String actualValue = arguments.getFirst(); //should we trim or not? if not - what happens?
             if (isBoolean(actualValue)) {
                 return new IdentityExpression(Boolean.parseBoolean(actualValue), CellType.BOOLEAN);
             }
@@ -57,15 +58,15 @@ public enum FunctionParser {
     },
     PLUS {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments , SheetReadActions sheet) {
             // validations of the function (e.g. number of arguments)
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for PLUS function. Expected 2, but got " + arguments.size());
             }
 
             // structure is good. parse arguments
-            Expression left = parseExpression(arguments.get(0).trim());
-            Expression right = parseExpression(arguments.get(1).trim());
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
 
             // more validations on the expected argument types
             CellType leftCellType = left.getFunctionResultType();
@@ -82,57 +83,45 @@ public enum FunctionParser {
     },
     MINUS {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments , SheetReadActions sheet) {
             // validations of the function. it should have exactly two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for MINUS function. Expected 2, but got " + arguments.size());
             }
 
             // structure is good. parse arguments
-            Expression left = parseExpression(arguments.get(0).trim());
-            Expression right = parseExpression(arguments.get(1).trim());
-
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
             // more validations on the expected argument types
-            if (!left.getFunctionResultType().equals(CellType.NUMERIC) || !right.getFunctionResultType().equals(CellType.NUMERIC)) {
-                throw new IllegalArgumentException("Invalid argument types for MINUS function. Expected NUMERIC, but got " + left.getFunctionResultType() + " and " + right.getFunctionResultType());
+            if ( (!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
+                    (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN)) ) {
+                throw new IllegalArgumentException("Invalid argument types for MINUS function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
             }
 
             // all is good. create the relevant function instance
             return new MinusExpression(left, right);
         }
     },
-    UPPER_CASE {
-        @Override
-        public Expression parse(List<String> arguments) {
-            // validations of the function. it should have exactly one argument
-            if (arguments.size() != 1) {
-                throw new IllegalArgumentException("Invalid number of arguments for UPPER_CASE function. Expected 1, but got " + arguments.size());
-            }
-
-            // structure is good. parse arguments
-            Expression arg = parseExpression(arguments.get(0).trim());
-
-            // more validations on the expected argument types
-            if (!arg.getFunctionResultType().equals(CellType.STRING)) {
-                throw new IllegalArgumentException("Invalid argument types for UPPER_CASE function. Expected STRING, but got " + arg.getFunctionResultType());
-            }
-
-            // all is good. create the relevant function instance
-            return new UpperCaseExpression(arg);
-        }
-    },
     REF {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // validations of the function. it should have exactly one argument
             if (arguments.size() != 1) {
                 throw new IllegalArgumentException("Invalid number of arguments for REF function. Expected 1, but got " + arguments.size());
             }
 
             // verify indeed argument represents a reference to a cell and create a Coordinate instance. if not ok returns a null. need to verify it
-            Coordinate target = CoordinateFactory.getCoordinateFromStr(arguments.get(0).trim());
+            Coordinate target = CoordinateFactory.getCoordinateFromStr(arguments.getFirst().trim(), sheet);
             if (target == null) {
-                throw new IllegalArgumentException("Invalid argument for REF function. Expected a valid cell reference, but got " + arguments.get(0));
+                throw new IllegalArgumentException("Invalid argument for REF function. Expected a valid cell reference, but got " + arguments.getFirst());
+            }
+            try {
+                boolean isCoordinateInSheetRange = sheet.isCoordinateInSheetRange(target.getRow(), target.getColumn());
+            }
+            catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("There is a referenced cell which is not in the sheet range: " + e.getMessage());
             }
 
             // should verify if the coordinate is within boundaries of the sheet ?
@@ -143,19 +132,21 @@ public enum FunctionParser {
     },
     TIMES {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // validations of the function. it should have exactly two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for TIMES function. Expected 2, but got " + arguments.size());
             }
 
             // structure is good. parse arguments
-            Expression left = parseExpression(arguments.get(0).trim());
-            Expression right = parseExpression(arguments.get(1).trim());
-
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
             // more validations on the expected argument types
-            if (!left.getFunctionResultType().equals(CellType.NUMERIC) || !right.getFunctionResultType().equals(CellType.NUMERIC)) {
-                throw new IllegalArgumentException("Invalid argument types for TIMES function. Expected NUMERIC, but got " + left.getFunctionResultType() + " and " + right.getFunctionResultType());
+            if ( (!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
+                    (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN)) ) {
+                throw new IllegalArgumentException("Invalid argument types for TIMES function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
             }
 
             // all is good. create the relevant function instance
@@ -164,14 +155,14 @@ public enum FunctionParser {
     },
     ABS {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // Ensure there is exactly one argument
             if (arguments.size() != 1) {
                 throw new IllegalArgumentException("Invalid number of arguments for ABS function. Expected 1, but got " + arguments.size());
             }
 
             // Parse the argument
-            Expression argument = parseExpression(arguments.get(0).trim());
+            Expression argument = parseExpression(arguments.get(0).trim(), sheet);
 
             // Validate that the argument is numeric or unknown
             CellType argumentCellType = argument.getFunctionResultType();
@@ -185,15 +176,15 @@ public enum FunctionParser {
     },
     POW {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // Ensure there are exactly two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for POW function. Expected 2, but got " + arguments.size());
             }
 
             // Parse the arguments
-            Expression base = parseExpression(arguments.get(0).trim());
-            Expression exponent = parseExpression(arguments.get(1).trim());
+            Expression base = parseExpression(arguments.get(0).trim(), sheet);
+            Expression exponent = parseExpression(arguments.get(1).trim(), sheet);
 
             // Validate that the arguments are numeric or unknown
             CellType baseCellType = base.getFunctionResultType();
@@ -209,15 +200,15 @@ public enum FunctionParser {
     },
     MODULO {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // Ensure there are exactly two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for MODULO function. Expected 2, but got " + arguments.size());
             }
 
             // Parse the arguments
-            Expression dividend = parseExpression(arguments.get(0).trim());
-            Expression divisor = parseExpression(arguments.get(1).trim());
+            Expression dividend = parseExpression(arguments.get(0).trim(), sheet);
+            Expression divisor = parseExpression(arguments.get(1).trim(), sheet);
 
             // Validate that the arguments are numeric or unknown
             CellType dividendCellType = dividend.getFunctionResultType();
@@ -233,15 +224,15 @@ public enum FunctionParser {
     },
     DIVIDE {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // Ensure there are exactly two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for DIVIDE function. Expected 2, but got " + arguments.size());
             }
 
             // Parse the arguments
-            Expression dividend = parseExpression(arguments.get(0).trim());
-            Expression divisor = parseExpression(arguments.get(1).trim());
+            Expression dividend = parseExpression(arguments.get(0).trim(), sheet);
+            Expression divisor = parseExpression(arguments.get(1).trim(), sheet);
 
             // Validate that the arguments are numeric or unknown
             CellType dividendCellType = dividend.getFunctionResultType();
@@ -257,7 +248,7 @@ public enum FunctionParser {
     },
     CONCAT {
         @Override
-        public Expression parse(List<String> arguments) {
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
             // Ensure there are at least two arguments
             if (arguments.size() != 2) {
                 throw new IllegalArgumentException("Invalid number of arguments for CONCAT function. Expected 2, but got " + arguments.size());
@@ -266,7 +257,7 @@ public enum FunctionParser {
             // Parse the arguments
             List<Expression> expressions = new ArrayList<>();
             for (String argument : arguments) {
-                expressions.add(parseExpression(argument));
+                expressions.add(parseExpression(argument, sheet));
             }
 
             // Validate that the arguments are strings or unknown
@@ -280,12 +271,38 @@ public enum FunctionParser {
             // Create and return the ConcatExpression
             return new ConcatExpression(expressions.get(0), expressions.get(1));
         }
+    },
+    SUB {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are at least two arguments
+            if (arguments.size() != 3) {
+                throw new IllegalArgumentException("Invalid number of arguments for CONCAT function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            List<Expression> expressions = new ArrayList<>();
+            for (String argument : arguments) {
+                expressions.add(parseExpression(argument, sheet));
+            }
+
+            // Validate that the arguments are strings or unknown
+            for (Expression currentExpression : expressions) {
+                CellType expressionCellType = currentExpression.getFunctionResultType();
+                if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
+                    throw new IllegalArgumentException("Invalid argument types for SUB function. Expected STRING, but got " + expressionCellType);
+                }
+            }
+
+            // Create and return the ConcatExpression
+            return new SubExpression(expressions.get(0), expressions.get(1), expressions.get(2));
+        }
     }
     ;
 
-    abstract public Expression parse(List<String> arguments);
+    abstract public Expression parse(List<String> arguments, SheetReadActions sheet);
 
-    public static Expression parseExpression(String input) {
+    public static Expression parseExpression(String input, SheetReadActions sheet) {
 
         if (input.startsWith("{") && input.endsWith("}")) {
 
@@ -296,11 +313,11 @@ public enum FunctionParser {
             String functionName = topLevelParts.get(0).trim().toUpperCase();
 
             //remove the first element from the array
-            topLevelParts.remove(0);
+            topLevelParts.removeFirst();
             if (!isValidFunctionName(functionName)) {
                 throw new IllegalArgumentException("Invalid function name: " + functionName);
             }
-            return FunctionParser.valueOf(functionName).parse(topLevelParts);
+            return FunctionParser.valueOf(functionName).parse(topLevelParts, sheet);
             //valueOf - If the name does not match any existing enum constant, it throws an IllegalArgumentException.
             //should we through an exception if the function name is not found?
 
@@ -309,7 +326,7 @@ public enum FunctionParser {
 
         // handle identity expression
         ///////         return FunctionParser.IDENTITY.parse(List.of(input.trim())); //should we trim or not?
-        return FunctionParser.IDENTITY.parse(List.of(input)); //should we trim or not?
+        return FunctionParser.IDENTITY.parse(List.of(input), sheet); //should we trim or not?
     }
 
 
@@ -375,19 +392,19 @@ public enum FunctionParser {
         return parts;
     }
 
-    public static void main(String[] args) {
-
-        //String input = "plus, {plus, 1, 2}, {plus, 1, {plus, 1, 2}}";
-//        String input = "1";
-//        parseMainParts(input).forEach(System.out::println);
-
-//        String input = "{plus, 1, 2}";
-        String input = "{plus, {minus, 44, 22}, {plus, 1, 2}}";
-//        String input = "{upper_case, hello world}";
-//        String input = "4";
-        Expression expression = parseExpression(input);
-        EffectiveValue result = expression.eval(null);
-        System.out.println("result: " + result.getValue() + " of type " + result.getCellType());
-    }
+//    public static void main(String[] args) {
+//
+//        //String input = "plus, {plus, 1, 2}, {plus, 1, {plus, 1, 2}}";
+////        String input = "1";
+////        parseMainParts(input).forEach(System.out::println);
+//
+////        String input = "{plus, 1, 2}";
+//        String input = "{plus, {minus, 44, 22}, {plus, 1, 2}}";
+////        String input = "{upper_case, hello world}";
+////        String input = "4";
+//        Expression expression = parseExpression(input);
+//        EffectiveValue result = expression.eval(null);
+//        System.out.println("result: " + result.getValue() + " of type " + result.getCellType());
+//    }
 
 }

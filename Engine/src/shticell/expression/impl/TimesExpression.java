@@ -6,22 +6,43 @@ import shticell.cell.impl.EffectiveValueImpl;
 import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
-public class TimesExpression implements Expression {
-    private Expression e1;
-    private Expression e2;
+import static java.lang.Double.NaN;
 
-    public TimesExpression(Expression e1, Expression e2) {
-        this.e1 = e1;
-        this.e2 = e2;
+public class TimesExpression implements Expression {
+    private Expression left;
+    private Expression right;
+
+    public TimesExpression(Expression left, Expression right) {
+        this.left = left;
+        this.right = right;
     }
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
-        EffectiveValue baseValue = e1.eval(sheet);
-        EffectiveValue exponentValue = e2.eval(sheet);
-        double left = baseValue.extractValueWithExpectation(Double.class);
-        double right = exponentValue.extractValueWithExpectation(Double.class);
-        double result = left * right;
+
+        double leftValueResult, rightValueResult;
+        EffectiveValue leftValue, rightValue;
+        try {
+            leftValue = left.eval(sheet);
+            leftValueResult = leftValue.extractValueWithExpectation(Double.class);
+        } catch (Exception e) {
+            //Will get here if left expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            leftValueResult = NaN;
+        }
+
+        try {
+            rightValue = right.eval(sheet);
+            rightValueResult = rightValue.extractValueWithExpectation(Double.class);
+        }
+        catch (Exception e) {
+            //Will get here if right expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            rightValueResult = NaN;
+        }
+
+        double result = leftValueResult * rightValueResult;
+
         return new EffectiveValueImpl(CellType.NUMERIC, result);
     }
 

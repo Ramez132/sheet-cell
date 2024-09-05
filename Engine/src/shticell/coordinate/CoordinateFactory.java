@@ -1,5 +1,7 @@
 package shticell.coordinate;
 
+import shticell.sheet.api.SheetReadActions;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,31 +36,41 @@ public class CoordinateFactory {
         return createCoordinate(row, column);
     }
 
-    public static Coordinate getCoordinateFromStr(String rowAndColStr) {
+    public static Coordinate getCoordinateFromStr(String rowAndColStr, SheetReadActions sheet) {
 
         int columnNumFromChar, rowNum, firstIndex = 0;
         char letterChar = rowAndColStr.toUpperCase().charAt(firstIndex);
 
         if (rowAndColStr.length() <= 1) {
-            throw new IllegalArgumentException("Row and column string must be longer than 1 character.");
+            throw new IllegalArgumentException("Tried to reach " + rowAndColStr + ", but row and column string must be longer than 1 character.");
         }
 
         if (letterChar >= 'A' && letterChar <= 'T') {
             columnNumFromChar = letterChar - 'A' + 1;
         } else {
-            throw new IllegalArgumentException
-                ("First character, representing a column number, must be a letter from A to T (for columns 1 to max 20)");
+            throw new IllegalArgumentException ("Tried to reach " + rowAndColStr +
+                    ", but first character, representing a column number, must be a letter from A to T (for columns 1 to max 20)");
+        }
+
+        if (columnNumFromChar > sheet.getNumOfColumns()) {
+            throw new IllegalArgumentException("Tried to reach " + rowAndColStr +
+                    ", but column character provided (" + letterChar + "), which represents column number "
+                    + columnNumFromChar + ", is greater than the maximum column number of the sheet (" + sheet.getNumOfColumns() + ")");
         }
 
         String numberPart = rowAndColStr.substring(1);
         try {
             rowNum = Integer.parseInt(numberPart);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("The part after the first character must be a number.");
+            throw new IllegalArgumentException("Tried to reach " + rowAndColStr + ", but the part after the first character must be a valid number.");
         }
 
-        if (rowNum < 1 || rowNum > 50) {
-            throw new IllegalArgumentException("The number must be between 1 and 50.");
+        if (rowNum > sheet.getNumOfRows()) {
+            throw new IllegalArgumentException("Tried to reach " + rowAndColStr +
+                    ", but row number provided (" + rowNum + ") is greater than the maximum row number of the sheet (" + sheet.getNumOfRows() + ")");
+        }
+        if (rowNum < 1) {
+            throw new IllegalArgumentException("Tried to reach " + rowAndColStr + ", but row number provided is less than 1 - not possible");
         }
 
         return createCoordinate(rowNum,columnNumFromChar);

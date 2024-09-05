@@ -21,7 +21,6 @@ public class PlusExpression implements Expression {
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
-
         double leftValueResult, rightValueResult;
         EffectiveValue leftValue, rightValue;
         try {

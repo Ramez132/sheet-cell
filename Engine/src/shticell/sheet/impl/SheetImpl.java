@@ -1,5 +1,6 @@
 package shticell.sheet.impl;
 
+import shticell.cell.api.EffectiveValue;
 import shticell.cell.impl.CellImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
@@ -16,7 +17,7 @@ public class SheetImpl implements Sheet, Serializable {
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
     private String nameOfSheet;
     private int numOfRows;
-    private int numbOfColumns;
+    private int numOfColumns;
     private int rowHeight;
     private int columnWidth;
     private int thisSheetVersion = 1; //need to update?
@@ -24,11 +25,11 @@ public class SheetImpl implements Sheet, Serializable {
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
 
-    public SheetImpl(String nameOfSheet, int numOfRows, int numbOfColumns, int rowHeight, int columnWidth, int thisSheetVersion) {
+    public SheetImpl(String nameOfSheet, int numOfRows, int numOfColumns, int rowHeight, int columnWidth, int thisSheetVersion) {
         this();
         this.nameOfSheet = nameOfSheet;
         this.numOfRows = numOfRows;
-        this.numbOfColumns = numbOfColumns;
+        this.numOfColumns = numOfColumns;
         this.rowHeight = rowHeight;
         this.columnWidth = columnWidth;
         this.thisSheetVersion = thisSheetVersion;
@@ -55,7 +56,7 @@ public class SheetImpl implements Sheet, Serializable {
 
     @Override
     public int getNumOfColumns() {
-        return numbOfColumns;
+        return numOfColumns;
     }
 
     @Override
@@ -75,9 +76,14 @@ public class SheetImpl implements Sheet, Serializable {
             boolean isCoordinateValid = isCoordinateInSheetRange(row, column);
 
             if (isCoordinateValid) {
-                return activeCells.get(CoordinateFactory.createCoordinate(row, column));
+                Coordinate coordinate = CoordinateFactory.createCoordinate(row, column);
+                if (activeCells.containsKey(coordinate)) {
+                    return activeCells.get(coordinate);
+                } else {
+                    return setNewEmptyCell(row, column);
+                }
             }
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             // deal with the runtime error that was discovered as part of invocation
             throw  e;
         }
@@ -86,19 +92,19 @@ public class SheetImpl implements Sheet, Serializable {
     }
 
     @Override
-    public boolean isCoordinateInSheetRange(int row, int column) throws IllegalArgumentException {
+    public boolean isCoordinateInSheetRange(int rowNum, int columnNum) throws IllegalArgumentException {
 
-        if (row > numOfRows) {
-            throw new IllegalArgumentException("Row number provided is greater than the maximum row number of the sheet");
+        if (rowNum > numOfRows) {
+            throw new IllegalArgumentException("Row number provided (" + rowNum + ") is greater than the maximum row number of the sheet (" + numOfRows + ")");
         }
-        if (column > numbOfColumns) {
-            throw new IllegalArgumentException("Column number provided is greater than the maximum column number of the sheet");
+        if (columnNum > numOfColumns) {
+            throw new IllegalArgumentException("Column character provided (to represent column number " + columnNum + ") is greater than the maximum column number of the sheet (" + numOfColumns + ")");
         }
-        if (row < 1) {
+        if (rowNum < 1) {
             throw new IllegalArgumentException("Row number provided is less than 1 - not possible");
         }
-        if (column < 1) {
-            throw new IllegalArgumentException("Column number provided is less than 1 - not possible");
+        if (columnNum < 1) {
+            throw new IllegalArgumentException("Column character provided (to represent column number " + columnNum + ") is less than 1 - not possible");
         }
         return true;
     }
@@ -145,6 +151,12 @@ public class SheetImpl implements Sheet, Serializable {
     }
 
     @Override
+    public int getVersionNumForEmptyCellWithoutPreviousValues() {
+        return versionNumForEmptyCellWithoutPreviousValues;
+    }
+
+
+    @Override
     public Sheet updateCellValueAndCalculate
                         (int row, int column, String value,
                          boolean isUpdatePartOfSheetInitialization)
@@ -155,23 +167,29 @@ public class SheetImpl implements Sheet, Serializable {
 
                 Coordinate coordinateOfNewCellOrCellToBeUpdated = CoordinateFactory.createCoordinate(row, column);
                 Cell cellBeforeUpdate = activeCells.get(coordinateOfNewCellOrCellToBeUpdated);
+                int sheetVersionNumForNewCell, lastVersionInWhichCellBeforeUpdateHasChanged = -1; //is -1 the right value? indicate an empty cell?
 
                 Map<Coordinate,Cell> influencingOnMapOfCellThatMightBeUpdated = new HashMap<>();
                 if (cellBeforeUpdate != null) { //this coordinate already have a cell
                     //get the cells that already depends on the cell\coordinate that is updating - to update their dependsOnMap to reference the updated cell
                     influencingOnMapOfCellThatMightBeUpdated = activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
-                    cellBeforeUpdate.calculateNewEffectiveValueAndDetermineIfItChanged();
+//                    cellBeforeUpdate.calculateNewEffectiveValueAndDetermineIfItChanged();  //needed or will cause a problem?
+                    lastVersionInWhichCellBeforeUpdateHasChanged = cellBeforeUpdate.getLastVersionInWhichCellHasChanged();
                 }
 
                 SheetImpl newSheetVersion = copySheet();
-                int sheetVersionNumForNewCell;
                 if (isUpdatePartOfSheetInitialization) {
-                    sheetVersionNumForNewCell = 1;
-                } else {
-                    sheetVersionNumForNewCell = newSheetVersion.getVersion() + 1;
+                    newSheetVersion.thisSheetVersion = sheetVersionNumForNewCell = 1;;
+                }
+                else {
+                    //sheetVersionNumForNewCell = lastVersionInWhichCellBeforeUpdateHasChanged;
+                    newSheetVersion.thisSheetVersion = sheetVersionNumForNewCell = this.thisSheetVersion + 1;
                 }
 
                 Cell newCell = new CellImpl(row, column, value, sheetVersionNumForNewCell, newSheetVersion);
+                if (!isUpdatePartOfSheetInitialization && cellBeforeUpdate != null) {
+                    newCell.setPreviousEffectiveValue(cellBeforeUpdate.getCurrentEffectiveValue());
+                }
                 if (newSheetVersion.activeCells.containsKey(coordinateOfNewCellOrCellToBeUpdated)) { //the cell existed before
                     Map<Coordinate, Cell> influencingOnMapOfCopiedCell = newSheetVersion.activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
                     newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCopiedCell);
@@ -215,11 +233,12 @@ public class SheetImpl implements Sheet, Serializable {
 //                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
 //                        cellThatAlreadyDependsOnThisCoordinate.getDependsOnMap().put(coordinateOfNewCellOrCellToBeUpdated, cellBeforeUpdate);
 //                    }
-                    throw new IllegalArgumentException("The sheet has circular dependencies."); //this is what we want to do?
+                    throw new IllegalArgumentException("Could not update the value of cell: " + coordinateOfNewCellOrCellToBeUpdated +
+                            ". The requested update would cause the sheet to have a circular dependencies, and that is not allowed in this system."); //this is what we want to do?
                 }
 
                 try {
-                    Expression expression = FunctionParser.parseExpression(newCell.getOriginalValueStr());
+                    Expression expression = FunctionParser.parseExpression(newCell.getOriginalValueStr(), newSheetVersion);
                 } catch (IllegalArgumentException e) { //in case a function is not recognized or number of arguments is incorrect
 //                    //revert the change from before - so the cells depends on this coordinate will reference the cell object from before the update
 //                    for (Cell cellThatAlreadyDependsOnThisCoordinate : influencingOnMapOfCellThatMightBeUpdated.values()) {
@@ -232,17 +251,25 @@ public class SheetImpl implements Sheet, Serializable {
                         return this;
                 }
 
+                int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;
                 boolean effectiveValueChanged;
                 for (Cell currentCellToCalcEffectiveValue : newSheetVersion.activeCells.values())
                 {
                     effectiveValueChanged = currentCellToCalcEffectiveValue.calculateNewEffectiveValueAndDetermineIfItChanged();
-                    if (effectiveValueChanged) {
-                        newSheetVersion.numOfCellsWhichEffectiveValueChangedInNewVersion++;
+                    EffectiveValue currentEffectiveValue = currentCellToCalcEffectiveValue.getCurrentEffectiveValue();
+                    EffectiveValue previousEffectiveValue = currentCellToCalcEffectiveValue.getPreviousEffectiveValue();
+                    if (effectiveValueChanged && !currentEffectiveValue.equals(previousEffectiveValue)) {
+                        numOfCellsWhichEffectiveValueChangedInNewVersion++;
+                        currentCellToCalcEffectiveValue.setLastVersionInWhichCellHasChanged(newSheetVersion.thisSheetVersion);
                     }
                 }
                 //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
 
-
+                if (isUpdatePartOfSheetInitialization) {
+                    newSheetVersion.numOfCellsWhichEffectiveValueChangedInNewVersion = newSheetVersion.activeCells.size();
+                } else {
+                    newSheetVersion.numOfCellsWhichEffectiveValueChangedInNewVersion = numOfCellsWhichEffectiveValueChangedInNewVersion;
+                }
 
                 return newSheetVersion;
 
@@ -269,6 +296,11 @@ public class SheetImpl implements Sheet, Serializable {
             throw e;
         }
         return null;
+    }
+
+    @Override
+    public int getNumOfCellsWhichEffectiveValueChangedInNewVersion() {
+        return numOfCellsWhichEffectiveValueChangedInNewVersion;
     }
 
     private Map<Cell, List<Cell>> buildGraphAdjacencyList() {
