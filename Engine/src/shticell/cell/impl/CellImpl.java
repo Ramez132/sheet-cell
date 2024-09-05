@@ -20,94 +20,93 @@ public class CellImpl implements Cell, Serializable {
 
     private final Coordinate coordinate;
     private String originalValueStr;
+    private EffectiveValue previousEffectiveValue;
     private EffectiveValue currentEffectiveValue; //null means: no effective value - empty cell or reference to an empty cell
-    private int lastVersionInWhichCellHasChanged;
+    private int lastVersionInWhichCellHasChanged = -1;
     private Map<Coordinate, Cell> dependsOnMap;
     private Map<Coordinate, Cell> influencingOnMap;
-//    private final List<Cell> dependsOnMap;
-//    private final List<Cell> influencingOnMap;
     private final Sheet sheet;
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
 
     public CellImpl(int row, int column, String originalValueStr,
                     int lastVersionInWhichCellHasChanged, Sheet sheet)  {
-        this.sheet = sheet;
-        this.coordinate = new CoordinateImpl(row, column);
-        this.originalValueStr = originalValueStr;
-        this.lastVersionInWhichCellHasChanged = lastVersionInWhichCellHasChanged;
-        this.dependsOnMap = new HashMap<>();
-        this.influencingOnMap = new HashMap<>();
-        isCellEmptyBoolean = originalValueStr.isEmpty();
-        handleOriginalValueStrWithRef();
+            this.sheet = sheet;
+            this.coordinate = new CoordinateImpl(row, column);
+            this.originalValueStr = originalValueStr;
+            this.lastVersionInWhichCellHasChanged = lastVersionInWhichCellHasChanged;
+            this.dependsOnMap = new HashMap<>();
+            this.influencingOnMap = new HashMap<>();
+            isCellEmptyBoolean = originalValueStr.isEmpty();
+            handleOriginalValueStrWithRef();
     }
 
 
     public void handleOriginalValueStrWithRef() {
 
-        //List<int[]> indices = new ArrayList<>();
-        List<Integer> indicesAfterRefAndComma = new ArrayList<>();
-        List<String> rowAndColStringsAfterRef = new ArrayList<>();
-        String upperCaseRefAndCommaSTR = "REF,";
-        String upperCaseOriginalStr = originalValueStr.toUpperCase();
+        try {
+            List<Integer> indicesAfterRefAndComma = new ArrayList<>();
+            List<String> rowAndColStringsAfterRef = new ArrayList<>();
+            String upperCaseRefAndCommaSTR = "REF,";
+            String upperCaseOriginalStr = originalValueStr.toUpperCase();
 
-        if (!upperCaseOriginalStr.contains(upperCaseRefAndCommaSTR))
-            return;
+            if (!upperCaseOriginalStr.contains(upperCaseRefAndCommaSTR))
+                return;
 
-//        int startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR);
-//
-//        while (startIndex != -1) {
-//            firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
-//            indices.add(new int[]{startIndex, firstIndexAfterRef});
-//            startIndex = originalValueStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
-//        }
+            int startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR);
+            int firstIndexAfterRef;
 
-        int startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR);
-        int firstIndexAfterRef;
-
-        while (startIndex != -1) {
-            firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
-            indicesAfterRefAndComma.add(firstIndexAfterRef);
-            startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
-        }
-
-        for (int index : indicesAfterRefAndComma) {
-
-            int indexAfterRefWithComma = index;
-            StringBuilder rowAndColStr = new StringBuilder();
-
-            while (indexAfterRefWithComma < upperCaseOriginalStr.length()
-                    && upperCaseOriginalStr.charAt(indexAfterRefWithComma) != '}') {
-                rowAndColStr.append(upperCaseOriginalStr.charAt(indexAfterRefWithComma));
-                indexAfterRefWithComma++;
+            while (startIndex != -1) {
+                firstIndexAfterRef = startIndex + upperCaseRefAndCommaSTR.length();
+                indicesAfterRefAndComma.add(firstIndexAfterRef);
+                startIndex = upperCaseOriginalStr.indexOf(upperCaseRefAndCommaSTR, firstIndexAfterRef);
             }
 
-            rowAndColStringsAfterRef.add(rowAndColStr.toString());
-        }
+            for (int index : indicesAfterRefAndComma) {
 
-        for (String rowAndColStr : rowAndColStringsAfterRef) {
-            Cell referencedCell;
-            Coordinate referencedCoordinate = CoordinateFactory.getCoordinateFromStr(rowAndColStr);
-            if (referencedCoordinate.getRow() == this.coordinate.getRow() && referencedCoordinate.getColumn() == this.coordinate.getColumn()) {
-                throw new IllegalArgumentException("Error - A cell can't reference itself. Cell " + rowAndColStr + " tried to reference " + rowAndColStr);
+                int indexAfterRefWithComma = index;
+                StringBuilder rowAndColStr = new StringBuilder();
+
+                while (indexAfterRefWithComma < upperCaseOriginalStr.length()
+                        && upperCaseOriginalStr.charAt(indexAfterRefWithComma) != '}') {
+                    rowAndColStr.append(upperCaseOriginalStr.charAt(indexAfterRefWithComma));
+                    indexAfterRefWithComma++;
+                }
+
+                rowAndColStringsAfterRef.add(rowAndColStr.toString());
             }
 
-            int currentReferencedRow = referencedCoordinate.getRow();
-            int currentReferencedColumn = referencedCoordinate.getColumn();
-            boolean isCellsCollectionInSheetContainsCoordinate = sheet.isCellsCollectionContainsCoordinate(currentReferencedRow, currentReferencedColumn);
+            for (String rowAndColStr : rowAndColStringsAfterRef) {
+                Cell referencedCell;
+                try {
+                    Coordinate referencedCoordinate = CoordinateFactory.getCoordinateFromStr(rowAndColStr, sheet);
 
-            if (!isCellsCollectionInSheetContainsCoordinate){
-                referencedCell = sheet.setNewEmptyCell(currentReferencedRow, currentReferencedColumn);
-            } else {
-                referencedCell = sheet.getCell(currentReferencedRow, currentReferencedColumn);
+                    if (referencedCoordinate.getRow() == this.coordinate.getRow() && referencedCoordinate.getColumn() == this.coordinate.getColumn()) {
+                        throw new IllegalArgumentException("A cell can't reference itself. Cell " + rowAndColStr + " tried to reference " + rowAndColStr);
+                    }
+
+                    int currentReferencedRow = referencedCoordinate.getRow();
+                    int currentReferencedColumn = referencedCoordinate.getColumn();
+                    boolean isCellsCollectionInSheetContainsCoordinate = sheet.isCellsCollectionContainsCoordinate(currentReferencedRow, currentReferencedColumn);
+
+                    if (!isCellsCollectionInSheetContainsCoordinate) {
+                        referencedCell = sheet.setNewEmptyCell(currentReferencedRow, currentReferencedColumn);
+                    } else {
+                        referencedCell = sheet.getCell(currentReferencedRow, currentReferencedColumn);
+                    }
+
+                    referencedCell.getInfluencingOnMap().put(this.getCoordinate(), this);
+                    this.dependsOnMap.put(referencedCell.getCoordinate(), referencedCell);
+                }
+
+                catch(IllegalArgumentException e){
+                    throw new IllegalArgumentException("Error trying to reference " + rowAndColStr + ": " + e.getMessage());
+                }
             }
-
-            referencedCell.getInfluencingOnMap().put(this.getCoordinate(), this);
-            this.dependsOnMap.put(referencedCell.getCoordinate(), referencedCell);
-//            referencedCell.getInfluencingOnMap().add(this);
-//            this.dependsOnMap.add(referencedCell);
         }
-
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
@@ -132,61 +131,64 @@ public class CellImpl implements Cell, Serializable {
 
     @Override
     public EffectiveValue getCurrentEffectiveValue() {
-//        if (currentEffectiveValue == null) { //is it the proper impl?
-//            calculateNewEffectiveValueAndDetermineIfItChanged();
-//        }
         return currentEffectiveValue;
     }
 
     @Override
+    public EffectiveValue getPreviousEffectiveValue() {
+        return previousEffectiveValue;
+    }
+
+    @Override
+    public void setPreviousEffectiveValue(EffectiveValue effectiveValue) {
+        previousEffectiveValue = effectiveValue;
+    }
+
+    @Override
     public boolean calculateNewEffectiveValueAndDetermineIfItChanged() {
-        // build the expression object out of the original value...
-        // it can be {PLUS, 4, 5} OR {CONCAT, {ref, A4}, world}
-        Expression expression = FunctionParser.parseExpression(originalValueStr);
+        try {
+            Expression expression = FunctionParser.parseExpression(originalValueStr, sheet);
 
-        EffectiveValue newEffectiveValue = expression.eval(sheet);
+            EffectiveValue newEffectiveValue = expression.eval(sheet);
 
-        //if the received newEffectiveValue is not already null (indicating no effective value) and the cell is empty or references an empty cell
-        if (newEffectiveValue != null && newEffectiveValue.getCellType() == CellType.Empty) {
-            //null for effectiveValue means: no effective value - empty cell or reference to an empty cell
-            newEffectiveValue = null;
-        }
-
-
-        if (newEffectiveValue == null) {  //no effectiveValue
-            if (currentEffectiveValue == null) { //the cell did not have an effective value and stays like that
-                return false; // return false to indicate no change
+            //if the received newEffectiveValue is not already null (indicating no effective value) and the cell is empty or references an empty cell
+            if (newEffectiveValue != null && newEffectiveValue.getCellType() == CellType.Empty) {
+                //null for effectiveValue means: no effective value - empty cell or reference to an empty cell
+                newEffectiveValue = null;
             }
-            else {  //the cell had an effective value before, now it doesn't have
-                currentEffectiveValue = null;
-                return true; // return true to indicate a change
+            if (newEffectiveValue != null && newEffectiveValue.equals(previousEffectiveValue)) {
+                return false;
             }
-        } else if (currentEffectiveValue == null) {  //the cell did not have an effective value before, now it has
-            currentEffectiveValue = newEffectiveValue; //update to the new value
-            return true; //indicate a change
-        } else if (newEffectiveValue.equals(currentEffectiveValue)) { //the cell had an effective value before and now
-            return false; // the effective value stayed the same - indicating no change
-        } else {  // the effective value has changed - update and indicate change
-            currentEffectiveValue = newEffectiveValue;
-            return true;
+
+            if (newEffectiveValue == null) {  //no effectiveValue
+                if (currentEffectiveValue == null) { //the cell did not have an effective value and stays like that
+                    return false; // return false to indicate no change
+                } else {  //the cell had an effective value before, now it doesn't have
+                    currentEffectiveValue = null;
+                    return true; // return true to indicate a change
+                }
+            } else if (currentEffectiveValue == null) {  //the cell did not have an effective value before, now it has
+                currentEffectiveValue = newEffectiveValue; //update to the new value
+                return true; //indicate a change
+            } else if (newEffectiveValue.equals(currentEffectiveValue)) { //the cell had an effective value before and now
+                return false; // the effective value stayed the same - indicating no change
+            } else {  // the effective value has changed - update and indicate change
+                currentEffectiveValue = newEffectiveValue;
+                return true;
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error - The original value string is not in the correct format: " + e.getMessage());
         }
-
-
-//        if (newEffectiveValue.getCellType() == CellType.Empty) { //if the cell is empty, null will represent it's effective value
-//            newEffectiveValue = null;
-//        }
-//
-//        if (newEffectiveValue.equals(currentEffectiveValue)) {
-//            return false;
-//        } else {
-//            currentEffectiveValue = newEffectiveValue;
-//            return true;
-//        }
     }
 
     @Override
     public int getLastVersionInWhichCellHasChanged() {
         return lastVersionInWhichCellHasChanged;
+    }
+
+    @Override
+    public void setLastVersionInWhichCellHasChanged(int newVersionNum) {
+        lastVersionInWhichCellHasChanged = newVersionNum;
     }
 
     @Override

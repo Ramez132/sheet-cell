@@ -6,24 +6,45 @@ import shticell.cell.impl.EffectiveValueImpl;
 import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
-public class ModuloExpression implements Expression {
-    private Expression e1;
-    private Expression e2;
+import static java.lang.Double.NaN;
 
-    public ModuloExpression(Expression e1, Expression e2) {
-        this.e1 = e1;
-        this.e2 = e2;
+public class ModuloExpression implements Expression {
+    private Expression dividend;
+    private Expression divisor;
+
+    public ModuloExpression(Expression dividend, Expression divisor) {
+        this.dividend = dividend;
+        this.divisor = divisor;
     }
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
-        EffectiveValue left = e1.eval(sheet);
-        EffectiveValue right = e2.eval(sheet);
-        Double divisor = right.extractValueWithExpectation(Double.class);
-        if (divisor == 0) {
+        double dividendValueResult, divisorValueResult;
+        EffectiveValue dividendValue, divisorValue;
+
+        try {
+            dividendValue = dividend.eval(sheet);
+            dividendValueResult = dividendValue.extractValueWithExpectation(Double.class);
+        } catch (Exception e) {
+            //Will get here if left expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            dividendValueResult = NaN;
+        }
+
+        try {
+            divisorValue = divisor.eval(sheet);
+            divisorValueResult = divisorValue.extractValueWithExpectation(Double.class);
+        }
+        catch (Exception e) {
+            //Will get here if right expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            divisorValueResult = NaN;
+        }
+//        Double divisor = divisorValue.extractValueWithExpectation(Double.class);
+        if (divisorValueResult == 0) {
             throw new ArithmeticException("Division by zero is not possible.");
         }
-        double result = left.extractValueWithExpectation(Double.class) % right.extractValueWithExpectation(Double.class);
+        double result = dividendValueResult % divisorValueResult;
         return new EffectiveValueImpl(CellType.NUMERIC, result);
     }
 

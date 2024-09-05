@@ -19,18 +19,16 @@ public class SheetFromFilesFactory {
     private static final int maxPossibleNumOfRows = 50;
     private static final int maxPossibleNumOfColumns = 20;
 
-    public static Sheet CreateSheetObjectFromXmlFile(String fileName) throws Exception {
-        File file = new File(fileName);
+    public static Sheet CreateSheetObjectFromXmlFile(File file) throws Exception {
         STLSheet stlSheet;
         Sheet newSheet = new SheetImpl();
-        //InputStream inputStreamFromFile = new FileInputStream(file);
 
         try (InputStream inputStreamFromFile = new FileInputStream(file)) {
             stlSheet = unMarshalFromFile(inputStreamFromFile);
             newSheet = convertStlSheetFromFileToSheetImpl(stlSheet);
         }
         catch (FileNotFoundException ex) {
-            System.err.println("Missing file " + file.getAbsolutePath());
+            throw new FileNotFoundException("Missing file: " + file.getAbsolutePath());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -59,26 +57,36 @@ public class SheetFromFilesFactory {
 
             for (STLCell cellFromFile : allCellsFromFile) {
                 currentRowNum = cellFromFile.getRow();
-                currentColumnNum = getColumnLetterFromString(cellFromFile.getColumn());
+                currentColumnNum = getColumnNumFromString(cellFromFile.getColumn());
                 sheetImplFromFile = sheetImplFromFile.updateCellValueAndCalculate(currentRowNum, currentColumnNum, cellFromFile.getSTLOriginalValue(), cellAddedAsPartOfInitialization);
             }
 
             return sheetImplFromFile;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("The system encountered an error when trying to load the sheet from the provided file: " + e.getMessage());
         }
 
     }
 
-    private static void checkProvidedNumOfRowsAndColsSmallerThanPossibleMax(int rows, int cols) {
+    private static void checkProvidedNumOfRowsAndColsSmallerThanPossibleMax(int providedNumOfRows, int providedNumOfColumns) {
 
-        if (rows > maxPossibleNumOfRows || cols > maxPossibleNumOfColumns) {
-            throw new IllegalArgumentException("Number of rows must be smaller than: " + maxPossibleNumOfRows +
-                    " and Number of columns must be smaller than: " + maxPossibleNumOfColumns);
+        if (providedNumOfRows > maxPossibleNumOfRows) {
+            throw new IllegalArgumentException("Number of rows provided in the file (" + providedNumOfRows +
+                    ") is greater than maximum possible number of rows for a sheet(" + maxPossibleNumOfRows + ")");
+        }
+        if (providedNumOfColumns > maxPossibleNumOfColumns) {
+            throw new IllegalArgumentException("Number of columns provided in the file (" + providedNumOfColumns +
+                    ") is greater than maximum possible number of columns for a sheet(" + maxPossibleNumOfColumns + ")");
+        }
+        if (providedNumOfRows < 1) {
+            throw new IllegalArgumentException("Number of rows provided in the file is less than 1 - not possible");
+        }
+        if (providedNumOfColumns < 1) {
+            throw new IllegalArgumentException("Number of columns provided in the file is less than 1 - not possible");
         }
     }
 
-    public static int getColumnLetterFromString(String columnLetterString) {
+    public static int getColumnNumFromString(String columnLetterString) {
 
         int columnNumFromChar;
         char letterChar = columnLetterString.toUpperCase().charAt(0);

@@ -17,4 +17,6 @@ public interface SheetReadActions {
     boolean isCellEmpty(int row, int column);
     boolean isCellsCollectionContainsCoordinate(int row, int column);
     Map<Coordinate, Cell> getActiveCells();
+    int getVersionNumForEmptyCellWithoutPreviousValues();
+    int getNumOfCellsWhichEffectiveValueChangedInNewVersion();
 }

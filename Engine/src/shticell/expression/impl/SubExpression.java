@@ -6,51 +6,73 @@ import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 import shticell.cell.impl.EffectiveValueImpl;
 
+import static java.lang.Double.NaN;
+
 public class SubExpression implements Expression {
-    private final Expression source;
+    private final Expression sourceStrExpression;
     private final Expression start_index;
     private final Expression end_index;
 
-    public SubExpression(Expression source, Expression start_index, Expression end_index) {
-        this.source = source;
+    public SubExpression(Expression sourceStrExpression, Expression start_index, Expression end_index) {
+        this.sourceStrExpression = sourceStrExpression;
         this.start_index = start_index;
         this.end_index = end_index;
     }
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
-        EffectiveValue sourceValue = source.eval(sheet);
-        EffectiveValue startIndexValue = start_index.eval(sheet);
-        EffectiveValue endIndexValue = end_index.eval(sheet);
 
-        // Convert the values to appropriate types
-        String source_string = sourceValue.extractValueWithExpectation(String.class);
-        Double converted_start_index = startIndexValue.extractValueWithExpectation(Double.class);
-        Double converted_end_index = endIndexValue.extractValueWithExpectation(Double.class);
+        EffectiveValue sourceValue;
+        String originalValueToSubFrom;
+        try {
+            sourceValue = sourceStrExpression.eval(sheet);
+            originalValueToSubFrom = sourceValue.extractValueWithExpectation(String.class);
+        } catch (Exception e) {
+            //Will get here if left expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a String value
+            originalValueToSubFrom = "!UNDEFINED!";
+        }
 
-        // Check for type conversion issues
-        if (source_string == null) {
-            throw new IllegalArgumentException("Error: The source provided to the SUB function is not a valid string. " +
-                    "Please ensure that the source argument is a valid string value.");
+        Double startIndexDoubleValue, endIndexDoubleValue;
+        EffectiveValue startIndexEffectiveValue, endIndexEffectiveValue;
+
+        try {
+            startIndexEffectiveValue = start_index.eval(sheet);
+            startIndexDoubleValue = startIndexEffectiveValue.extractValueWithExpectation(Double.class);
+        } catch (Exception e) {
+            //Will get here if left expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            startIndexDoubleValue = NaN;
         }
-        if (converted_start_index == null || converted_end_index == null) {
-            throw new IllegalArgumentException("Error: The start or end index provided to the SUB function is not numeric. " +
-                    "Please ensure that both indices are valid numeric values.");
+
+        try {
+            endIndexEffectiveValue = end_index.eval(sheet);
+            endIndexDoubleValue = endIndexEffectiveValue.extractValueWithExpectation(Double.class);
         }
-        if (converted_start_index % 1 != 0 || converted_end_index % 1 != 0) {
+        catch (Exception e) {
+            //Will get here if right expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
+            endIndexDoubleValue = NaN;
+        }
+
+        if (originalValueToSubFrom.equals("!UNDEFINED!") || startIndexDoubleValue == NaN || endIndexDoubleValue == NaN) {
             return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
         }
-        if (converted_start_index < 0 || converted_end_index < 0 || converted_start_index > converted_end_index ) {
+
+        if (startIndexDoubleValue % 1 != 0 || endIndexDoubleValue % 1 != 0) {
             return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
         }
-        if (!(converted_start_index < source_string.length() && converted_end_index < source_string.length())) {
+        if (startIndexDoubleValue < 0 || endIndexDoubleValue < 0 || startIndexDoubleValue > endIndexDoubleValue ) {
+            return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
+        }
+        if (!(startIndexDoubleValue < originalValueToSubFrom.length() && endIndexDoubleValue < originalValueToSubFrom.length())) {
             return new EffectiveValueImpl(CellType.STRING, "!UNDEFINED!");
         }
 
-        int start = converted_start_index.intValue();
-        int end = converted_end_index.intValue();
+        int startIndex = startIndexDoubleValue.intValue();
+        int endIndex = endIndexDoubleValue.intValue();
 
-        String result = source_string.substring(start - 1, end - 1);
+        String result = originalValueToSubFrom.substring(startIndex - 1, endIndex);
         return new EffectiveValueImpl(CellType.STRING, result);
 
     }

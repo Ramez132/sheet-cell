@@ -21,7 +21,6 @@ public class PlusExpression implements Expression {
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
-
         double leftValueResult, rightValueResult;
         EffectiveValue leftValue, rightValue;
         try {
@@ -42,13 +41,6 @@ public class PlusExpression implements Expression {
             //1. An empty cell or a cell out of sheet range 2. A cell without a number value
             rightValueResult = NaN;
         }
-
-        //leftValue = left.eval(sheet);
-        //rightValue = right.eval(sheet);
-
-        // do some checking... error handling...
-        ///double result = (Double) leftValue.getValue() + (Double) rightValue.getValue();
-        //double result = leftValue.extractValueWithExpectation(Double.class) + rightValue.extractValueWithExpectation(Double.class);
 
         double result = leftValueResult + rightValueResult;
 
