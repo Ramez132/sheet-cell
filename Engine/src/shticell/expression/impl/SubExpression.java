@@ -89,7 +89,7 @@ public class SubExpression implements Expression {
         int startIndex = startIndexDoubleValue.intValue();
         int endIndex = endIndexDoubleValue.intValue();
 
-        String result = originalValueToSubFrom.substring(startIndex - 1, endIndex - 1);
+        String result = originalValueToSubFrom.substring(startIndex - 1, endIndex);
         return new EffectiveValueImpl(CellType.STRING, result);
 
     }

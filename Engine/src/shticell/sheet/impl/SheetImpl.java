@@ -248,7 +248,8 @@ public class SheetImpl implements Sheet, Serializable {
                         throw new IllegalArgumentException("The file could not be loaded - there is an error in cell " + newCell.getCoordinate().toString()
                                 + ": " + e.getMessage());
                     else
-                        return this;
+                        throw new IllegalArgumentException("The update could not be done - there is an error in cell " + newCell.getCoordinate().toString()
+                                + ": " + e.getMessage());
                 }
 
                 int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;

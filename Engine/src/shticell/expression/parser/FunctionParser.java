@@ -285,14 +285,29 @@ public enum FunctionParser {
             for (String argument : arguments) {
                 expressions.add(parseExpression(argument, sheet));
             }
+            Expression firstExpression = expressions.getFirst();
+            CellType expressionCellType = firstExpression.getFunctionResultType();
 
-            // Validate that the arguments are strings or unknown
-            for (Expression currentExpression : expressions) {
-                CellType expressionCellType = currentExpression.getFunctionResultType();
-                if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
-                    throw new IllegalArgumentException("Invalid argument types for SUB function. Expected STRING, but got " + expressionCellType);
-                }
+            if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument types for SUB function. Expected STRING, but got " + expressionCellType);
             }
+            Expression secondExpression = expressions.get(1);
+            Expression thirdExpression = expressions.get(2);
+            CellType secondExpressionCellType = secondExpression.getFunctionResultType();
+            CellType thirdExpressionCellType = thirdExpression.getFunctionResultType();
+            if (!secondExpressionCellType.equals(CellType.NUMERIC) && !secondExpressionCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument types for SUB function. Expected NUMERIC, but got " + secondExpressionCellType);
+            }
+            if (!thirdExpressionCellType.equals(CellType.NUMERIC) && !thirdExpressionCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument types for SUB function. Expected NUMERIC, but got " + thirdExpressionCellType);
+            }
+//            // Validate that the arguments are strings or unknown
+//            for (Expression currentExpression : expressions) {
+//                expressionCellType = currentExpression.getFunctionResultType();
+//                if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
+//                    throw new IllegalArgumentException("Invalid argument types for SUB function. Expected STRING, but got " + expressionCellType);
+//                }
+//            }
 
             // Create and return the ConcatExpression
             return new SubExpression(expressions.get(0), expressions.get(1), expressions.get(2));
