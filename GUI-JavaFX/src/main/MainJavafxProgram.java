@@ -1,12 +1,17 @@
-package firstTryJavaFX;
+package main;
 
+import engine.api.EngineManagerJavafx;
+import engine.impl.EngineManagerJavafxImpl;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import java.util.Objects;
 
-public class FirstTryJavaFXProgram extends Application {
+import java.net.URL;
+
+public class MainJavafxProgram extends Application {
+
+    private EngineManagerJavafx engineManager;
 
     public static void main(String[] args) {
         launch(args);
@@ -14,16 +19,27 @@ public class FirstTryJavaFXProgram extends Application {
 
     @Override
     public void start(javafx.stage.Stage primaryStage) throws Exception {
-        primaryStage.setTitle("First Try JavaFX Program");
-        Parent load = FXMLLoader.load(getClass().getResource("Fxml-first-Try.fxml"));
-        Scene scene = new Scene(load);
+        engineManager = new EngineManagerJavafxImpl();
+
+        primaryStage.setTitle("Sheet-Cell");
+
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        URL url = getClass().getResource("main.fxml");
+        fxmlLoader.setLocation(url);
+        Parent root = fxmlLoader.load(url.openStream());
+
+        MainController mainController = fxmlLoader.getController();
+        mainController.setEngineManager(engineManager);
+
+//      Parent load = FXMLLoader.load(getClass().getResource("main.fxml"));
+        Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 }
 
 
-
+//
 //import javafx.application.Application;
 //import javafx.event.ActionEvent;
 //import javafx.event.EventHandler;
