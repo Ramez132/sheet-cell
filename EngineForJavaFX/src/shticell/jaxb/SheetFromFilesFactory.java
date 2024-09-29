@@ -3,7 +3,7 @@ package shticell.jaxb;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
-import shticell.jaxb.schemaClasses.*;
+import shticell.jaxb.schema.classes.*;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.impl.SheetImpl;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class SheetFromFilesFactory {
 
-    private final static String JAXB_XML_GAME_PACKAGE_NAME = "shticell/jaxb/schema";
+//    private final static String JAXB_XML_GAME_PACKAGE_NAME = "shticell/jaxb/schema";
     private static final int maxPossibleNumOfRows = 50;
     private static final int maxPossibleNumOfColumns = 20;
 

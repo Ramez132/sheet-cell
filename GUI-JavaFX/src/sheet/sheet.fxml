@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+
+<!--<ScrollPane fx:id="upDownScroller" fitToHeight="true" fitToWidth="true" maxHeight="-Infinity"-->
+<!--            maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"-->
+<!--            prefHeight="300.0" prefWidth="1262.0"-->
+<!--            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22"-->
+<!--            fx:controller="sheet.SheetController">-->
+<!--   <ScrollPane fx:id="rightLeftScroller" stylesheets="@single-cell.css">-->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22"
+            fx:controller="sheet.SheetController" stylesheets="@single-cell.css" >
+         <top>
+            <GridPane fx:id="gridPaneColumnLetters" hgap="5" vgap="5" />
+         </top>
+         <left>
+            <GridPane fx:id="gridPaneRowNumbers" hgap="5" vgap="5" />
+         </left>
+         <center>
+            <GridPane fx:id="gridPaneActualCells" hgap="5" vgap="5" />
+         </center>
+      </BorderPane>
+<!--   </ScrollPane>-->
+<!--</ScrollPane>-->
+

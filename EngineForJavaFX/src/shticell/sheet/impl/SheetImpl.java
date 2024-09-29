@@ -4,6 +4,7 @@ import shticell.cell.api.EffectiveValue;
 import shticell.cell.impl.CellImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
+import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
@@ -15,6 +16,7 @@ import java.util.*;
 public class SheetImpl implements Sheet, Serializable {
 
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
+    private Map<String, Range> allRangesReferencedInSheet = new HashMap<>();
     private String nameOfSheet;
     private int numOfRows;
     private int numOfColumns;
@@ -67,6 +69,11 @@ public class SheetImpl implements Sheet, Serializable {
     @Override
     public int getRowHeight() {
         return rowHeight;
+    }
+
+    @Override
+    public void addRangeToAllRangesReferencedInSheet(String rangeName, Range range) {
+        allRangesReferencedInSheet.put(rangeName, range);
     }
 
     @Override

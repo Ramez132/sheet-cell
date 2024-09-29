@@ -5,7 +5,7 @@
 //
 
 
-package shticell.jaxb.schemaClasses;
+package shticell.jaxb.schema.classes;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

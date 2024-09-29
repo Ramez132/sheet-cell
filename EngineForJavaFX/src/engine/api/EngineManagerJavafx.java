@@ -1,6 +1,7 @@
 package engine.api;
 
 import shticell.cell.api.Cell;
+import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 
 import java.io.File;
@@ -25,4 +26,8 @@ public interface EngineManagerJavafx {
     Sheet getSheetOfSpecificVersion(int version);
     int getLatestVersionNumber();
     boolean isThereASheetLoadedToTheSystem();
+
+    Range addRangeToMostRecentSheet(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr);
+    Range getRangeFromMostRecentSheet(String rangeName);
+    void deleteRangeFromMostRecentSheet(String rangeName);
 }

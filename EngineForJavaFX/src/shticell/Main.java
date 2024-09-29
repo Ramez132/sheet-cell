@@ -1,16 +1,17 @@
 package shticell;//package shticell;
-//
-//import shticell.manager.api.EngineManager;
-//import shticell.manager.impl.EngineManagerJavafxImpl;
-//import shticell.sheet.api.Sheet;
-//import shticell.cell.api.Cell;
-//import shticell.sheet.impl.SheetImpl;
-//
-//public class Main {
-//
-//    public static void main(String[] args) {
-//        Sheet sheet1 = new SheetImpl();
-//        String filePath = "C:\\java-ex1-files\\error-4.xml";
+
+import engine.api.EngineManagerJavafx;
+import engine.impl.EngineManagerJavafxImpl;
+import shticell.range.RangeFactory;
+import shticell.sheet.api.Sheet;
+import shticell.cell.api.Cell;
+import shticell.sheet.impl.SheetImpl;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Sheet sheet = new SheetImpl("newSheet", 10, 10,15,30,1);
+//        String filePath = "C:\\java-ex1-files\\insurance.xml";
 //        EngineManager engineManager = new EngineManagerJavafxImpl();
 //        try {
 //            engineManager = new EngineManagerJavafxImpl();
@@ -19,76 +20,88 @@ package shticell;//package shticell;
 //        catch (Exception e) {
 //            System.out.println(e.getMessage());
 //        }
-//
-//
-//        //sheet1 = sheet1.updateCellValueAndCalculate(1, 1, "5", false);
+
+        EngineManagerJavafx manager = new EngineManagerJavafxImpl();
+        sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
+        Object  value;
+        Cell cell = sheet.getCell(1, 1);
+        value = cell.getCurrentEffectiveValue().getValue();
+        System.out.println("value of cell A1 is: " + value);
+
+        //sheet1 = manager.updateValueOfCellAndGetNewSheet(sheet1, 1, 1, "5");
+
+        sheet = sheet.updateCellValueAndCalculate(1, 1, "4", true);
+        sheet = sheet.updateCellValueAndCalculate(2, 1, "{REF,A1}", true);
+        sheet = sheet.updateCellValueAndCalculate(3, 1, "{plus,{REF,A1},{Ref,a2}}", true);
+        sheet = sheet.updateCellValueAndCalculate(4, 1, "Hello", true);
+        RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, "newRange", "A1", "A5");
+        sheet = sheet.updateCellValueAndCalculate(6, 1, "{sum,newRange}", true);
+        sheet = sheet.updateCellValueAndCalculate(7, 1, "{avErage,newRange}", true);
+        cell = sheet.getCell(6, 1);
+        value = cell.getCurrentEffectiveValue().getValue();
+        System.out.println("value of cell A6 is: " + value);
+
+        cell = sheet.getCell(7, 1);
+        value = cell.getCurrentEffectiveValue().getValue();
+        System.out.println("value of cell A7 is: " + value);
+
 //        Object  value;
-//        Cell cell = sheet1.getCell(2, 4);
+//        Cell cell = sheet.getCell(3, 1);
 //        value = cell.getCurrentEffectiveValue().getValue();
-//        System.out.println("value of cell A1 is: " + value);
+//        System.out.println("value of cell A3 is: " + value);
+//        sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
+//        cell = sheet.getCell(3, 1);
+//        value = cell.getCurrentEffectiveValue().getValue();
+//        System.out.println("Changed A1 to 5. now the value of cell A3 is: " + value);
 //
-//        //sheet1 = manager.updateValueOfCellAndGetNewSheet(sheet1, 1, 1, "5");
+//       cell.calculateNewEffectiveValueAndDetermineIfItChanged();
 //
-////        sheet = sheet.updateCellValueAndCalculate(1, 1, "4", true);
-////        sheet = sheet.updateCellValueAndCalculate(2, 1, "{REF,A1}", true);
-////        sheet = sheet.updateCellValueAndCalculate(3, 1, "{plus,{REF,A1},{Ref,a2}}", true);
-////        Object  value;
-////        Cell cell = sheet.getCell(3, 1);
-////        value = cell.getCurrentEffectiveValue().getValue();
-////        System.out.println("value of cell A3 is: " + value);
-////        sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
-////        cell = sheet.getCell(3, 1);
-////        value = cell.getCurrentEffectiveValue().getValue();
-////        System.out.println("Changed A1 to 5. now the value of cell A3 is: " + value);
-////
-////       cell.calculateNewEffectiveValueAndDetermineIfItChanged();
-////
-////        try {
-////            sheet = sheet.updateCellValueAndCalculate(2, 2, "{PLUS,{REF,C3},4}", true);
-////            cell = sheet.getCell(2, 2);
-////            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
-////            value = cell.getCurrentEffectiveValue().getValue();
-////            System.out.println("value of cell B2: " + value);
-////        }
-////        catch (Exception e) {
-////            System.out.println(e.getMessage());
-////        }
-////
-////        try {
-////            sheet = sheet.updateCellValueAndCalculate(3, 3, "{plus,{REF,A1},5}", true);
-////            cell = sheet.getCell(3, 3);
-////            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
-////        }
-////        catch (Exception e) {
-////            System.out.println(e.getMessage());
-////        }
-////
-////
-////
-////        try {
-////            sheet = sheet.updateCellValueAndCalculate(1, 1, "{plus,{REF,A1},3}", true);
-////            cell = sheet.getCell(1, 1);
-////            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
-////        }
-////        catch (Exception e) {
-////            System.out.println(e.getMessage());
-////        }
-////
-////        Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
-////        System.out.println("result: " + result);
-////
-////        sheet = sheet.updateCellValueAndCalculate(3,5,"{REF,A1}", true);
-////        Cell newCell = sheet.getCell(3,5);
-////        //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
-////        System.out.println("The cell A1 has: " + newCell.getCurrentEffectiveValue().getValue());
-////
-////        sheet = sheet.updateCellValueAndCalculate(4,4, "{concat,{REF,C3}, up}", true);
-////        Cell cell2 = sheet.getCell(4, 4);
-////        cell2.calculateNewEffectiveValueAndDetermineIfItChanged();
-////        value = cell2.getCurrentEffectiveValue().getValue();
-////        System.out.println("The cell D4 has value: " + value);
-//    }
-//}
+//        try {
+//            sheet = sheet.updateCellValueAndCalculate(2, 2, "{PLUS,{REF,C3},4}", true);
+//            cell = sheet.getCell(2, 2);
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//            value = cell.getCurrentEffectiveValue().getValue();
+//            System.out.println("value of cell B2: " + value);
+//        }
+//        catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        try {
+//            sheet = sheet.updateCellValueAndCalculate(3, 3, "{plus,{REF,A1},5}", true);
+//            cell = sheet.getCell(3, 3);
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        }
+//        catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//
+//
+//        try {
+//            sheet = sheet.updateCellValueAndCalculate(1, 1, "{plus,{REF,A1},3}", true);
+//            cell = sheet.getCell(1, 1);
+//            cell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        }
+//        catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        Double result = cell.getCurrentEffectiveValue().extractValueWithExpectation(Double.class);
+//        System.out.println("result: " + result);
+//
+//        sheet = sheet.updateCellValueAndCalculate(3,5,"{REF,A1}", true);
+//        Cell newCell = sheet.getCell(3,5);
+//        //newCell.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        System.out.println("The cell A1 has: " + newCell.getCurrentEffectiveValue().getValue());
+//
+//        sheet = sheet.updateCellValueAndCalculate(4,4, "{concat,{REF,C3}, up}", true);
+//        Cell cell2 = sheet.getCell(4, 4);
+//        cell2.calculateNewEffectiveValueAndDetermineIfItChanged();
+//        value = cell2.getCurrentEffectiveValue().getValue();
+//        System.out.println("The cell D4 has value: " + value);
+    }
+}
 //
 //
 //

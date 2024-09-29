@@ -8,14 +8,14 @@ import shticell.coordinate.CoordinateFactory;
 import shticell.coordinate.CoordinateImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
+import shticell.range.Range;
+import shticell.range.RangeFactory;
 import shticell.sheet.api.Sheet;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+//add data members and methods regarding range
 public class CellImpl implements Cell, Serializable {
 
     private final Coordinate coordinate;
@@ -39,9 +39,95 @@ public class CellImpl implements Cell, Serializable {
             this.influencingOnMap = new HashMap<>();
             isCellEmptyBoolean = originalValueStr.isEmpty();
             handleOriginalValueStrWithRef();
+            handleOriginalValueStrWithRangeNameInRelevantFunctions();
     }
 
+    private void handleOriginalValueStrWithRangeNameInRelevantFunctions() {
+        try {
+            List<Integer> indicesAfterFunctionUsingRangeAndComma = new ArrayList<>();
+            List<String> rangeNamesAfterFunctionUsingRange = new ArrayList<>();
+            String upperCaseSumAndCommaSTR = "SUM,";
+            String upperCaseAverageAndCommaSTR = "AVERAGE,";
+            String upperCaseOriginalStr = originalValueStr.toUpperCase();
 
+            if (!upperCaseOriginalStr.contains(upperCaseSumAndCommaSTR) && !upperCaseOriginalStr.contains(upperCaseAverageAndCommaSTR))
+                return;
+
+            int startIndexAfterSum = upperCaseOriginalStr.indexOf(upperCaseSumAndCommaSTR);
+            int firstIndexAfterSum;
+
+            while (startIndexAfterSum != -1) {
+                firstIndexAfterSum = startIndexAfterSum + upperCaseSumAndCommaSTR.length();
+                indicesAfterFunctionUsingRangeAndComma.add(firstIndexAfterSum);
+                startIndexAfterSum = upperCaseOriginalStr.indexOf(upperCaseSumAndCommaSTR, firstIndexAfterSum);
+            }
+
+            int startIndexAfterAverage = upperCaseOriginalStr.indexOf(upperCaseAverageAndCommaSTR);
+            int firstIndexAfterAverage;
+
+            while (startIndexAfterAverage != -1) {
+                firstIndexAfterAverage = startIndexAfterAverage + upperCaseAverageAndCommaSTR.length();
+                indicesAfterFunctionUsingRangeAndComma.add(firstIndexAfterAverage);
+                startIndexAfterAverage = upperCaseOriginalStr.indexOf(upperCaseAverageAndCommaSTR, firstIndexAfterAverage);
+            }
+
+            for (int index : indicesAfterFunctionUsingRangeAndComma) {
+
+                int indexAfterFunctionUsingRangeAndComma = index;
+                StringBuilder rowAndColStr = new StringBuilder();
+
+                //extracting range name from the original value string,
+                //not using the upper case string because range names are case-sensitive
+                while (indexAfterFunctionUsingRangeAndComma < originalValueStr.length()
+                        && originalValueStr.charAt(indexAfterFunctionUsingRangeAndComma) != '}') {
+                    rowAndColStr.append(originalValueStr.charAt(indexAfterFunctionUsingRangeAndComma));
+                    indexAfterFunctionUsingRangeAndComma++;
+                }
+
+                rangeNamesAfterFunctionUsingRange.add(rowAndColStr.toString());
+            }
+
+            for (String rangeName : rangeNamesAfterFunctionUsingRange) {
+                try {
+                    Range referencedRange = RangeFactory.getRangeByItsName(rangeName);
+                    Set<Coordinate> allCoordinatesInThisRange = RangeFactory.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange();
+
+                    if (allCoordinatesInThisRange.contains(this.coordinate)) {
+                        throw new IllegalArgumentException("A cell with function using range can't reference itself. Cell " + this.coordinate + " tried to reference " + rangeName);
+                    }
+
+                    for (Coordinate currentReferencedCoordinate : allCoordinatesInThisRange) {
+                        try {
+                            Cell currentReferencedCell;
+                            int currentReferencedRow = currentReferencedCoordinate.getRow();
+                            int currentReferencedColumn = currentReferencedCoordinate.getColumn();
+                            boolean isCellsCollectionInSheetContainsCoordinate = sheet.isCellsCollectionContainsCoordinate(currentReferencedRow, currentReferencedColumn);
+
+                            if (!isCellsCollectionInSheetContainsCoordinate) {
+                                currentReferencedCell = sheet.setNewEmptyCell(currentReferencedRow, currentReferencedColumn);
+                            } else {
+                                currentReferencedCell = sheet.getCell(currentReferencedRow, currentReferencedColumn);
+                            }
+
+                            currentReferencedCell.getInfluencingOnMap().put(this.getCoordinate(), this);
+                            this.dependsOnMap.put(currentReferencedCell.getCoordinate(), currentReferencedCell);
+                        } catch (IllegalArgumentException e) {
+                            throw new IllegalArgumentException("Error trying to reference cell " + this.coordinate + " in range " + rangeName + ": " + e.getMessage());
+                        }
+                    }
+
+                    this.sheet.addRangeToAllRangesReferencedInSheet(rangeName, referencedRange);
+
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+
+        }
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+}
     public void handleOriginalValueStrWithRef() {
 
         try {

@@ -24,7 +24,8 @@ public class MainJavafxProgram extends Application {
         primaryStage.setTitle("Sheet-Cell");
 
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("main.fxml");
+        //URL url = getClass().getResource("main.fxml");
+        URL url = getClass().getResource("app.fxml");
         fxmlLoader.setLocation(url);
         Parent root = fxmlLoader.load(url.openStream());
 
@@ -33,6 +34,8 @@ public class MainJavafxProgram extends Application {
 
 //      Parent load = FXMLLoader.load(getClass().getResource("main.fxml"));
         Scene scene = new Scene(root);
+
+//        Scene scene = new Scene(root, 1262, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

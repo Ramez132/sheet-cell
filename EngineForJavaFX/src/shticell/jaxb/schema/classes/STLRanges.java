@@ -5,7 +5,7 @@
 //
 
 
-package shticell.jaxb.schemaClasses;
+package shticell.jaxb.schema.classes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import jakarta.xml.bind.annotation.XmlType;
  *   <complexContent>
  *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       <sequence>
- *         <element ref="{}STL-Cell" maxOccurs="unbounded"/>
+ *         <element ref="{}STL-Range" maxOccurs="unbounded"/>
  *       </sequence>
  *     </restriction>
  *   </complexContent>
@@ -37,44 +37,44 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "stlCell"
+    "stlRange"
 })
-@XmlRootElement(name = "STL-Cells")
-public class STLCells {
+@XmlRootElement(name = "STL-Ranges")
+public class STLRanges {
 
-    @XmlElement(name = "STL-Cell", required = true)
-    protected List<STLCell> stlCell;
+    @XmlElement(name = "STL-Range", required = true)
+    protected List<STLRange> stlRange;
 
     /**
-     * Gets the value of the stlCell property.
+     * Gets the value of the stlRange property.
      * 
      * <p>This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the stlCell property.</p>
+     * This is why there is not a <CODE>set</CODE> method for the stlRange property.</p>
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * </p>
      * <pre>
-     * getSTLCell().add(newItem);
+     * getSTLRange().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link STLCell }
+     * {@link STLRange }
      * </p>
      * 
      * 
      * @return
-     *     The value of the stlCell property.
+     *     The value of the stlRange property.
      */
-    public List<STLCell> getSTLCell() {
-        if (stlCell == null) {
-            stlCell = new ArrayList<>();
+    public List<STLRange> getSTLRange() {
+        if (stlRange == null) {
+            stlRange = new ArrayList<>();
         }
-        return this.stlCell;
+        return this.stlRange;
     }
 
 }

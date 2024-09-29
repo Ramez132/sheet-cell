@@ -3,6 +3,8 @@ package engine.impl;
 import engine.api.EngineManagerJavafx;
 import shticell.cell.api.Cell;
 import shticell.jaxb.SheetFromFilesFactory;
+import shticell.range.Range;
+import shticell.range.RangeFactory;
 import shticell.sheet.api.Sheet;
 
 import java.io.File;
@@ -106,6 +108,21 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
         } else {
             return true;
         }
+    }
+
+    @Override
+    public Range addRangeToMostRecentSheet(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
+        return RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheetVersionsArray.getLast(), rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+    }
+
+    @Override
+    public Range getRangeFromMostRecentSheet(String rangeName) {
+        return RangeFactory.getRangeByItsName(rangeName);
+    }
+
+    @Override
+    public void deleteRangeFromMostRecentSheet(String rangeName) {
+
     }
 
 }

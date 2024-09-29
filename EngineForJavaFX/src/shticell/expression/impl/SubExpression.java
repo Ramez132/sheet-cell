@@ -10,13 +10,13 @@ import static java.lang.Double.NaN;
 
 public class SubExpression implements Expression {
     private final Expression sourceStrExpression;
-    private final Expression start_index;
-    private final Expression end_index;
+    private final Expression startIndex;
+    private final Expression endIndex;
 
-    public SubExpression(Expression sourceStrExpression, Expression start_index, Expression end_index) {
+    public SubExpression(Expression sourceStrExpression, Expression startIndex, Expression endIndex) {
         this.sourceStrExpression = sourceStrExpression;
-        this.start_index = start_index;
-        this.end_index = end_index;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class SubExpression implements Expression {
         EffectiveValue startIndexEffectiveValue, endIndexEffectiveValue;
 
         try {
-            startIndexEffectiveValue = start_index.eval(sheet);
+            startIndexEffectiveValue = startIndex.eval(sheet);
             startIndexDoubleValue = startIndexEffectiveValue.extractValueWithExpectation(Double.class);
         } catch (Exception e) {
             //Will get here if left expression has a reference to:
@@ -46,7 +46,7 @@ public class SubExpression implements Expression {
         }
 
         try {
-            endIndexEffectiveValue = end_index.eval(sheet);
+            endIndexEffectiveValue = endIndex.eval(sheet);
             endIndexDoubleValue = endIndexEffectiveValue.extractValueWithExpectation(Double.class);
         }
         catch (Exception e) {

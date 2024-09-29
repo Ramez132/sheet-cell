@@ -5,7 +5,7 @@
 //
 
 
-package shticell.jaxb.schemaClasses;
+package shticell.jaxb.schema.classes;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -25,10 +25,10 @@ import jakarta.xml.bind.annotation.XmlType;
  *   <complexContent>
  *     <restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       <sequence>
- *         <element ref="{}STL-Layout"/>
- *         <element ref="{}STL-Cells"/>
+ *         <element ref="{}STL-Original-Value"/>
  *       </sequence>
- *       <attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       <attribute name="row" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       <attribute name="column" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     </restriction>
  *   </complexContent>
  * </complexType>
@@ -38,89 +38,80 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "stlLayout",
-    "stlCells"
+    "stlOriginalValue"
 })
-@XmlRootElement(name = "STL-Sheet")
-public class STLSheet {
+@XmlRootElement(name = "STL-Cell")
+public class STLCell {
 
-    @XmlElement(name = "STL-Layout", required = true)
-    protected STLLayout stlLayout;
-    @XmlElement(name = "STL-Cells", required = true)
-    protected STLCells stlCells;
-    @XmlAttribute(name = "name", required = true)
-    protected String name;
-
-    /**
-     * Gets the value of the stlLayout property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link STLLayout }
-     *     
-     */
-    public STLLayout getSTLLayout() {
-        return stlLayout;
-    }
+    @XmlElement(name = "STL-Original-Value", required = true)
+    protected String stlOriginalValue;
+    @XmlAttribute(name = "row", required = true)
+    protected int row;
+    @XmlAttribute(name = "column", required = true)
+    protected String column;
 
     /**
-     * Sets the value of the stlLayout property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link STLLayout }
-     *     
-     */
-    public void setSTLLayout(STLLayout value) {
-        this.stlLayout = value;
-    }
-
-    /**
-     * Gets the value of the stlCells property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link STLCells }
-     *     
-     */
-    public STLCells getSTLCells() {
-        return stlCells;
-    }
-
-    /**
-     * Sets the value of the stlCells property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link STLCells }
-     *     
-     */
-    public void setSTLCells(STLCells value) {
-        this.stlCells = value;
-    }
-
-    /**
-     * Gets the value of the name property.
+     * Gets the value of the stlOriginalValue property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getName() {
-        return name;
+    public String getSTLOriginalValue() {
+        return stlOriginalValue;
     }
 
     /**
-     * Sets the value of the name property.
+     * Sets the value of the stlOriginalValue property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setName(String value) {
-        this.name = value;
+    public void setSTLOriginalValue(String value) {
+        this.stlOriginalValue = value;
+    }
+
+    /**
+     * Gets the value of the row property.
+     * 
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * Sets the value of the row property.
+     * 
+     */
+    public void setRow(int value) {
+        this.row = value;
+    }
+
+    /**
+     * Gets the value of the column property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getColumn() {
+        return column;
+    }
+
+    /**
+     * Sets the value of the column property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setColumn(String value) {
+        this.column = value;
     }
 
 }

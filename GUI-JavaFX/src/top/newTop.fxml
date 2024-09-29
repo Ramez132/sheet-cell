@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<!--        prefHeight="270.0" prefWidth="935.0"-->
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.TopPartController">
+   <children>
+      <HBox>
+         <children>
+            <Button fx:id="loadNewFileButton" mnemonicParsing="false" onAction="#handleLoadNewFile" text="Load new xml file">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+            <Label prefHeight="19.0" prefWidth="176.0" text="Path of currently loaded File:">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="filePathLabel" prefHeight="19.0" prefWidth="565.0" text="There is no file loaded to the system">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <Label fx:id="notificationHeadlineOfRecentActionOutcomeLabel" prefHeight="19.0" prefWidth="221.0" text="Message regarding the recent action:">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="20.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="messageOfRecentActionOutcomeLabel" text="System launched - there were no attempts to load a file" wrapText="true" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <Label style="-fx-background-color: LightGray;" text="Selected Cell ID:">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="20.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="idOfSelectedCell" prefWidth="40.0">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label style="-fx-background-color: LightGray;" text="Cell last changed in version number:">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="20.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="versionNumOfLastChange" prefWidth="40.0">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label style="-fx-background-color: LightGray;" text="Original Cell Value:">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="30.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="originalValueStrOfSelectedCell" prefWidth="300.0">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="15.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <TextField fx:id="newValueToCellTextField" prefHeight="27.0" prefWidth="346.0" promptText="Insert new original value to selected cell">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="15.0" top="20.0" />
+               </HBox.margin>
+            </TextField>
+            <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#handleUpdateCellValueButtonAndClearTextField" text="Update Value of selected cell">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="15.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" text="Version Selector">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="20.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+      <HBox prefWidth="200.0">
+         <children>
+            <ComboBox fx:id="selectRangeComboBox" prefHeight="27.0" prefWidth="130.0" promptText="Select range">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="35.0" top="20.0" />
+               </HBox.margin>
+            </ComboBox>
+            <Button fx:id="displayCellsInSelectedRangeButton" mnemonicParsing="false" onAction="#handleDisplayCellsInSelectedRangeButton" text="Display selected range">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="20.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+            <Button layoutX="195.0" layoutY="30.0" mnemonicParsing="false" text="Delete selected range">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="20.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+            <Button layoutX="362.0" layoutY="30.0" mnemonicParsing="false" text="Add new range">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+   </children>
+</VBox>
