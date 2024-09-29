@@ -1,0 +1,80 @@
+package shticell.expression.impl;
+
+import shticell.cell.api.Cell;
+import shticell.cell.api.CellType;
+import shticell.cell.api.EffectiveValue;
+import shticell.cell.impl.EffectiveValueImpl;
+import shticell.coordinate.Coordinate;
+import shticell.expression.api.Expression;
+import shticell.expression.parser.FunctionParser;
+import shticell.range.Range;
+import shticell.range.RangeFactory;
+import shticell.sheet.api.SheetReadActions;
+
+import static java.lang.Double.NaN;
+
+public class AverageExpression implements Expression {
+
+    private final Expression rangeNameExpression;
+
+    public AverageExpression(Expression rangeNameExpression) {
+        this.rangeNameExpression = rangeNameExpression;
+    }
+
+    @Override
+    public EffectiveValue eval(SheetReadActions sheet) {
+
+        double resultOfAverageFunction, sumOfNumericValuesFromRelevantCells = 0;
+        int numOfCellsWithNumericValue = 0;
+        EffectiveValue rangeNameValue;
+        String rangeNameString;
+        try {
+            rangeNameValue = rangeNameExpression.eval(sheet);
+            rangeNameString = rangeNameValue.extractValueWithExpectation(String.class);
+        } catch (Exception e) { // ???????
+            //Will get here if expression has a reference to:
+            //1. An empty cell or a cell out of sheet range 2. A cell without a String value
+            rangeNameString = "!UNDEFINED!";
+        }
+
+        if (!RangeFactory.isThereAnyRangeInRangesFactory() || !RangeFactory.isRangeNameAlreadyExistsInTheSystem(rangeNameString)) {
+            return new EffectiveValueImpl(CellType.NUMERIC, NaN);
+        } else { //rangeNameString is a valid range name
+            Range selectedRange = RangeFactory.getRangeByItsName(rangeNameString);
+            Cell currentReferenceCell;
+            EffectiveValue currentReferencedCellEffectiveValue;
+            double currentDoubleValueResult;
+            for (Coordinate currentCoordinate : selectedRange.getAllCoordinatesThatBelongToThisRange()) {
+                try {
+                    currentReferenceCell = sheet.getCell(currentCoordinate.getRow(), currentCoordinate.getColumn());
+                    if (currentReferenceCell.getIsCellEmptyBoolean()) {
+                        continue; //system ignores the empty cell and continues with the next one
+                    }
+                    Expression currentReferencedExpression = FunctionParser.parseExpression(currentReferenceCell.getOriginalValueStr(), sheet);
+                    currentReferencedCellEffectiveValue = currentReferencedExpression.eval(sheet);
+                    currentDoubleValueResult = currentReferencedCellEffectiveValue.extractValueWithExpectation(Double.class);
+                    sumOfNumericValuesFromRelevantCells += currentDoubleValueResult;
+                    numOfCellsWithNumericValue++;
+                } catch (Exception e) {
+                    //Will get here if cell has a reference to:
+                    //1. An empty cell or a cell out of sheet range - ?? what happens in an empty cell?
+                    // 2. A cell without a number value
+                    //system ignores the cell and continues with the next one
+                    sumOfNumericValuesFromRelevantCells += 0;
+                }
+            }
+        }
+
+        if (numOfCellsWithNumericValue == 0) {
+            return new EffectiveValueImpl(CellType.NUMERIC, NaN);
+        } else {
+            resultOfAverageFunction = sumOfNumericValuesFromRelevantCells / numOfCellsWithNumericValue;
+            return new EffectiveValueImpl(CellType.NUMERIC, resultOfAverageFunction);
+        }
+    }
+
+    @Override
+    public CellType getFunctionResultType() {
+        return null;
+    }
+}

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+
+<ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.TopPartController">
+   <content>
+<!--      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1275.0">-->
+<!--         <opaqueInsets>-->
+<!--            <Insets />-->
+<!--         </opaqueInsets>-->
+<!--         <left>-->
+<!--            <VBox prefHeight="517.0" prefWidth="151.0" BorderPane.alignment="CENTER">-->
+<!--               <children>-->
+<!--                  <VBox prefHeight="287.0" prefWidth="100.0">-->
+<!--                     <children>-->
+<!--                        <Label alignment="CENTER" contentDisplay="CENTER" text="Commands" textAlignment="CENTER">-->
+<!--                           <VBox.margin>-->
+<!--                              <Insets bottom="10.0" left="40.0" right="10.0" top="15.0" />-->
+<!--                           </VBox.margin>-->
+<!--                        </Label>-->
+<!--                     </children>-->
+<!--                  </VBox>-->
+<!--                  <VBox prefHeight="323.0" prefWidth="100.0">-->
+<!--                     <children>-->
+<!--                        <Label alignment="CENTER" contentDisplay="CENTER" text="Ranges" textAlignment="CENTER">-->
+<!--                           <VBox.margin>-->
+<!--                              <Insets bottom="10.0" left="50.0" right="10.0" top="15.0" />-->
+<!--                           </VBox.margin>-->
+<!--                        </Label>-->
+<!--                     </children>-->
+<!--                  </VBox>-->
+<!--               </children>-->
+<!--            </VBox>-->
+<!--         </left>-->
+<!--         <top>-->
+            <GridPane maxHeight="600.0" maxWidth="1275.0" minHeight="600.0" minWidth="1275.0" prefHeight="600.0" prefWidth="1275.0">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="10.0" prefWidth="169.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="256.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="80.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="433.0" minWidth="10.0" prefWidth="248.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="343.0" minWidth="10.0" prefWidth="108.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="318.0" minWidth="10.0" prefWidth="216.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="266.0" minWidth="10.0" prefWidth="123.0" />
+                  <ColumnConstraints />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="loadNewFileButton" mnemonicParsing="false" onAction="#handleLoadNewFile" text="Load new xml file">
+                     <GridPane.margin>
+                        <Insets bottom="15.0" left="30.0" right="15.0" top="15.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <TextField promptText="Insert new original value to cell" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                  <Button mnemonicParsing="false" text="Update Value" GridPane.columnIndex="4" GridPane.rowIndex="2">
+                     <GridPane.margin>
+                        <Insets left="5.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" text="Version Selector" GridPane.columnIndex="6" GridPane.rowIndex="2">
+                     <GridPane.margin>
+                        <Insets left="10.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <Label prefHeight="19.0" prefWidth="176.0" text="Path of currently loaded File:" GridPane.columnIndex="1">
+                     <GridPane.margin>
+                        <Insets left="5.0" />
+                     </GridPane.margin>
+                  </Label>
+                  <Label fx:id="filePathLabel" prefHeight="19.0" prefWidth="565.0" text="There is no file loaded to the system" GridPane.columnIndex="2" GridPane.columnSpan="4">
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                  </Label>
+                  <GridPane GridPane.rowIndex="2">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="136.0" minWidth="10.0" prefWidth="127.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="74.0" minWidth="10.0" prefWidth="59.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label style="-fx-background-color: LightGray;" text="Selected Cell ID:">
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="CellId" GridPane.columnIndex="1">
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                     </children>
+                  </GridPane>
+                  <GridPane layoutX="10.0" layoutY="52.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="136.0" minWidth="10.0" prefWidth="120.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="131.0" minWidth="10.0" prefWidth="131.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label style="-fx-background-color: LightGray;" text="Original Cell Value:">
+                           <GridPane.margin>
+                              <Insets left="8.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="Original Value" GridPane.columnIndex="1" />
+                     </children>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="5" GridPane.rowIndex="2">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="151.0" minWidth="10.0" prefWidth="151.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="74.0" minWidth="10.0" prefWidth="45.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label style="-fx-background-color: LightGray;" text="Last Update Cell Version:">
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="versionNum" GridPane.columnIndex="1">
+                           <GridPane.margin>
+                              <Insets left="5.0" />
+                           </GridPane.margin>
+                        </Label>
+                     </children>
+                  </GridPane>
+                  <Label fx:id="notificationHeadlineOfRecentActionOutcomeLabel" prefHeight="19.0" prefWidth="259.0" text="Message of recent attempt to upload a file:" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                     <GridPane.margin>
+                        <Insets left="15.0" />
+                     </GridPane.margin>
+                  </Label>
+                  <Label fx:id="messageOfRecentActionOutcomeLabel" prefHeight="19.0" prefWidth="902.0" text="There were no attempts to load a file" GridPane.columnIndex="1" GridPane.columnSpan="7" GridPane.rowIndex="1">
+                     <GridPane.margin>
+                        <Insets left="120.0" />
+                     </GridPane.margin>
+                  </Label>
+               </children>
+            </GridPane>
+<!--         </top>-->
+<!--         <center>-->
+<!--            <GridPane prefHeight="517.0" prefWidth="1064.0" BorderPane.alignment="CENTER">-->
+<!--              <columnConstraints>-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.0" minWidth="10.0" prefWidth="156.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="307.0" minWidth="10.0" prefWidth="152.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="307.0" minWidth="10.0" prefWidth="125.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="307.0" minWidth="10.0" prefWidth="129.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.0" minWidth="10.0" prefWidth="140.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="342.0" minWidth="10.0" prefWidth="134.0" />-->
+<!--                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="124.0" />-->
+<!--                <ColumnConstraints hgrow="SOMETIMES" maxWidth="177.0" minWidth="10.0" prefWidth="119.0" />-->
+<!--                <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="122.0" />-->
+<!--              </columnConstraints>-->
+<!--              <rowConstraints>-->
+<!--                  <RowConstraints maxHeight="86.0" minHeight="3.0" prefHeight="64.0" vgrow="SOMETIMES" />-->
+<!--                  <RowConstraints maxHeight="145.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />-->
+<!--                  <RowConstraints maxHeight="159.0" minHeight="10.0" prefHeight="53.0" vgrow="SOMETIMES" />-->
+<!--                  <RowConstraints maxHeight="165.0" minHeight="10.0" prefHeight="63.0" vgrow="SOMETIMES" />-->
+<!--                <RowConstraints maxHeight="166.0" minHeight="10.0" prefHeight="70.0" vgrow="SOMETIMES" />-->
+<!--                <RowConstraints maxHeight="153.0" minHeight="10.0" prefHeight="69.0" vgrow="SOMETIMES" />-->
+<!--                  <RowConstraints maxHeight="164.0" minHeight="10.0" prefHeight="59.0" vgrow="SOMETIMES" />-->
+<!--                  <RowConstraints maxHeight="153.0" minHeight="10.0" prefHeight="59.0" vgrow="SOMETIMES" />-->
+<!--                <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="48.0" vgrow="SOMETIMES" />-->
+<!--              </rowConstraints>-->
+<!--               <children>-->
+<!--                  <Label prefHeight="19.0" prefWidth="55.0" text="Column">-->
+<!--                     <font>-->
+<!--                        <Font size="15.0" />-->
+<!--                     </font>-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets bottom="20.0" left="70.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="Row">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="30.0" top="30.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                     <font>-->
+<!--                        <Font size="15.0" />-->
+<!--                     </font>-->
+<!--                  </Label>-->
+<!--                  <Line endX="-10.707107543945312" endY="38.29289245605469" startX="-100.0">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets bottom="20.0" left="30.0" top="20.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Line>-->
+<!--                  <Label text="A" GridPane.columnIndex="1">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="B" GridPane.columnIndex="2">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="C" GridPane.columnIndex="3">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="15.0" text="D" GridPane.columnIndex="4">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="E" GridPane.columnIndex="5">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="F" GridPane.columnIndex="6">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="G" GridPane.columnIndex="7">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="18.0" text="H" GridPane.columnIndex="8">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="1" GridPane.rowIndex="1">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="2" GridPane.rowIndex="2">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="3" GridPane.rowIndex="3">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="4" GridPane.rowIndex="4">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label prefHeight="19.0" prefWidth="0.0" text="5" GridPane.rowIndex="5">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="6" GridPane.rowIndex="6">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="7" GridPane.rowIndex="7">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--                  <Label text="8" GridPane.rowIndex="8">-->
+<!--                     <GridPane.margin>-->
+<!--                        <Insets left="50.0" />-->
+<!--                     </GridPane.margin>-->
+<!--                  </Label>-->
+<!--               </children>-->
+<!--            </GridPane>-->
+<!--         </center>-->
+<!--      </BorderPane>-->
+   </content>
+</ScrollPane>

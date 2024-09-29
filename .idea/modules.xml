@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" filepath="$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" filepath="$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Engine/Engine.iml" filepath="$PROJECT_DIR$/Engine/Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" filepath="$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" filepath="$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" />
       <module fileurl="file://$PROJECT_DIR$/sheet-cell.iml" filepath="$PROJECT_DIR$/sheet-cell.iml" />
     </modules>
   </component>
