@@ -9,6 +9,8 @@ import shticell.range.RangeFactory;
 import shticell.sheet.api.SheetReadActions;
 import top.TopPartController;
 
+import java.util.List;
+
 public class MainController {
 
     private EngineManagerJavafx engineManager;
@@ -48,17 +50,25 @@ public class MainController {
         }
     }
 
-    public void deleteAllRangesBeforeLoadingNewSheet() {
-        topPartController.deleteAllRangesFromPreviousSheet();
+    public boolean isSelectedRangeUsedInAnyCellWithRelevantFunction(String rangeName) {
+        return engineManager.isSelectedRangeUsedInAnyCellWithRelevantFunction(rangeName);
+    }
+
+    public void deleteRangeFromRangeFactoryMainController(String rangeName) {
+        try {
+            engineManager.deleteRangeFromRangeFactory(rangeName);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public void displayNewSheetFromNewFile(SheetReadActions sheet) {
+        sheetPartController.loadAndDisplayNewSheet(sheet);
+    }
+
+    public void deleteAllRangesInRangeFactoryBeforeLoadingNewSheet() {
         RangeFactory.deleteAllRangesInRangesFactoryBeforeLoadingSheetFromNewFile();
     }
-
-    public void loadNewSheetFromNewFile(SheetReadActions sheet) {
-        sheetPartController.loadAndDisplayNewSheet(sheet);
-        deleteAllRangesBeforeLoadingNewSheet();
-        deleteAllVersionsBeforeLoadingNewSheet();
-    }
-
     private void deleteAllVersionsBeforeLoadingNewSheet() {
         topPartController.deleteAllVersionNumbersFromPreviousSheet();
     }
@@ -91,8 +101,31 @@ public class MainController {
         }
     }
 
+    public void handleCreatingNewRange(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
+        try {
+            RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(engineManager.getMostRecentSheet(), rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+            topPartController.addNewRangeNameToRangesComboBox(rangeName);
+            topPartController.setMessageOfRecentActionOutcomeLabel("New range created successfully: '" + rangeName + "' . The range is from cell "
+                    + leftTopStartCoordinateStr.toUpperCase() + " to cell " + rightBottomEndCoordinateStr.toUpperCase());
+        } catch (Exception e) {
+            topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
+        }
+    }
+
     public void handleChoosingRangeAndHighlightCellsInRangeMainController(Range selectedRange) {
         sheetPartController.highlightCellsInSelectedRange(selectedRange);
+    }
+
+    public boolean isThereAnyRangeInRangesFactory() {
+        return engineManager.isThereAnyRangeInRangesFactory();
+    }
+
+    public List<String> getAllRangeNamesInTheSystem() {
+        return engineManager.getAllRangeNamesInTheSystem();
+    }
+
+    public Range getRangeByItsName(String rangeName) {
+        return engineManager.getRangeByItsName(rangeName);
     }
 
 //    @FXML

@@ -3,6 +3,7 @@ package sheet;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -26,7 +27,7 @@ import java.util.Map;
 public class SheetController {
 
     private MainController mainController;
-    private Coordinate currentlySelectedCoordinate;
+    private Coordinate currentlySelectedCoordinate = CoordinateFactory.getCoordinate(1, 1);
 
     @FXML private GridPane gridPaneColumnLetters;
     @FXML private GridPane gridPaneRowNumbers;
@@ -99,6 +100,7 @@ public class SheetController {
                 }
 
                 Label cellLabel = new Label(effectiveValueOfCellAsString);
+
                 cellLabel.prefHeightProperty().set(initializedRowHeight);
                 cellLabel.prefWidthProperty().set(100);
 
@@ -108,6 +110,8 @@ public class SheetController {
                 cellLabel.getStyleClass().add("single-cell");
                 cellLabel.setOnMouseClicked(event -> handleCellClick(sheet, coordinate));
                 gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
+                Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
+                GridPane.setMargin(cellLabel, margin);
                 GridPane.setHalignment(cellLabel, HPos.CENTER);
                 GridPane.setValignment(cellLabel, VPos.CENTER);
             }
@@ -117,7 +121,8 @@ public class SheetController {
     private void handleCellClick(SheetReadActions sheet, Coordinate selectedCoordinate) {
         Coordinate previouslySelectedCoordinate = currentlySelectedCoordinate;
         currentlySelectedCoordinate = selectedCoordinate;
-        Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
+        Cell selectedCell = sheet.getCell(selectedCoordinate.getRow(), selectedCoordinate.getColumn());
+//        Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
 
         mainController.handleCellClick(sheet, selectedCoordinate);
 
@@ -267,6 +272,8 @@ public class SheetController {
             rowLabel.setAlignment(Pos.CENTER);
             rowLabel.getStyleClass().add("single-cell");
             gridPaneRowNumbers.add(rowLabel, 0, currentRowNum);
+            Insets margin = new Insets(3,3,3,3);
+            GridPane.setMargin(rowLabel, margin);
             GridPane.setHalignment(rowLabel, HPos.CENTER);
             GridPane.setValignment(rowLabel, VPos.CENTER);
         }
@@ -281,6 +288,8 @@ public class SheetController {
         leftTopCornerLabel.prefHeightProperty().set(initializedRowHeight);
         leftTopCornerLabel.getStyleClass().add("single-cell");
         gridPaneColumnLetters.add(leftTopCornerLabel, 0, 0);
+        Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
+        GridPane.setMargin(leftTopCornerLabel, margin);
 
         for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
             Label columnLabel = new Label(String.valueOf((char) ('A' + currentColumnNum - 1)));
@@ -291,6 +300,7 @@ public class SheetController {
             columnLabel.setAlignment(Pos.CENTER);
             columnLabel.getStyleClass().add("single-cell");
             gridPaneColumnLetters.add(columnLabel, currentColumnNum, 0);
+            GridPane.setMargin(columnLabel, margin);
             GridPane.setHalignment(columnLabel, HPos.CENTER);
             GridPane.setValignment(columnLabel, VPos.CENTER);
         }

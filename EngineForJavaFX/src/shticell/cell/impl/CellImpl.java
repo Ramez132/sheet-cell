@@ -26,6 +26,8 @@ public class CellImpl implements Cell, Serializable {
     private Map<Coordinate, Cell> dependsOnMap;
     private Map<Coordinate, Cell> influencingOnMap;
     private final Sheet sheet;
+    private Map<String, Range> rangesReferencedInCell = new HashMap<>();
+    private Map<String ,Integer> countersOfReferencesToRanges = new HashMap<>();
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1;
     private boolean isCellEmptyBoolean;
 
@@ -89,6 +91,9 @@ public class CellImpl implements Cell, Serializable {
 
             for (String rangeName : rangeNamesAfterFunctionUsingRange) {
                 try {
+                    if (!RangeFactory.isRangeNameAlreadyExistsInTheSystem(rangeName)) {
+                        continue; //range doesn't exist, continue to the next range name
+                    }
                     Range referencedRange = RangeFactory.getRangeByItsName(rangeName);
                     Set<Coordinate> allCoordinatesInThisRange = RangeFactory.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange();
 
@@ -116,7 +121,10 @@ public class CellImpl implements Cell, Serializable {
                         }
                     }
 
-                    this.sheet.addRangeToAllRangesReferencedInSheet(rangeName, referencedRange);
+                    rangesReferencedInCell.put(rangeName, referencedRange);
+//                    increaseCounterOfReferencesToSelectedRange(rangeName);
+//                    this.sheet.addRangeToAllRangesReferencedInSheet(rangeName, referencedRange);
+                    this.sheet.increaseCounterOfReferencesToSelectedRange(rangeName);
 
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(e.getMessage());
@@ -128,6 +136,20 @@ public class CellImpl implements Cell, Serializable {
             throw new IllegalArgumentException(e.getMessage());
         }
 }
+
+    private void increaseCounterOfReferencesToSelectedRange(String rangeName) {
+        if (countersOfReferencesToRanges.containsKey(rangeName)) {
+            countersOfReferencesToRanges.put(rangeName, countersOfReferencesToRanges.get(rangeName) + 1);
+        } else {
+            countersOfReferencesToRanges.put(rangeName, 1);
+        }
+    }
+
+    @Override
+    public int getCounterOfReferencesToSelectedRange(String rangeName) {
+        return countersOfReferencesToRanges.getOrDefault(rangeName, 0);
+    }
+
     public void handleOriginalValueStrWithRef() {
 
         try {
@@ -196,8 +218,28 @@ public class CellImpl implements Cell, Serializable {
     }
 
     @Override
+    public Map<String, Range> getRangesReferencedInCell() {
+        return rangesReferencedInCell;
+    }
+
+    @Override
+    public void removeRangeFromRangesReferencedInCell(String rangeName) {
+        rangesReferencedInCell.remove(rangeName);
+    }
+
+    @Override
     public void insertInfluencingOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> influencingOnMapFromCellBeforeUpdate) {
         influencingOnMap = influencingOnMapFromCellBeforeUpdate;
+    }
+
+    @Override
+    public void insertDependsOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> dependsOnMapOfCopiedCell) {
+        dependsOnMap = dependsOnMapOfCopiedCell;
+    }
+
+    @Override
+    public void removeSelectedCoordinateFromInfluencingOnMap(Coordinate selectedCoordinate) {
+        influencingOnMap.remove(selectedCoordinate);
     }
 
     @Override

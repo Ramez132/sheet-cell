@@ -19,4 +19,5 @@ public interface SheetReadActions {
     Map<Coordinate, Cell> getActiveCells();
     int getVersionNumForEmptyCellWithoutPreviousValues();
     int getNumOfCellsWhichEffectiveValueChangedInNewVersion();
+    boolean isSelectedRangeIsUsedInSheet(String rangeName);
 }

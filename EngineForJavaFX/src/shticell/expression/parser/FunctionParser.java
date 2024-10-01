@@ -1,12 +1,10 @@
 package shticell.expression.parser;
 
-import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.expression.api.Expression;
 import shticell.expression.impl.*;
 import shticell.cell.api.CellType;
-import shticell.cell.api.EffectiveValue;
 import shticell.sheet.api.SheetReadActions;
 
 import java.util.ArrayList;
@@ -376,30 +374,30 @@ public enum FunctionParser {
             return new AverageExpression(rangeNameExpression);
         }
     },
-//    PERCENT {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly two arguments
-//            if (arguments.size() != 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for PERCENT function. Expected 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression part = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression whole = parseExpression(arguments.get(1).trim(), sheet);
-//
-//            // Validate that the arguments are numeric or unknown
-//            CellType partCellType = part.getFunctionResultType();
-//            CellType wholeCellType = whole.getFunctionResultType();
-//            if ((!partCellType.equals(CellType.NUMERIC) && !partCellType.equals(CellType.UNKNOWN)) ||
-//                (!wholeCellType.equals(CellType.NUMERIC) && !wholeCellType.equals(CellType.UNKNOWN))) {
-//                throw new IllegalArgumentException("Invalid argument types for PERCENT function. Expected NUMERIC, but got " + partCellType + " and " + wholeCellType);
-//            }
-//
-//            // Create and return the PercentExpression
-//            return new PercentExpression(part, whole);
-//        }
-//    },
+    PERCENT {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for PERCENT function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression part = parseExpression(arguments.get(0).trim(), sheet);
+            Expression whole = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are numeric or unknown
+            CellType partCellType = part.getFunctionResultType();
+            CellType wholeCellType = whole.getFunctionResultType();
+            if ((!partCellType.equals(CellType.NUMERIC) && !partCellType.equals(CellType.UNKNOWN)) ||
+                (!wholeCellType.equals(CellType.NUMERIC) && !wholeCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for PERCENT function. Expected NUMERIC, but got " + partCellType + " and " + wholeCellType);
+            }
+
+            // Create and return the PercentExpression
+            return new PercentExpression(part, whole);
+        }
+    },
 //    EQUAL {
 //        @Override
 //        public Expression parse(List<String> arguments, SheetReadActions sheet) {
@@ -409,11 +407,11 @@ public enum FunctionParser {
 //            }
 //
 //            // Parse the arguments
-//            Expression left = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+//            Expression firstArgument = parseExpression(arguments.get(0).trim(), sheet);
+//            Expression secondArgument = parseExpression(arguments.get(1).trim(), sheet);
 //
 //            // Create and return the EqualExpression
-//            return new EqualExpression(left, right);
+//            return new EqualExpression(firstArgument, secondArgument);
 //        }
 //    },
 //    NOT {

@@ -10,7 +10,6 @@ import main.MainController;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.range.Range;
-import shticell.range.RangeFactory;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 
@@ -39,6 +38,14 @@ public class TopPartController {
     private ComboBox<String> selectRangeComboBox;
     @FXML
     private Button displayCellsInSelectedRangeButton;
+    @FXML
+    private TextField newRangeNameTextField;
+    @FXML
+    private TextField newRangeStartCoordinateTextField;
+    @FXML
+    private TextField newRangeEndCoordinateTextField;
+    @FXML
+    private ComboBox<Integer> selectVersionNumberComboBox;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
@@ -61,12 +68,14 @@ public class TopPartController {
                 Sheet sheet = mainController.getEngineManager().getSheetFromFile(selectedFile);
                 messageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
                 filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
+//                mainController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
                 //update UI with possible ranges from the new sheet
                 selectRangeComboBox.getItems().clear();
-                if (RangeFactory.isThereAnyRangeInRangesFactory()) {
-                    selectRangeComboBox.getItems().addAll(RangeFactory.getAllRangesNames());
+                if (mainController.isThereAnyRangeInRangesFactory()) {
+                    selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
                 }
-                mainController.loadNewSheetFromNewFile(sheet);
+                selectRangeComboBox.setPromptText("Select range");
+                mainController.displayNewSheetFromNewFile(sheet);
             } catch (Exception e) {
                 messageOfRecentActionOutcomeLabel.setText(e.getMessage());
             }
@@ -81,14 +90,19 @@ public class TopPartController {
 //        }
         boolean thereAreCellsThatSelectedCellDependsOn = sheet.getActiveCells().containsKey(selectedCoordinate) && !sheet.getActiveCells().get(selectedCoordinate).getDependsOnMap().isEmpty();
         boolean thereAreCellsThatSelectedCellInfluenceOn = sheet.getActiveCells().containsKey(selectedCoordinate) && !sheet.getActiveCells().get(selectedCoordinate).getInfluencingOnMap().isEmpty();
-        String messageRegardingCellsItDependsOn = thereAreCellsThatSelectedCellDependsOn ? " The cell depends on the blue cells." : "";
-        String messageRegardingCellsInInfluencesOn = thereAreCellsThatSelectedCellInfluenceOn ? " The cell influences the green cells." : "";
+        String messageRegardingCellsItDependsOn = thereAreCellsThatSelectedCellDependsOn ? " The cell depends on cells with blue border blue." : "";
+        String messageRegardingCellsInInfluencesOn = thereAreCellsThatSelectedCellInfluenceOn ? " The cell influences cells with green border." : "";
         if (selectedCell != null) {
             currentlySelectedCoordinate = selectedCoordinate;
             String coordinateStr = selectedCoordinate.toString();
             idOfSelectedCell.setText(coordinateStr);
             originalValueStrOfSelectedCell.setText(selectedCell.getOriginalValueStr());
-            versionNumOfLastChange.setText(String.valueOf(selectedCell.getLastVersionInWhichCellHasChanged()));
+            int lastVersionInWhichCellHasChanged = selectedCell.getLastVersionInWhichCellHasChanged();
+            if (lastVersionInWhichCellHasChanged == -1) {
+                versionNumOfLastChange.setText("Empty cell - No change yet.");
+            } else {
+                versionNumOfLastChange.setText(String.valueOf(lastVersionInWhichCellHasChanged));
+            }
             messageOfRecentActionOutcomeLabel.setText("Displaying data of cell " + selectedCoordinate.toString() + " (highlighted in the sheet)."
                     + messageRegardingCellsItDependsOn + messageRegardingCellsInInfluencesOn);
         }
@@ -115,23 +129,69 @@ public class TopPartController {
         }
     }
 
+    @FXML
+    public void handleAddNewRangeButtonAndClearRelevantTextFields() {
+        String rangeName = newRangeNameTextField.getText().trim();
+        String leftTopStartCoordinateStr = newRangeStartCoordinateTextField.getText().trim();
+        String rightBottomEndCoordinateStr = newRangeEndCoordinateTextField.getText().trim();
+        if (mainController.getMostRecentSheetFromEngine() == null) {
+            messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
+        } else if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
+            messageOfRecentActionOutcomeLabel.setText("One or more fields are empty - the system can not create a new range. Please fill all fields.");
+        } else {
+            mainController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+            newRangeNameTextField.clear(); //will get here even if the range was not created and error caught
+            newRangeStartCoordinateTextField.clear();
+            newRangeEndCoordinateTextField.clear();
+        }
+    }
+
+    public void addNewRangeNameToRangesComboBox(String rangeName) {
+        selectRangeComboBox.getItems().add(rangeName);
+//        selectRangeComboBox.getItems().clear();
+//        if (mainController.isThereAnyRangeInRangesFactory()) {
+//            selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
+//        }
+    }
+
+    @FXML
+    public void handleDeleteSelectedRangeButton() {
+        if (selectRangeComboBox.getItems().isEmpty()) {
+            messageOfRecentActionOutcomeLabel.setText("No ranges are available to delete.");
+            return;
+        } else if (selectRangeComboBox.getValue() == null) {
+            messageOfRecentActionOutcomeLabel.setText("There is nothing to delete - no range is selected.");
+            return;
+        } else if (mainController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
+            messageOfRecentActionOutcomeLabel.setText("The selected range is used in a cell/cells with relevant functions - can not delete it.");
+            return;
+        }
+        try {
+            String rangeName = selectRangeComboBox.getValue();
+            mainController.deleteRangeFromRangeFactoryMainController(rangeName);
+            messageOfRecentActionOutcomeLabel.setText("Range '" + rangeName + "' was deleted successfully.");
+            selectRangeComboBox.getItems().remove(rangeName);
+        } catch (Exception e) {
+            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
+        }
+    }
+
     private void clearDataInTopPartRegardingSelectedCell() {
         idOfSelectedCell.setText("");
         originalValueStrOfSelectedCell.setText("");
         versionNumOfLastChange.setText("");
     }
 
-    public void handleCreatingNewRange(SheetReadActions sheet, String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
-//        mainController.handleCreatingNewRange(sheet, rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-        Range range;
-        try {
-            range = RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-            //update ui with new range
-            messageOfRecentActionOutcomeLabel.setText("New range created successfully: " + rangeName + " from " + leftTopStartCoordinateStr + " to " + rightBottomEndCoordinateStr);
-        } catch (Exception e) {
-            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-        }
-    }
+//    public void handleCreatingNewRange(SheetReadActions sheet, String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
+//        Range range;
+//        try {
+//            range = RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+//            //update ui with new range
+//            messageOfRecentActionOutcomeLabel.setText("New range created successfully: " + rangeName + " from " + leftTopStartCoordinateStr + " to " + rightBottomEndCoordinateStr);
+//        } catch (Exception e) {
+//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
+//        }
+//    }
 
     @FXML
     public void handleDisplayCellsInSelectedRangeButton() {
@@ -144,13 +204,37 @@ public class TopPartController {
         }
         try {
             String rangeName = selectRangeComboBox.getValue();
-            Range range = RangeFactory.getRangeByItsName(rangeName);
+            Range range = mainController.getRangeByItsName(rangeName);
             mainController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
 //            sheet.highlightCellsInRange(range);
-            messageOfRecentActionOutcomeLabel.setText("Cells in selected range " + rangeName + " are now highlighted in the sheet.");
+            messageOfRecentActionOutcomeLabel.setText("Cells in selected range '" + rangeName + "' are now highlighted with purple border.");
         } catch (Exception e) {
             messageOfRecentActionOutcomeLabel.setText(e.getMessage());
         }
+    }
+
+    @FXML
+    public void handleDisplaySelectedVersionButton() {
+        if (selectVersionNumberComboBox.getItems().isEmpty()) {
+            messageOfRecentActionOutcomeLabel.setText("No versions are available to display.");
+            return;
+        } else if (selectVersionNumberComboBox.getValue() == null) {
+            messageOfRecentActionOutcomeLabel.setText("There is nothing to display - no version is selected.");
+            return;
+        }
+        try {
+            int version = selectVersionNumberComboBox.getValue();
+//            Sheet sheet = mainController.getSheetOfSpecificVersion(version);
+//            mainController.displayNewSheetFromNewFile(sheet);
+            messageOfRecentActionOutcomeLabel.setText("Version " + version + " is now displayed.");
+        } catch (Exception e) {
+            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    public void handleReturnToRecentSheetButton(){
+
     }
 
     public void setMessageOfRecentActionOutcomeLabel(String message) {
@@ -161,8 +245,5 @@ public class TopPartController {
     public void deleteAllVersionNumbersFromPreviousSheet() {
     }
 
-    //need to implement
-    public void deleteAllRangesFromPreviousSheet() {
-    }
 }
 

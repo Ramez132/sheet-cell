@@ -11,7 +11,8 @@ import java.util.Map;
 
 public class RangeFactory {
 
-    private static Map<String,Range> allCachedRanges = new HashMap<>();
+    private final static Map<String,Range> allCachedRanges = new HashMap<>();
+    private final static Map<String,Range> cachedRangesFromPreviousFile = new HashMap<>();
 
     public static Range createNewRangeOrGetExistingRange(String rangeName, Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
         if (allCachedRanges.containsKey(rangeName)) {
@@ -70,11 +71,31 @@ public class RangeFactory {
         allCachedRanges.clear();
     }
 
+    public static void deleteRangeFromRangesFactory(String rangeName) {
+        if (allCachedRanges.containsKey(rangeName)) {
+            allCachedRanges.remove(rangeName);
+        } else {
+            throw new IllegalArgumentException("Range with name '" + rangeName + "' does not exist.");
+        }
+    }
+
     public static boolean isThereAnyRangeInRangesFactory() {
         return !allCachedRanges.isEmpty();
     }
 
     public static List<String> getAllRangesNames() {
         return List.copyOf(allCachedRanges.keySet());
+    }
+
+    public static void cacheRangesBeforeLoadingNewFileInCaseFileLoadingFails() {
+        cachedRangesFromPreviousFile.clear();
+        cachedRangesFromPreviousFile.putAll(allCachedRanges);
+        allCachedRanges.clear();
+    }
+
+    public static void restoreRangesFromPreviousFileAfterFileLoadingFailed() {
+        allCachedRanges.clear();
+        allCachedRanges.putAll(cachedRangesFromPreviousFile);
+        cachedRangesFromPreviousFile.clear();
     }
 }
