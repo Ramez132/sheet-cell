@@ -7,19 +7,13 @@ import shticell.sheet.api.Sheet;
 import shticell.cell.api.Cell;
 import shticell.sheet.impl.SheetImpl;
 
+import java.io.File;
+
 public class Main {
 
     public static void main(String[] args) {
         Sheet sheet = new SheetImpl("newSheet", 10, 10,15,30,1);
-//        String filePath = "C:\\java-ex1-files\\insurance.xml";
-//        EngineManager engineManager = new EngineManagerJavafxImpl();
-//        try {
-//            engineManager = new EngineManagerJavafxImpl();
-//            sheet1 = engineManager.getSheetFromFile(filePath);
-//        }
-//        catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
+
 
         EngineManagerJavafx manager = new EngineManagerJavafxImpl();
         sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
@@ -30,7 +24,7 @@ public class Main {
 
         //sheet1 = manager.updateValueOfCellAndGetNewSheet(sheet1, 1, 1, "5");
 
-        sheet = sheet.updateCellValueAndCalculate(1, 1, "4", true);
+        sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
         sheet = sheet.updateCellValueAndCalculate(2, 1, "{REF,A1}", true);
         sheet = sheet.updateCellValueAndCalculate(3, 1, "{plus,{REF,A1},{Ref,a2}}", true);
         sheet = sheet.updateCellValueAndCalculate(4, 1, "Hello", true);
@@ -44,6 +38,23 @@ public class Main {
         cell = sheet.getCell(7, 1);
         value = cell.getCurrentEffectiveValue().getValue();
         System.out.println("value of cell A7 is: " + value);
+
+        sheet = sheet.updateCellValueAndCalculate(8, 1, "{Percent,{ref,a2},200}", true);
+        cell = sheet.getCell(8, 1);
+        value = cell.getCurrentEffectiveValue().getValue();
+        System.out.println("value of cell A8 is: " + value);
+
+        String filePath = "C:\\java-ex2-files\\grades - Copy.xml";
+        File file = new File(filePath);
+        EngineManagerJavafx engineManager = new EngineManagerJavafxImpl();
+        try {
+            sheet = engineManager.getSheetFromFile(file);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("The sheet is: " + sheet.getNameOfSheet());
 
 //        Object  value;
 //        Cell cell = sheet.getCell(3, 1);
