@@ -30,21 +30,28 @@ public class Main {
 
         //sheet1 = manager.updateValueOfCellAndGetNewSheet(sheet1, 1, 1, "5");
 
-        sheet = sheet.updateCellValueAndCalculate(1, 1, "4", true);
-        sheet = sheet.updateCellValueAndCalculate(2, 1, "{REF,A1}", true);
-        sheet = sheet.updateCellValueAndCalculate(3, 1, "{plus,{REF,A1},{Ref,a2}}", true);
-        sheet = sheet.updateCellValueAndCalculate(4, 1, "Hello", true);
-        RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, "newRange", "A1", "A5");
-        sheet = sheet.updateCellValueAndCalculate(6, 1, "{sum,newRange}", true);
-        sheet = sheet.updateCellValueAndCalculate(7, 1, "{avErage,newRange}", true);
-        cell = sheet.getCell(6, 1);
-        value = cell.getCurrentEffectiveValue().getValue();
-        System.out.println("value of cell A6 is: " + value);
+        try {
 
-        cell = sheet.getCell(7, 1);
-        value = cell.getCurrentEffectiveValue().getValue();
-        System.out.println("value of cell A7 is: " + value);
 
+            sheet = sheet.updateCellValueAndCalculate(1, 1, "4", true);
+            sheet = sheet.updateCellValueAndCalculate(2, 1, "true", true);
+            sheet = sheet.updateCellValueAndCalculate(3, 1, "{IF,{EQUAL,{REF,A1},{REF,A2}},{REF,a1},{ref,a2}}", true);
+            sheet = sheet.updateCellValueAndCalculate(4, 1, "{EQUAL,{REF,A1},{REF,A2}}", true);
+            RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, "newRange", "A1", "A5");
+            sheet = sheet.updateCellValueAndCalculate(6, 1, "{sum,newRange}", true);
+            sheet = sheet.updateCellValueAndCalculate(7, 1, "{avErage,newRange}", true);
+            cell = sheet.getCell(3, 1);
+            value = cell.getCurrentEffectiveValue().getValue();
+            System.out.println("value of cell A3 is: " + value);
+
+            cell = sheet.getCell(4, 1);
+            value = cell.getCurrentEffectiveValue().getValue();
+            System.out.println("value of cell A4 is: " + value);
+        }
+
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 //        Object  value;
 //        Cell cell = sheet.getCell(3, 1);
 //        value = cell.getCurrentEffectiveValue().getValue();

@@ -376,190 +376,190 @@ public enum FunctionParser {
             return new AverageExpression(rangeNameExpression);
         }
     },
-//    PERCENT {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly two arguments
-//            if (arguments.size() != 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for PERCENT function. Expected 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression part = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression whole = parseExpression(arguments.get(1).trim(), sheet);
-//
-//            // Validate that the arguments are numeric or unknown
-//            CellType partCellType = part.getFunctionResultType();
-//            CellType wholeCellType = whole.getFunctionResultType();
-//            if ((!partCellType.equals(CellType.NUMERIC) && !partCellType.equals(CellType.UNKNOWN)) ||
-//                (!wholeCellType.equals(CellType.NUMERIC) && !wholeCellType.equals(CellType.UNKNOWN))) {
-//                throw new IllegalArgumentException("Invalid argument types for PERCENT function. Expected NUMERIC, but got " + partCellType + " and " + wholeCellType);
-//            }
-//
-//            // Create and return the PercentExpression
-//            return new PercentExpression(part, whole);
-//        }
-//    },
-//    EQUAL {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly two arguments
-//            if (arguments.size() != 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for EQUAL function. Expected 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression left = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression right = parseExpression(arguments.get(1).trim(), sheet);
-//
-//            // Create and return the EqualExpression
-//            return new EqualExpression(left, right);
-//        }
-//    },
-//    NOT {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there is exactly one argument
-//            if (arguments.size() != 1) {
-//                throw new IllegalArgumentException("Invalid number of arguments for NOT function. Expected 1, but got " + arguments.size());
-//            }
-//
-//            // Parse the argument
-//            Expression argument = parseExpression(arguments.get(0).trim(), sheet);
-//
-//            // Validate that the argument is boolean or unknown
-//            CellType argumentCellType = argument.getFunctionResultType();
-//            if (!argumentCellType.equals(CellType.BOOLEAN) && !argumentCellType.equals(CellType.UNKNOWN)) {
-//                throw new IllegalArgumentException("Invalid argument type for NOT function. Expected BOOLEAN, but got " + argumentCellType);
-//            }
-//
-//            // Create and return the NotExpression
-//            return new NotExpression(argument);
-//        }
-//    },
-//    OR {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are at least two arguments
-//            if (arguments.size() < 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for OR function. Expected at least 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            List<Expression> expressions = new ArrayList<>();
-//            for (String argument : arguments) {
-//                expressions.add(parseExpression(argument, sheet));
-//            }
-//
-//            // Validate that the arguments are boolean or unknown
-//            for (Expression currentExpression : expressions) {
-//                CellType expressionCellType = currentExpression.getFunctionResultType();
-//                if (!expressionCellType.equals(CellType.BOOLEAN) && !expressionCellType.equals(CellType.UNKNOWN)) {
-//                    throw new IllegalArgumentException("Invalid argument types for OR function. Expected BOOLEAN, but got " + expressionCellType);
-//                }
-//            }
-//
-//            // Create and return the OrExpression
-//            return new OrExpression(expressions);
-//        }
-//    },
-//    AND {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are at least two arguments
-//            if (arguments.size() < 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for AND function. Expected at least 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            List<Expression> expressions = new ArrayList<>();
-//            for (String argument : arguments) {
-//                expressions.add(parseExpression(argument, sheet));
-//            }
-//
-//            // Validate that the arguments are boolean or unknown
-//            for (Expression currentExpression : expressions) {
-//                CellType expressionCellType = currentExpression.getFunctionResultType();
-//                if (!expressionCellType.equals(CellType.BOOLEAN) && !expressionCellType.equals(CellType.UNKNOWN)) {
-//                    throw new IllegalArgumentException("Invalid argument types for AND function. Expected BOOLEAN, but got " + expressionCellType);
-//                }
-//            }
-//
-//            // Create and return the AndExpression
-//            return new AndExpression(expressions);
-//        }
-//    },
-//    BIGGER {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly two arguments
-//            if (arguments.size() != 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for BIGGER function. Expected 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression left = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression right = parseExpression(arguments.get(1).trim(), sheet);
-//
-//            // Validate that the arguments are numeric or unknown
-//            CellType leftCellType = left.getFunctionResultType();
-//            CellType rightCellType = right.getFunctionResultType();
-//            if ((!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
-//                (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN))) {
-//                throw new IllegalArgumentException("Invalid argument types for BIGGER function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
-//            }
-//
-//            // Create and return the BiggerExpression
-//            return new BiggerExpression(left, right);
-//        }
-//    },
-//    LESS {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly two arguments
-//            if (arguments.size() != 2) {
-//                throw new IllegalArgumentException("Invalid number of arguments for LESS function. Expected 2, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression left = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression right = parseExpression(arguments.get(1).trim(), sheet);
-//
-//            // Validate that the arguments are numeric or unknown
-//            CellType leftCellType = left.getFunctionResultType();
-//            CellType rightCellType = right.getFunctionResultType();
-//            if ((!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
-//                (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN))) {
-//                throw new IllegalArgumentException("Invalid argument types for LESS function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
-//            }
-//
-//            // Create and return the LessExpression
-//            return new LessExpression(left, right);
-//        }
-//    },
-//    IF {
-//        @Override
-//        public Expression parse(List<String> arguments, SheetReadActions sheet) {
-//            // Ensure there are exactly three arguments
-//            if (arguments.size() != 3) {
-//                throw new IllegalArgumentException("Invalid number of arguments for IF function. Expected 3, but got " + arguments.size());
-//            }
-//
-//            // Parse the arguments
-//            Expression condition = parseExpression(arguments.get(0).trim(), sheet);
-//            Expression trueExpression = parseExpression(arguments.get(1).trim(), sheet);
-//            Expression falseExpression = parseExpression(arguments.get(2).trim(), sheet);
-//
-//            // Validate that the condition is boolean or unknown
-//            CellType conditionCellType = condition.getFunctionResultType();
-//            if (!conditionCellType.equals(CellType.BOOLEAN) && !conditionCellType.equals(CellType.UNKNOWN)) {
-//                throw new IllegalArgumentException("Invalid argument type for IF function. Expected BOOLEAN, but got " + conditionCellType);
-//            }
-//
-//            // Create and return the IfExpression
-//            return new IfExpression(condition, trueExpression, falseExpression);
-//        }
-//    },
+    PERCENT {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for PERCENT function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression part = parseExpression(arguments.get(0).trim(), sheet);
+            Expression whole = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are numeric or unknown
+            CellType partCellType = part.getFunctionResultType();
+            CellType wholeCellType = whole.getFunctionResultType();
+            if ((!partCellType.equals(CellType.NUMERIC) && !partCellType.equals(CellType.UNKNOWN)) ||
+                (!wholeCellType.equals(CellType.NUMERIC) && !wholeCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for PERCENT function. Expected NUMERIC, but got " + partCellType + " and " + wholeCellType);
+            }
+
+            // Create and return the PercentExpression
+            return new PercentExpression(part, whole);
+        }
+    },
+    EQUAL {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for EQUAL function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Create and return the EqualExpression
+            return new EqualExpression(left, right);
+        }
+    },
+    NOT {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there is exactly one argument
+            if (arguments.size() != 1) {
+                throw new IllegalArgumentException("Invalid number of arguments for NOT function. Expected 1, but got " + arguments.size());
+            }
+
+            // Parse the argument
+            Expression argument = parseExpression(arguments.get(0).trim(), sheet);
+
+            // Validate that the argument is boolean or unknown
+            CellType argumentCellType = argument.getFunctionResultType();
+            if (!argumentCellType.equals(CellType.BOOLEAN) && !argumentCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for NOT function. Expected BOOLEAN, but got " + argumentCellType);
+            }
+
+            // Create and return the NotExpression
+            return new NotExpression(argument);
+        }
+    },
+    OR {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for OR function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are boolean or unknown
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
+            if (!leftCellType.equals(CellType.BOOLEAN) && !leftCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for OR function. Expected BOOLEAN, but got " + leftCellType);
+            }
+            if (!rightCellType.equals(CellType.BOOLEAN) && !rightCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for OR function. Expected BOOLEAN, but got " + rightCellType);
+            }
+
+            // Create and return the OrExpression
+            return new OrExpression(left, right);
+        }
+    },
+    AND {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are at least two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for AND function. Expected at least 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are boolean or unknown
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
+            if (!leftCellType.equals(CellType.BOOLEAN) && !leftCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for OR function. Expected BOOLEAN, but got " + leftCellType);
+            }
+            if (!rightCellType.equals(CellType.BOOLEAN) && !rightCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for OR function. Expected BOOLEAN, but got " + rightCellType);
+            }
+
+            // Create and return the AndExpression
+            return new AndExpression(left, right);
+        }
+    },
+    BIGGER {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for BIGGER function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are numeric or unknown
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
+            if ((!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
+                (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for BIGGER function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
+            }
+
+            // Create and return the BiggerExpression
+            return new BiggerExpression(left, right);
+        }
+    },
+    LESS {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly two arguments
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for LESS function. Expected 2, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression left = parseExpression(arguments.get(0).trim(), sheet);
+            Expression right = parseExpression(arguments.get(1).trim(), sheet);
+
+            // Validate that the arguments are numeric or unknown
+            CellType leftCellType = left.getFunctionResultType();
+            CellType rightCellType = right.getFunctionResultType();
+            if ((!leftCellType.equals(CellType.NUMERIC) && !leftCellType.equals(CellType.UNKNOWN)) ||
+                (!rightCellType.equals(CellType.NUMERIC) && !rightCellType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for LESS function. Expected NUMERIC, but got " + leftCellType + " and " + rightCellType);
+            }
+
+            // Create and return the LessExpression
+            return new LessExpression(left, right);
+        }
+    },
+    IF {
+        @Override
+        public Expression parse(List<String> arguments, SheetReadActions sheet) {
+            // Ensure there are exactly three arguments
+            if (arguments.size() != 3) {
+                throw new IllegalArgumentException("Invalid number of arguments for IF function. Expected 3, but got " + arguments.size());
+            }
+
+            // Parse the arguments
+            Expression condition = parseExpression(arguments.get(0).trim(), sheet);
+            Expression trueExpression = parseExpression(arguments.get(1).trim(), sheet);
+            Expression falseExpression = parseExpression(arguments.get(2).trim(), sheet);
+
+            // Validate that the condition is boolean or unknown
+            CellType conditionCellType = condition.getFunctionResultType();
+            if (!conditionCellType.equals(CellType.BOOLEAN) && !conditionCellType.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument type for IF function. Expected BOOLEAN, but got " + conditionCellType);
+            }
+
+            // Create and return the IfExpression
+            return new IfExpression(condition, trueExpression, falseExpression);
+        }
+    },
 
     ;
 
