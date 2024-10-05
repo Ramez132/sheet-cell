@@ -61,7 +61,7 @@ public class RangeFactory {
         }
     }
 
-    private static boolean isCoordinatesCreateValidRange(Coordinate leftTopStartCoordinate, Coordinate rightBottomEndCoordinate) {
+    public static boolean isCoordinatesCreateValidRange(Coordinate leftTopStartCoordinate, Coordinate rightBottomEndCoordinate) {
         boolean isRowStartEqualOrSmallerThanRowEnd = leftTopStartCoordinate.getRow() <= rightBottomEndCoordinate.getRow();
         boolean isColumnStartEqualOrSmallerThanColumnEnd = leftTopStartCoordinate.getColumn() <= rightBottomEndCoordinate.getColumn();
         return isRowStartEqualOrSmallerThanRowEnd && isColumnStartEqualOrSmallerThanColumnEnd;

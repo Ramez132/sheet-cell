@@ -21,6 +21,8 @@ public interface Range {
 
     Set<Coordinate> getAllCoordinatesThatBelongToThisRange();
 
+    int getNumOfRowsInRange();
+
 //    int getRowCount();
 //
 //    int getColumnCount();

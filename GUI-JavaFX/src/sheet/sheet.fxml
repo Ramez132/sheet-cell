@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 
@@ -10,8 +10,10 @@
 <!--            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22"-->
 <!--            fx:controller="sheet.SheetController">-->
 <!--   <ScrollPane fx:id="rightLeftScroller" stylesheets="@single-cell.css">-->
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22"
-            fx:controller="sheet.SheetController" stylesheets="@single-cell.css" >
+<!--   </ScrollPane>-->
+<!--</ScrollPane>-->
+
+<BorderPane stylesheets="@single-cell.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sheet.SheetController">
          <top>
             <GridPane fx:id="gridPaneColumnLetters" hgap="5" vgap="5" />
          </top>
@@ -21,7 +23,7 @@
          <center>
             <GridPane fx:id="gridPaneActualCells" hgap="5" vgap="5" />
          </center>
+   <padding>
+      <Insets left="20.0" top="20.0" />
+   </padding>
       </BorderPane>
-<!--   </ScrollPane>-->
-<!--</ScrollPane>-->
-

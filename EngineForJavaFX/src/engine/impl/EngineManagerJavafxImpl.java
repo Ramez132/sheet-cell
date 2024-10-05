@@ -2,10 +2,15 @@ package engine.impl;
 
 import engine.api.EngineManagerJavafx;
 import shticell.cell.api.Cell;
+import shticell.coordinate.Coordinate;
+import shticell.coordinate.CoordinateFactory;
 import shticell.jaxb.SheetFromFilesFactory;
 import shticell.range.Range;
 import shticell.range.RangeFactory;
+import shticell.range.RangeImpl;
+import shticell.row.RangeWithRowsInArea;
 import shticell.sheet.api.Sheet;
+import shticell.sorter.RangeSorter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -123,6 +128,155 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
     @Override
     public boolean isSelectedRangeUsedInAnyCellWithRelevantFunction(String rangeName) {
         return sheetVersionsArray.getLast().isSelectedRangeIsUsedInSheet(rangeName);
+    }
+
+    @Override
+    public boolean isFilteringOrSortingAreaValid(String newFilterStartCoordinateStr, String newFilterEndCoordinateStr) {
+        Sheet currentSheet = sheetVersionsArray.getLast();
+        Coordinate topLeftStartCoordinate, bottomRightEndCoordinate;
+        try {
+            topLeftStartCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterStartCoordinateStr, currentSheet);
+            bottomRightEndCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterEndCoordinateStr, currentSheet);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error trying to create filtering area from coordinates provided: " + e.getMessage());
+        }
+        return RangeFactory.isCoordinatesCreateValidRange(topLeftStartCoordinate, bottomRightEndCoordinate);
+    }
+
+    @Override
+    public Range createRangeToSortOrFilter(String newFilterStartCoordinateStr, String newFilterEndCoordinateStr) {
+        // method will be invoked only if the area and coordinates are valid
+        Sheet currentSheet = sheetVersionsArray.getLast();
+        Coordinate topLeftStartCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterStartCoordinateStr, currentSheet);
+        Coordinate bottomRightEndCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterEndCoordinateStr, currentSheet);
+
+        return new RangeImpl("CurrentRangeToFilterOrSort", topLeftStartCoordinate, bottomRightEndCoordinate);
+    }
+
+    @Override
+    public Sheet createCopyOfRecentSheet() {
+        return sheetVersionsArray.getLast().createCopyOfSheet();
+    }
+
+    @Override
+    public RangeWithRowsInArea createFilteredRangeArea(Range rangeToFilter, char letterOfColumnToGetUniqueValuesToFilter, List<String> uniqueValuesToFilter) {
+        try {
+            if (rangeToFilter == null) {
+                throw new IllegalArgumentException("Filtering range is null.");
+            }
+            if (uniqueValuesToFilter == null) {
+                throw new IllegalArgumentException("List of unique values to filter is null.");
+            }
+            if (uniqueValuesToFilter.isEmpty()) {
+                throw new IllegalArgumentException("List of unique values to filter is empty.");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        try {
+            Sheet copyOfRecentSheetWithAreaToFilter = sheetVersionsArray.getLast().createCopyOfSheet();
+            RangeWithRowsInArea rangeWithRowsInArea = new RangeWithRowsInArea(copyOfRecentSheetWithAreaToFilter, rangeToFilter);
+            rangeWithRowsInArea.buildRangeFromAllRelevantCellsInRange();
+            int columnNumFromChar = CoordinateFactory.getColumnNumberFromChar(letterOfColumnToGetUniqueValuesToFilter, copyOfRecentSheetWithAreaToFilter);
+            int numOfIterationsLeftToPreform = rangeToFilter.getRowEnd() - rangeToFilter.getRowStart() + 1;
+            int currentRowToCheck = rangeWithRowsInArea.getFirstRowNumToCheck();
+            int lastRowToCheck = rangeWithRowsInArea.getLastRowNumToCheck();
+//
+//            int rowEnd = rangeToFilter.getRowEnd();
+            int numOfRowsToCheck = rangeWithRowsInArea.getCurrentNumOfRows();
+            int numOfRowsAlreadyChecked = 0;
+
+
+            while (currentRowToCheck <= lastRowToCheck && numOfRowsAlreadyChecked < numOfRowsToCheck) {
+                String currentEffectiveValueOfCellAsString = rangeWithRowsInArea.getEffectiveValueOfCellAsString(currentRowToCheck, columnNumFromChar);
+                if (!uniqueValuesToFilter.contains(currentEffectiveValueOfCellAsString)) {
+                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
+                    currentRowToCheck--; //to check the next row that moved up
+                }
+                currentRowToCheck++; //even if the row was removed, the next row moved up ?
+                numOfRowsAlreadyChecked++;
+            }
+
+
+//            for (int i = 1; i < numOfIterationsLeftToPreform; i++) {
+//                String currentEffectiveValueOfCellAsString = rangeWithRowsInArea.getEffectiveValueOfCellAsString(currentRowToCheck, columnNumFromChar);
+//                if (!uniqueValuesToFilter.contains(currentEffectiveValueOfCellAsString)) {
+//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
+//                    currentRowToCheck--;
+//                }
+//                currentRowToCheck++;
+//            }
+//            while (currentRowToCheck <= rowEnd && numOfIterationsLeftToPreform > 0) {
+//                String currentEffectiveValueOfCellAsString = rangeWithRowsInArea.getEffectiveValueOfCellAsString(currentRowToCheck, columnNumFromChar);
+//                if (!uniqueValuesToFilter.contains(currentEffectiveValueOfCellAsString)) {
+//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
+//                    currentRowToCheck--;
+//                }
+////                boolean isRowHaveUniqueValueInSelectedColumn =
+////                        rangeWithRowsInArea.isThereUniqueValueInSelectedRowAndColumn(currentRowToCheck, columnNumFromChar, uniqueValuesToFilter);
+////                if (!isRowHaveUniqueValueInSelectedColumn) {
+////                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
+////                    currentRowToCheck--;
+////                }
+//                currentRowToCheck++;
+//                numOfIterationsLeftToPreform--;
+//            }
+//            for (int currentRowToCheck = filteringRange.getRowStart(); currentRowToCheck <= filteringRange.getRowEnd(); currentRowToCheck++) {
+//                boolean isRowHaveUniqueValueInSelectedColumn = rangeWithRowsInArea.isThereUniqueValueInSelectedRowAndColumn(currentRowToCheck, columnNumFromChar, uniqueValuesToFilter);
+//                if (!isRowHaveUniqueValueInSelectedColumn) {
+//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
+//                    currentRowToCheck--;
+//                }
+//                if (!uniqueValuesToFilter.contains(rangeWithRowsInArea.getEffectiveValueStringOfCell(currentRowToCheck, columnNumFromChar))) {
+//                    rangeWithRowsInArea.removeFirstRowAndMoveAllRowsOneRowUp();
+//                    currentRowToCheck--;
+//                }
+            return rangeWithRowsInArea;
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("Error trying to create a copy of the sheet with filtered area: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public RangeWithRowsInArea createSortedRangeArea(Range newSortingRange, List<Character> listOfColumnLettersCharactersToSortBy) {
+        Sheet copyOfRecentSheetWithAreaToSort = sheetVersionsArray.getLast().createCopyOfSheet();
+        RangeSorter rangeToSort = new RangeSorter(copyOfRecentSheetWithAreaToSort, newSortingRange,listOfColumnLettersCharactersToSortBy);
+        rangeToSort.sortRange();
+
+        return rangeToSort.getSortedRangeWithRows();
+    }
+
+
+    @Override
+    public boolean isColumnLetterInFilteringOrSortingArea(String stringWithLetterOfSelectedColumn, String newAreaStartCoordinateStr, String newAreaEndCoordinateStr) {
+        Sheet currentSheet = sheetVersionsArray.getLast();
+        int columnNumFromChar;
+
+        //getting here only if isFilteringOrSortingAreaValid() returned true,
+        //so the coordinates are valid and will not throw an exception
+        Coordinate topLeftStartCoordinate = CoordinateFactory.getCoordinateFromStr(newAreaStartCoordinateStr, currentSheet);
+        Coordinate bottomRightEndCoordinate = CoordinateFactory.getCoordinateFromStr(newAreaEndCoordinateStr, currentSheet);
+
+        if (stringWithLetterOfSelectedColumn.length() != 1) {
+            throw new IllegalArgumentException("Column letter must be exactly one character long.");
+        }
+        try {
+            columnNumFromChar = CoordinateFactory.getColumnNumberFromChar(stringWithLetterOfSelectedColumn.charAt(0), currentSheet);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error trying to reach requested column " + stringWithLetterOfSelectedColumn +
+                    " in selected filtering area" + e.getMessage());
+        }
+
+        return columnNumFromChar >= topLeftStartCoordinate.getColumn() && columnNumFromChar <= bottomRightEndCoordinate.getColumn();
+    }
+
+    @Override
+    public List<String> getUniqueValuesForFilteringInSelectedColumnAndRelevantArea
+            (char charLetterOfColumnToGetUniqueValuesToFilter,
+             String newFilterStartCoordinateStr,
+             String newFilterEndCoordinateStr) {
+        return sheetVersionsArray.getLast().getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(charLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
     }
 
     @Override

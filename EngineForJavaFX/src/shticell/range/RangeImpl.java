@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RangeImpl implements Range {
-    private final String rangeName;
+    private String rangeName;
     private final Coordinate topLeftStartCoordinate;
     private final Coordinate bottomRightEndCoordinate;
     private Set<Coordinate> allCoordinatesThatBelongToThisRange = new HashSet<>();
@@ -16,9 +16,7 @@ public class RangeImpl implements Range {
     private final int columnStart;
     private final int columnEnd;
 
-
-    public RangeImpl(String rangeName, Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
-        this.rangeName = rangeName;
+    public RangeImpl(Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
         this.topLeftStartCoordinate = topLeftStartCoordinate;
         this.bottomRightEndCoordinate = bottomRightEndCoordinate;
         this.rowStart = topLeftStartCoordinate.getRow();
@@ -26,6 +24,11 @@ public class RangeImpl implements Range {
         this.columnStart = topLeftStartCoordinate.getColumn();
         this.columnEnd = bottomRightEndCoordinate.getColumn();
         updateAllCoordinatesThatBelongToThisRange();
+    }
+
+    public RangeImpl(String rangeName, Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
+        this(topLeftStartCoordinate,bottomRightEndCoordinate);
+        this.rangeName = rangeName;
     }
 
     private void updateAllCoordinatesThatBelongToThisRange() {
@@ -80,6 +83,11 @@ public class RangeImpl implements Range {
     @Override
     public Set<Coordinate> getAllCoordinatesThatBelongToThisRange() {
         return allCoordinatesThatBelongToThisRange;
+    }
+
+    @Override
+    public int getNumOfRowsInRange() {
+        return rowEnd - rowStart + 1;
     }
 
 //    @Override

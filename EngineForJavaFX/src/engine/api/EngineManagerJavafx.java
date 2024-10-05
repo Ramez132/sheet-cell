@@ -2,6 +2,7 @@ package engine.api;
 
 import shticell.cell.api.Cell;
 import shticell.range.Range;
+import shticell.row.RangeWithRowsInArea;
 import shticell.sheet.api.Sheet;
 
 import java.io.File;
@@ -35,4 +36,25 @@ public interface EngineManagerJavafx {
     boolean isThereAnyRangeInRangesFactory();
     Range getRangeByItsName(String rangeName);
     boolean isSelectedRangeUsedInAnyCellWithRelevantFunction(String rangeName);
+    boolean isFilteringOrSortingAreaValid(String newFilterStartCoordinateStr, String newFilterEndCoordinateStr);
+
+    boolean isColumnLetterInFilteringOrSortingArea
+            (String stringWithLetterOfSelectedColumn, String newAreaStartCoordinateStr, String newAreaEndCoordinateStr);
+
+    List<String> getUniqueValuesForFilteringInSelectedColumnAndRelevantArea
+            (char charLetterOfColumnToGetUniqueValuesToFilter, String newFilterStartCoordinateStr, String newFilterEndCoordinateStr);
+
+    /**
+    * method will be invoked only if the area and coordinates are valid
+     */
+    Range createRangeToSortOrFilter(String newFilterStartCoordinateStr, String newFilterEndCoordinateStr);
+
+//    Sheet createCopyOfSheet();
+
+    Sheet createCopyOfRecentSheet();
+
+    RangeWithRowsInArea createFilteredRangeArea
+            (Range filteringRange, char letterOfColumnToGetUniqueValuesToFilter, List<String> uniqueValuesToFilter);
+
+    RangeWithRowsInArea createSortedRangeArea(Range newSortingRange, List<Character> listOfColumnLettersCharactersToSortBy);
 }

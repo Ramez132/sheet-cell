@@ -11,6 +11,7 @@ import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 
 import java.io.*;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class SheetImpl implements Sheet, Serializable {
@@ -84,6 +85,73 @@ public class SheetImpl implements Sheet, Serializable {
             return countersOfReferencesToRange.get(rangeName) > 0;
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public List<String> getUniqueValuesForFilteringInSelectedColumnAndRelevantArea
+            (char charLetterOfColumnToGetUniqueValuesToFilter,
+             String newFilterStartCoordinateStr,
+             String newFilterEndCoordinateStr) {
+        int columnNumFromChar = CoordinateFactory.getColumnNumberFromChar(charLetterOfColumnToGetUniqueValuesToFilter, this);
+        Coordinate topLeftStartCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterStartCoordinateStr, this);
+        Coordinate bottomRightEndCoordinate = CoordinateFactory.getCoordinateFromStr(newFilterEndCoordinateStr, this);
+        List<String> uniqueValuesInSelectedColumnAndRelevantArea = new ArrayList<>();
+        int startRowOfFilteringArea = topLeftStartCoordinate.getRow();
+        int endRowOfFilteringArea = bottomRightEndCoordinate.getRow();
+
+        for (int currentRow = startRowOfFilteringArea; currentRow <= endRowOfFilteringArea; currentRow++) {
+            Cell currentCell = getCell(currentRow, columnNumFromChar);
+
+            if (!currentCell.getIsCellEmptyBoolean()) {
+//                EffectiveValue effectiveValueOfCell = currentCell.getCurrentEffectiveValue();
+//                String effectiveValueOfCellAsString = "";
+//                if (effectiveValueOfCell != null) {
+//                    effectiveValueOfCellAsString = effectiveValueOfCell.getValue().toString();
+//                }
+
+                Coordinate coordinate = CoordinateFactory.getCoordinate(currentRow, columnNumFromChar);
+                String effectiveValueOfCellAsString;
+                if (activeCells.containsKey(coordinate)) {
+                    EffectiveValue effectiveValueOfCell = activeCells.get(coordinate).getCurrentEffectiveValue();
+                    if (effectiveValueOfCell == null) {
+                        effectiveValueOfCellAsString = addThousandsSeparator("");
+                    } else {
+                        effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
+                    }
+                } else {
+                    effectiveValueOfCellAsString = addThousandsSeparator("");
+                }
+
+                if (!uniqueValuesInSelectedColumnAndRelevantArea.contains(effectiveValueOfCellAsString)
+                        && !effectiveValueOfCellAsString.isEmpty()) {
+                    uniqueValuesInSelectedColumnAndRelevantArea.add(effectiveValueOfCellAsString);
+                }
+            }
+        }
+
+
+//        String effectiveValueOfCellAsString;
+//        if (sheet.getActiveCells().containsKey(coordinate)) {
+//            EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
+//            if (effectiveValueOfCell == null) {
+//                effectiveValueOfCellAsString = addThousandsSeparator(" ");
+//            } else {
+//                effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
+//            }
+//        } else {
+//            effectiveValueOfCellAsString = addThousandsSeparator(" ");
+//        }
+
+        return uniqueValuesInSelectedColumnAndRelevantArea;
+    }
+
+    private String addThousandsSeparator(String number) throws NumberFormatException {
+        try {
+            return NumberFormat.getNumberInstance(Locale.US).format(Double.parseDouble(number));
+        }
+        catch (NumberFormatException e) {
+            return number;
         }
     }
 
@@ -397,5 +465,11 @@ public class SheetImpl implements Sheet, Serializable {
             // deal with the runtime error that was discovered as part of invocation
             return this;
         }
+    }
+
+
+    @Override
+    public SheetImpl createCopyOfSheet() {
+        return copySheet();
     }
 }
