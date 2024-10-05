@@ -6,43 +6,35 @@ import shticell.cell.impl.EffectiveValueImpl;
 import shticell.expression.api.Expression;
 import shticell.sheet.api.SheetReadActions;
 
-import static java.lang.Double.NaN;
-
 public class PercentExpression implements Expression {
-
-    private Expression partExpression;
-    private Expression wholeExpression;
+    private final Expression part;
+    private final Expression whole;
 
     public PercentExpression(Expression part, Expression whole) {
-        this.partExpression = part;
-        this.wholeExpression = whole;
+        this.part = part;
+        this.whole = whole;
     }
 
     @Override
     public EffectiveValue eval(SheetReadActions sheet) {
         double partValueResult, wholeValueResult;
         EffectiveValue partValue, wholeValue;
+
         try {
-            partValue = partExpression.eval(sheet);
+            partValue = part.eval(sheet);
             partValueResult = partValue.extractValueWithExpectation(Double.class);
         } catch (Exception e) {
-            //Will get here if left expression has a reference to:
-            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
-            partValueResult = NaN;
+            partValueResult = Double.NaN;
         }
 
         try {
-            wholeValue = wholeExpression.eval(sheet);
+            wholeValue = whole.eval(sheet);
             wholeValueResult = wholeValue.extractValueWithExpectation(Double.class);
-        }
-        catch (Exception e) {
-            //Will get here if right expression has a reference to:
-            //1. An empty cell or a cell out of sheet range 2. A cell without a number value
-            wholeValueResult = NaN;
+        } catch (Exception e) {
+            wholeValueResult = Double.NaN;
         }
 
         double result = (partValueResult * wholeValueResult) / 100;
-
         return new EffectiveValueImpl(CellType.NUMERIC, result);
     }
 

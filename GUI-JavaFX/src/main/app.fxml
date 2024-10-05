@@ -14,8 +14,8 @@
 <!--      </VBox>-->
 <!--   </content>-->
 <!--</ScrollPane>-->
-
-<ScrollPane prefHeight="500" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController">
+<!--        prefHeight="500"-->
+<ScrollPane  xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController">
 <content>
     <BorderPane fx:id="root">
         <top>
@@ -25,6 +25,10 @@
         <center>
             <fx:include fx:id="sheetPart" source="../sheet/sheet.fxml" />
         </center>
+
+        <left>
+            <fx:include fx:id="leftPart" source="../left/leftPart.fxml" />
+        </left>
     </BorderPane>
 </content>
 </ScrollPane>

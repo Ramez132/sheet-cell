@@ -3,6 +3,7 @@ package shticell.sheet.api;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 
+import java.util.List;
 import java.util.Map;
 
 public interface SheetReadActions {
@@ -20,4 +21,5 @@ public interface SheetReadActions {
     int getVersionNumForEmptyCellWithoutPreviousValues();
     int getNumOfCellsWhichEffectiveValueChangedInNewVersion();
     boolean isSelectedRangeIsUsedInSheet(String rangeName);
+    List<String> getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(char charLetterOfColumnToGetUniqueValuesToFilter, String newFilterStartCoordinateStr, String newFilterEndCoordinateStr);
 }

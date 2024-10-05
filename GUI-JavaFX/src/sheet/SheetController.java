@@ -16,7 +16,7 @@ import shticell.cell.api.EffectiveValue;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.range.Range;
-import shticell.range.RangeFactory;
+import shticell.row.RangeWithRowsInArea;
 import shticell.sheet.api.SheetReadActions;
 
 import java.text.NumberFormat;
@@ -307,4 +307,80 @@ public class SheetController {
     }
 
 
+    public void displayFilteredLines(SheetReadActions sheet, RangeWithRowsInArea filteredRangeArea) {
+        int numOfRows = sheet.getNumOfRows();
+        int numOfColumns = sheet.getNumOfColumns();
+        int initializedRowHeight = sheet.getRowHeight();
+        int initializedColumnWidth = sheet.getColumnWidth();
+
+        clearCurrentSheetDisplay();
+
+        for (int i = 1; i <= numOfColumns; i++) {
+//            alignmentPerCol.put(i, new SimpleObjectProperty<>(Pos.CENTER_LEFT));
+            widthForEachColumnMapping.put(i,new SimpleIntegerProperty(initializedColumnWidth));
+        }
+
+        for (int i = 1; i <= numOfRows; i++) {
+            heightForEachRowMapping.put(i,new SimpleIntegerProperty(initializedRowHeight));
+        }
+
+        createAndDisplayColumnsLetters(sheet);
+        createAndDisplayRowNumbers(sheet);
+
+
+
+        cleanUnnecessaryStyleClassesForAllCells();
+        Range selectedRange = filteredRangeArea.getRange();
+        int filteredRangeRowStart = selectedRange.getRowStart();
+        int filteredRangeRowEnd = selectedRange.getRowEnd();
+        int filteredRangeColumnStart = selectedRange.getColumnStart();
+        int filteredRangeColumnEnd = selectedRange.getColumnEnd();
+
+//        int numOfRows = sheet.getNumOfRows();
+//        int numOfColumns = sheet.getNumOfColumns();
+//        int initializedRowHeight = sheet.getRowHeight();
+//        int initializedColumnWidth = sheet.getColumnWidth();
+
+        for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
+            for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
+                Coordinate coordinate = CoordinateFactory.getCoordinate(currentRowNum, currentColumnNum);
+                String effectiveValueOfCellAsString;
+
+                //check if the cell is in the filtered range
+                if (currentRowNum >= filteredRangeRowStart && currentRowNum <= filteredRangeRowEnd
+                        && currentColumnNum >= filteredRangeColumnStart && currentColumnNum <= filteredRangeColumnEnd) {
+
+                    effectiveValueOfCellAsString = filteredRangeArea.getEffectiveValueOfCellAsString(currentRowNum, currentColumnNum);
+//                    effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCellAsString);
+                } else { //cell is not in the filtered range - display the original value
+                    if (sheet.getActiveCells().containsKey(coordinate)) {
+                        EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
+                        if (effectiveValueOfCell == null) {
+                            effectiveValueOfCellAsString = addThousandsSeparator(" ");
+                        } else {
+                            effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
+                        }
+                    } else {
+                        effectiveValueOfCellAsString = addThousandsSeparator(" ");
+                    }
+                }
+
+                Label cellLabel = new Label(effectiveValueOfCellAsString);
+
+                cellLabel.prefHeightProperty().set(initializedRowHeight);
+                cellLabel.prefWidthProperty().set(100);
+
+//                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
+//                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
+                cellLabel.setAlignment(Pos.CENTER);
+                cellLabel.getStyleClass().add("single-cell");
+                cellLabel.setOnMouseClicked(event -> handleCellClick(sheet, coordinate));
+                gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
+                Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
+                GridPane.setMargin(cellLabel, margin);
+                GridPane.setHalignment(cellLabel, HPos.CENTER);
+                GridPane.setValignment(cellLabel, VPos.CENTER);
+            }
+        }
+    }
 }
