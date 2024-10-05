@@ -2,8 +2,6 @@ package main;
 
 import engine.api.EngineManagerJavafx;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import left.LeftPartController;
 import sheet.SheetController;
 import shticell.coordinate.Coordinate;
@@ -14,7 +12,6 @@ import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 import top.TopPartController;
 
-import java.net.URL;
 import java.util.List;
 
 public class MainController {
@@ -24,6 +21,7 @@ public class MainController {
     @FXML private SheetController sheetPartController;
     @FXML private TopPartController topPartController;
     @FXML private LeftPartController leftPartController;
+//    private FXMLLoader fxmlLoader;
 
 //    @FXML
 //    private Button loadNewFileButton;
@@ -41,6 +39,10 @@ public class MainController {
         sheetPartController.setMainController(this);
         leftPartController.setMainController(this);
     }
+
+//    public void setFxmlLoader (FXMLLoader fxmlLoaderFromMainMethod) {
+//        this.fxmlLoader = fxmlLoaderFromMainMethod;
+//    }
 
     public void setEngineManager(EngineManagerJavafx engineManager) {
         this.engineManager = engineManager;
@@ -83,6 +85,11 @@ public class MainController {
 
     public void loadNewSheet(SheetReadActions sheet){
         sheetPartController.loadAndDisplayNewSheet(sheet);
+    }
+
+    public void displaySheetBeforeSortingOrFiltering() {
+        sheetPartController.clearAllCellsDisplay();
+        sheetPartController.createAndDisplayAllCells(engineManager.getMostRecentSheet());
     }
 
     public void handleCellClick(SheetReadActions sheet, Coordinate selectedCoordinate) {
@@ -165,13 +172,14 @@ public class MainController {
         try {
             RangeWithRowsInArea filteredRangeArea = engineManager.createFilteredRangeArea(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
             Sheet sheet = engineManager.createCopyOfRecentSheet();
-            setNotificationMessageOfRecentActionOutcomeLabel("Opened pop-up window - displaying lines with the selected unique values in column " +
-                                                                currentColumnLetterForFiltering + ", in the selected filtering area: "
-                                                                + currentFilteringRange.getTopLeftStartCoordinate() +
-                                                                " to " + currentFilteringRange.getBottomRightEndCoordinate() + ".");
-            displaySheetInPopUpWithSortedOrFilteredRange(sheet, filteredRangeArea);
+            String messageToUser = "Displaying lines with the selected unique values in column " +
+                    currentColumnLetterForFiltering + ", in the selected filtering area: "
+                    + currentFilteringRange.getTopLeftStartCoordinate() +
+                    " to " + currentFilteringRange.getBottomRightEndCoordinate() + ".";
+            topPartController.setMessageOfRecentActionOutcomeLabel(messageToUser);
+            sheetPartController.displaySheetWithFilteredOrSortedRange(sheet, filteredRangeArea);
 
-            sheetPartController.displayFilteredLines(sheet, filteredRangeArea);
+//            sheetPartController.displayFilteredLines(sheet, filteredRangeArea);
 //            topPartController.setMessageOfRecentActionOutcomeLabel("Filtered lines are displayed");
         }
         catch (Exception e) {
@@ -180,14 +188,48 @@ public class MainController {
 //        sheetPartController.loadAndDisplayNewSheet(sheet);
     }
 
-    private void displaySheetInPopUpWithSortedOrFilteredRange(Sheet sheet, RangeWithRowsInArea filteredRangeArea) {
-    }
+//    private void displaySheetInPopUpWithSortedOrFilteredRange(Sheet sheet, RangeWithRowsInArea filteredOrSortedRangeArea) {
+//       try {
+//           // Load the pop-up FXML
+//           FXMLLoader fxmlLoader = new FXMLLoader();
+//           URL url = getClass().getResource("../popup/main/popup.fxml");
+//           fxmlLoader.setLocation(url);
+//           Parent root = fxmlLoader.load(url.openStream());
+//
+//           // Get the pop-up controller to set the data
+//           PopUpMainController popupController = fxmlLoader.getController();
+//
+//           popupController.setSheetAndRangeToDisplay(sheet, filteredOrSortedRangeArea);
+//
+//           // Create and display the pop-up window
+//           Stage popupStage = new Stage();
+//           popupStage.initModality(Modality.APPLICATION_MODAL); // Block interaction with the main window
+//           popupStage.setTitle("Sheet with filtered rows");
+//           popupStage.setScene(new Scene(root));
+//
+//           popupStage.setOnShown(event -> {
+//               popupController.onShown();  // Call the method after the pop-up is visible
+//           });
+//
+//           popupStage.showAndWait();
+//       } catch (Exception e) {
+//           setNotificationMessageOfRecentActionOutcomeLabel("Error trying to open popup with filtered/sorted area");
+//       }
+
+//    }
 
     public void handleShowSortedLinesButton(Range newSortingRange, List<Character> listOfColumnLettersCharactersToSortBy) {
         try {
             RangeWithRowsInArea sortedRangeArea = engineManager.createSortedRangeArea(newSortingRange, listOfColumnLettersCharactersToSortBy);
             Sheet sheet = engineManager.createCopyOfRecentSheet();
-            sheetPartController.displayFilteredLines(sheet, sortedRangeArea);
+//            sheetPartController.displayFilteredLines(sheet, sortedRangeArea);
+
+            String messageToUser = "Displaying the sorted area: "
+                    + newSortingRange.getTopLeftStartCoordinate() +
+                    " to " + newSortingRange.getBottomRightEndCoordinate() + ", sorted in the desired columns and provided order.";
+            topPartController.setMessageOfRecentActionOutcomeLabel(messageToUser);
+            sheetPartController.displaySheetWithFilteredOrSortedRange(sheet, sortedRangeArea);
+
         } catch (Exception e) {
             topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
         }

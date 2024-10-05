@@ -31,6 +31,7 @@ public class MainJavafxProgram extends Application {
 
         MainController mainController = fxmlLoader.getController();
         mainController.setEngineManager(engineManager);
+//        mainController.setFxmlLoader(fxmlLoader);
 
 //      Parent load = FXMLLoader.load(getClass().getResource("main.fxml"));
         Scene scene = new Scene(root);

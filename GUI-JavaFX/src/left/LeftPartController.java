@@ -3,6 +3,8 @@ package left;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.util.Callback;
 import main.MainController;
@@ -42,6 +44,9 @@ public class LeftPartController {
     @FXML private TextField thirdColumnLetterToSortByTextField;
     @FXML private TextField fourthColumnLetterToSortByTextField;
     @FXML private TextField fifthColumnLetterToSortByTextField;
+
+    @FXML private Button undoFilteringButton;
+    @FXML private Button undoSortingButton;
 
 
     @FXML
@@ -198,6 +203,7 @@ public class LeftPartController {
             return;
         }
 
+        disableAllButtonsInSceneExceptOne(undoFilteringButton);
         mainController.handleShowFilteredLinesButton(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
 
         listViewOptionsForFiltering.clear();
@@ -207,6 +213,13 @@ public class LeftPartController {
         isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = false;
 //        mainController.setNotificationMessageOfRecentActionOutcomeLabel("Selected options: " + selectedUniqueValuesOptions);
     }
+
+    @FXML
+    public void handleUndoFilteringButton() {
+        enableAllButtonsInScene();
+        mainController.displaySheetBeforeSortingOrFiltering();
+    }
+
 
     @FXML
     public void handleAddNewRangeButtonAndClearRelevantTextFields() {
@@ -338,13 +351,18 @@ public class LeftPartController {
             List<Character> listOfColumnLettersCharactersToSortBy = convertArrayOfColumnLettersStringsToArrayOfCharacters(allColumnLettersToSortByAsString);
             //if got here, all fields are filled and valid
 
-
+        disableAllButtonsInSceneExceptOne(undoSortingButton);
         mainController.handleShowSortedLinesButton(newSortingRange, listOfColumnLettersCharactersToSortBy);
-
 
         } catch (Exception e) {
             mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
+    }
+
+    @FXML
+    public void handleUndoSortingButton() {
+        enableAllButtonsInScene();
+        mainController.displaySheetBeforeSortingOrFiltering();
     }
 
     private List<Character> convertArrayOfColumnLettersStringsToArrayOfCharacters(List<String> allColumnLettersToSortByAsString) {
@@ -475,5 +493,32 @@ public class LeftPartController {
         return combinationOfEmptyAndFilledTextFieldsValid;
     }
 
+
+    public void disableAllButtonsInSceneExceptOne(Button buttonToKeepEnabled) {
+        Scene scene = buttonToKeepEnabled.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(button != buttonToKeepEnabled);
+                }
+            }
+        }
     }
+
+    public void enableAllButtonsInScene() {
+        Scene scene = undoFilteringButton.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(false);
+                }
+            }
+        }
+    }
+
+    }
+
+
 
