@@ -121,8 +121,31 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
     }
 
     @Override
-    public void deleteRangeFromMostRecentSheet(String rangeName) {
-
+    public boolean isSelectedRangeUsedInAnyCellWithRelevantFunction(String rangeName) {
+        return sheetVersionsArray.getLast().isSelectedRangeIsUsedInSheet(rangeName);
     }
+
+    @Override
+    public void deleteRangeFromRangeFactory(String rangeName) {
+        try {
+            RangeFactory.deleteRangeFromRangesFactory(rangeName);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> getAllRangeNamesInTheSystem() {
+        return RangeFactory.getAllRangesNames();
+    }
+
+    @Override
+    public Range getRangeByItsName(String rangeName) { return RangeFactory.getRangeByItsName(rangeName); }
+
+    @Override
+    public boolean isThereAnyRangeInRangesFactory() {
+        return RangeFactory.isThereAnyRangeInRangesFactory();
+    }
+
 
 }

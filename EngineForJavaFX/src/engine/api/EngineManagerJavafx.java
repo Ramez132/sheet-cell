@@ -5,6 +5,7 @@ import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 
 import java.io.File;
+import java.util.List;
 
 public interface EngineManagerJavafx {
     Sheet getSheetFromFile(File file) throws Exception;
@@ -29,5 +30,9 @@ public interface EngineManagerJavafx {
 
     Range addRangeToMostRecentSheet(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr);
     Range getRangeFromMostRecentSheet(String rangeName);
-    void deleteRangeFromMostRecentSheet(String rangeName);
+    void deleteRangeFromRangeFactory(String rangeName);
+    List<String> getAllRangeNamesInTheSystem();
+    boolean isThereAnyRangeInRangesFactory();
+    Range getRangeByItsName(String rangeName);
+    boolean isSelectedRangeUsedInAnyCellWithRelevantFunction(String rangeName);
 }

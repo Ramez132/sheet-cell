@@ -1,12 +1,10 @@
 package shticell.expression.parser;
 
-import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.expression.api.Expression;
 import shticell.expression.impl.*;
 import shticell.cell.api.CellType;
-import shticell.cell.api.EffectiveValue;
 import shticell.sheet.api.SheetReadActions;
 
 import java.util.ArrayList;
@@ -560,7 +558,6 @@ public enum FunctionParser {
             return new IfExpression(condition, trueExpression, falseExpression);
         }
     },
-
     ;
 
     abstract public Expression parse(List<String> arguments, SheetReadActions sheet);

@@ -17,6 +17,7 @@ public class SheetImpl implements Sheet, Serializable {
 
     private Map<Coordinate, Cell> activeCells = new HashMap<>();
     private Map<String, Range> allRangesReferencedInSheet = new HashMap<>();
+    private Map<String, Integer> countersOfReferencesToRange = new HashMap<>();
     private String nameOfSheet;
     private int numOfRows;
     private int numOfColumns;
@@ -74,6 +75,25 @@ public class SheetImpl implements Sheet, Serializable {
     @Override
     public void addRangeToAllRangesReferencedInSheet(String rangeName, Range range) {
         allRangesReferencedInSheet.put(rangeName, range);
+    }
+
+    @Override
+    public boolean isSelectedRangeIsUsedInSheet(String rangeName) {
+//        return allRangesReferencedInSheet.containsKey(rangeName);
+        if (countersOfReferencesToRange.containsKey(rangeName)) {
+            return countersOfReferencesToRange.get(rangeName) > 0;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void increaseCounterOfReferencesToSelectedRange(String rangeName) {
+        if (countersOfReferencesToRange.containsKey(rangeName)) {
+            countersOfReferencesToRange.put(rangeName, countersOfReferencesToRange.get(rangeName) + 1);
+        } else {
+            countersOfReferencesToRange.put(rangeName, 1);
+        }
     }
 
     @Override
@@ -177,9 +197,13 @@ public class SheetImpl implements Sheet, Serializable {
                 int sheetVersionNumForNewCell, lastVersionInWhichCellBeforeUpdateHasChanged = -1; //is -1 the right value? indicate an empty cell?
 
                 Map<Coordinate,Cell> influencingOnMapOfCellThatMightBeUpdated = new HashMap<>();
+                Map<Coordinate,Cell> dependsOnMapOfCellThatMightBeUpdated = new HashMap<>();
+                Map<String,Range> rangesReferencedInCellBeforeUpdate = new HashMap<>();
                 if (cellBeforeUpdate != null) { //this coordinate already have a cell
                     //get the cells that already depends on the cell\coordinate that is updating - to update their dependsOnMap to reference the updated cell
-                    influencingOnMapOfCellThatMightBeUpdated = activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+                    influencingOnMapOfCellThatMightBeUpdated = cellBeforeUpdate.getInfluencingOnMap();
+                    dependsOnMapOfCellThatMightBeUpdated = cellBeforeUpdate.getDependsOnMap();
+                    rangesReferencedInCellBeforeUpdate = cellBeforeUpdate.getRangesReferencedInCell();
 //                    cellBeforeUpdate.calculateNewEffectiveValueAndDetermineIfItChanged();  //needed or will cause a problem?
                     lastVersionInWhichCellBeforeUpdateHasChanged = cellBeforeUpdate.getLastVersionInWhichCellHasChanged();
                 }
@@ -197,10 +221,37 @@ public class SheetImpl implements Sheet, Serializable {
                     newCell.setPreviousEffectiveValue(cellBeforeUpdate.getCurrentEffectiveValue());
                 }
                 if (newSheetVersion.activeCells.containsKey(coordinateOfNewCellOrCellToBeUpdated)) { //the cell existed before
-                    Map<Coordinate, Cell> influencingOnMapOfCopiedCell = newSheetVersion.activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+//                    Map<Coordinate, Cell> influencingOnMapOfCopiedCell = newSheetVersion.activeCells.get(coordinateOfNewCellOrCellToBeUpdated).getInfluencingOnMap();
+                    Map<Coordinate, Cell> influencingOnMapOfCopiedCell = new HashMap<>(influencingOnMapOfCellThatMightBeUpdated);
                     newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCopiedCell);
                 }
                 newSheetVersion.activeCells.put(coordinateOfNewCellOrCellToBeUpdated, newCell);
+
+                for (String rangeNameReferencedInCellBeforeUpdate : rangesReferencedInCellBeforeUpdate.keySet()) {
+                    if (newCell.getRangesReferencedInCell().containsKey(rangeNameReferencedInCellBeforeUpdate)) {
+                        continue; //new cell also references this range
+                    } else {
+                        //new cell does not reference this range
+                        //remove the current range from rangesReferencedInCell of the cell before the update
+                        newCell.removeRangeFromRangesReferencedInCell(rangeNameReferencedInCellBeforeUpdate);
+                        this.countersOfReferencesToRange.put(rangeNameReferencedInCellBeforeUpdate, this.countersOfReferencesToRange.get(rangeNameReferencedInCellBeforeUpdate) - 1);
+//                        int numOfReferencesToSelectedRange = cellBeforeUpdate.getCounterOfReferencesToSelectedRange(rangeNameReferencedInCellBeforeUpdate);
+//                        int newNumOfReferencesToSelectedRange = this.countersOfReferencesToRange.get(rangeNameReferencedInCellBeforeUpdate) - numOfReferencesToSelectedRange;
+//                        this.countersOfReferencesToRange.put(rangeNameReferencedInCellBeforeUpdate, numOfReferencesToSelectedRange - 1);
+                    }
+                }
+
+                for (Coordinate coordinateThatThisCellDependedOnBeforeTheUpdate : dependsOnMapOfCellThatMightBeUpdated.keySet()) {
+                    //checking if the new cell already depends on this coordinate, with the new original value
+                    if (newCell.getDependsOnMap().containsKey(coordinateThatThisCellDependedOnBeforeTheUpdate)) {
+                        continue; //new cell already depends on this cell
+                    } else {
+                        //new cell does not depend on this coordinate
+                        // remove the current coordinate/cell from influencingOnMap of the cell pointed before the update
+                        Cell cellThatNewCellDependedOnBeforeTheUpdate = newSheetVersion.activeCells.get(coordinateThatThisCellDependedOnBeforeTheUpdate);
+                        cellThatNewCellDependedOnBeforeTheUpdate.removeSelectedCoordinateFromInfluencingOnMap(coordinateOfNewCellOrCellToBeUpdated);
+                    }
+                }
 
                 //if the cell updated - needs to know who he dependsOn his coordinate - update with influencingOnMap from the cell before the update
                 //newCell.insertInfluencingOnMapFromCellBeforeUpdate(influencingOnMapOfCellThatMightBeUpdated); //if deep copied - it's still needed?

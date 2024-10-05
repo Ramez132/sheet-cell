@@ -39,7 +39,12 @@ public class SumExpression implements Expression {
         if (!RangeFactory.isThereAnyRangeInRangesFactory() || !RangeFactory.isRangeNameAlreadyExistsInTheSystem(rangeNameString)) {
             return new EffectiveValueImpl(CellType.NUMERIC, NaN);
         } else { //rangeNameString is a valid range name
-            Range selectedRange = RangeFactory.getRangeByItsName(rangeNameString);
+            Range selectedRange;
+            try {
+                selectedRange = RangeFactory.getRangeByItsName(rangeNameString);
+            } catch (Exception e) {
+                return new EffectiveValueImpl(CellType.NUMERIC, NaN);
+            }
             Cell currentReferenceCell;
             EffectiveValue currentReferencedCellEffectiveValue;
             double currentDoubleValueResult;

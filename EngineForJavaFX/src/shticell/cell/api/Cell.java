@@ -1,6 +1,7 @@
 package shticell.cell.api;
 
 import shticell.coordinate.Coordinate;
+import shticell.range.Range;
 
 import java.util.Map;
 
@@ -18,4 +19,9 @@ public interface Cell {
     Map<Coordinate, Cell> getInfluencingOnMap();
     boolean getIsCellEmptyBoolean();
     void insertInfluencingOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> influencingOnMap);
+    void insertDependsOnMapFromCellBeforeUpdate(Map<Coordinate, Cell> dependsOnMapOfCopiedCell);
+    void removeSelectedCoordinateFromInfluencingOnMap(Coordinate selectedCoordinate);
+    Map<String, Range> getRangesReferencedInCell();
+    void removeRangeFromRangesReferencedInCell(String rangeName);
+    int getCounterOfReferencesToSelectedRange(String rangeName);
 }
