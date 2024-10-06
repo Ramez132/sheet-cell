@@ -104,12 +104,6 @@ public class SheetImpl implements Sheet, Serializable {
             Cell currentCell = getCell(currentRow, columnNumFromChar);
 
             if (!currentCell.getIsCellEmptyBoolean()) {
-//                EffectiveValue effectiveValueOfCell = currentCell.getCurrentEffectiveValue();
-//                String effectiveValueOfCellAsString = "";
-//                if (effectiveValueOfCell != null) {
-//                    effectiveValueOfCellAsString = effectiveValueOfCell.getValue().toString();
-//                }
-
                 Coordinate coordinate = CoordinateFactory.getCoordinate(currentRow, columnNumFromChar);
                 String effectiveValueOfCellAsString;
                 if (activeCells.containsKey(coordinate)) {
@@ -129,19 +123,6 @@ public class SheetImpl implements Sheet, Serializable {
                 }
             }
         }
-
-
-//        String effectiveValueOfCellAsString;
-//        if (sheet.getActiveCells().containsKey(coordinate)) {
-//            EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
-//            if (effectiveValueOfCell == null) {
-//                effectiveValueOfCellAsString = addThousandsSeparator(" ");
-//            } else {
-//                effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
-//            }
-//        } else {
-//            effectiveValueOfCellAsString = addThousandsSeparator(" ");
-//        }
 
         return uniqueValuesInSelectedColumnAndRelevantArea;
     }

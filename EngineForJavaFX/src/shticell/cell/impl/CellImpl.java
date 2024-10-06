@@ -151,7 +151,6 @@ public class CellImpl implements Cell, Serializable {
     }
 
     public void handleOriginalValueStrWithRef() {
-
         try {
             List<Integer> indicesAfterRefAndComma = new ArrayList<>();
             List<String> rowAndColStringsAfterRef = new ArrayList<>();

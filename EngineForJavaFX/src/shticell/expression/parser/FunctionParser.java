@@ -318,20 +318,7 @@ public enum FunctionParser {
 
             String rangeName = arguments.getFirst().trim();
             Expression rangeNameExpression = parseExpression(rangeName, sheet);
-//            boolean isRangeNameValid = sheet.isRangeNameValid(rangeName);
-//            // Parse the arguments
-//            List<Expression> expressions = new ArrayList<>();
-//            for (String argument : arguments) {
-//                expressions.add(parseExpression(argument, sheet));
-//            }
 
-//            // Validate that the arguments are numeric or unknown
-//            for (Expression currentExpression : expressions) {
-//                CellType expressionCellType = currentExpression.getFunctionResultType();
-//                if (!expressionCellType.equals(CellType.NUMERIC) && !expressionCellType.equals(CellType.UNKNOWN)) {
-//                    throw new IllegalArgumentException("Invalid argument types for SUM function. Expected NUMERIC, but got " + expressionCellType);
-//                }
-//            }
             CellType expressionCellType = rangeNameExpression.getFunctionResultType();
             if (!expressionCellType.equals(CellType.STRING)) {
                 throw new IllegalArgumentException("Invalid argument type for SUM function. Expected STRING that represent a range name, but got " + expressionCellType);
@@ -351,20 +338,7 @@ public enum FunctionParser {
 
             String rangeName = arguments.getFirst().trim();
             Expression rangeNameExpression = parseExpression(rangeName, sheet);
-//            boolean isRangeNameValid = sheet.isRangeNameValid(rangeName);
-//            // Parse the arguments
-//            List<Expression> expressions = new ArrayList<>();
-//            for (String argument : arguments) {
-//                expressions.add(parseExpression(argument, sheet));
-//            }
 
-//            // Validate that the arguments are numeric or unknown
-//            for (Expression currentExpression : expressions) {
-//                CellType expressionCellType = currentExpression.getFunctionResultType();
-//                if (!expressionCellType.equals(CellType.NUMERIC) && !expressionCellType.equals(CellType.UNKNOWN)) {
-//                    throw new IllegalArgumentException("Invalid argument types for SUM function. Expected NUMERIC, but got " + expressionCellType);
-//                }
-//            }
             CellType expressionCellType = rangeNameExpression.getFunctionResultType();
             if (!expressionCellType.equals(CellType.STRING)) {
                 throw new IllegalArgumentException("Invalid argument type for AVERAGE function. Expected STRING that represent a range name, but got " + expressionCellType);

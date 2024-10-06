@@ -197,40 +197,6 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
                 numOfRowsAlreadyChecked++;
             }
 
-
-//            for (int i = 1; i < numOfIterationsLeftToPreform; i++) {
-//                String currentEffectiveValueOfCellAsString = rangeWithRowsInArea.getEffectiveValueOfCellAsString(currentRowToCheck, columnNumFromChar);
-//                if (!uniqueValuesToFilter.contains(currentEffectiveValueOfCellAsString)) {
-//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
-//                    currentRowToCheck--;
-//                }
-//                currentRowToCheck++;
-//            }
-//            while (currentRowToCheck <= rowEnd && numOfIterationsLeftToPreform > 0) {
-//                String currentEffectiveValueOfCellAsString = rangeWithRowsInArea.getEffectiveValueOfCellAsString(currentRowToCheck, columnNumFromChar);
-//                if (!uniqueValuesToFilter.contains(currentEffectiveValueOfCellAsString)) {
-//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
-//                    currentRowToCheck--;
-//                }
-////                boolean isRowHaveUniqueValueInSelectedColumn =
-////                        rangeWithRowsInArea.isThereUniqueValueInSelectedRowAndColumn(currentRowToCheck, columnNumFromChar, uniqueValuesToFilter);
-////                if (!isRowHaveUniqueValueInSelectedColumn) {
-////                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
-////                    currentRowToCheck--;
-////                }
-//                currentRowToCheck++;
-//                numOfIterationsLeftToPreform--;
-//            }
-//            for (int currentRowToCheck = filteringRange.getRowStart(); currentRowToCheck <= filteringRange.getRowEnd(); currentRowToCheck++) {
-//                boolean isRowHaveUniqueValueInSelectedColumn = rangeWithRowsInArea.isThereUniqueValueInSelectedRowAndColumn(currentRowToCheck, columnNumFromChar, uniqueValuesToFilter);
-//                if (!isRowHaveUniqueValueInSelectedColumn) {
-//                    rangeWithRowsInArea.removeCurrentRowAndMoveAllRowsOneRowUp(currentRowToCheck);
-//                    currentRowToCheck--;
-//                }
-//                if (!uniqueValuesToFilter.contains(rangeWithRowsInArea.getEffectiveValueStringOfCell(currentRowToCheck, columnNumFromChar))) {
-//                    rangeWithRowsInArea.removeFirstRowAndMoveAllRowsOneRowUp();
-//                    currentRowToCheck--;
-//                }
             return rangeWithRowsInArea;
         }
         catch (Exception e) {

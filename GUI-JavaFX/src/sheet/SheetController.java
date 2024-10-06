@@ -40,8 +40,6 @@ public class SheetController {
 
 
     public void initialize() {
-//        rightLeftScroller.hvalueProperty().addListener((obs, oldVal, newVal) -> gridPaneColumnLetters.setLayoutX(Math.max(0, -newVal.doubleValue() * (gridPaneActualCells.getWidth() - rightLeftScroller.getViewportBounds().getWidth()))));
-//        upDownScroller.vvalueProperty().addListener((obs, oldVal, newVal) -> gridPaneRowNumbers.setLayoutY(-newVal.doubleValue() * (gridPaneActualCells.getHeight() - upDownScroller.getViewportBounds().getHeight())));
     }
 
     public void setMainController(MainController mainController) {
@@ -57,7 +55,6 @@ public class SheetController {
         clearCurrentSheetDisplay();
 
         for (int i = 1; i <= numOfColumns; i++) {
-//            alignmentPerCol.put(i, new SimpleObjectProperty<>(Pos.CENTER_LEFT));
             widthForEachColumnMapping.put(i,new SimpleIntegerProperty(initializedColumnWidth));
         }
 
@@ -68,7 +65,6 @@ public class SheetController {
         createAndDisplayColumnsLetters(sheet);
         createAndDisplayRowNumbers(sheet);
         createAndDisplayAllCells(sheet);
-        //displaySheet(sheet);
     }
 
     private void clearCurrentSheetDisplay() {
@@ -199,22 +195,6 @@ public class SheetController {
                 ((Label) node).getStyleClass().add("cell-from-selected-range");
             }
         }
-//
-//        for (int currentRow = rowStart; currentRow <= rowEnd; currentRow++) {
-//            for (int currentColumn = columnStart; currentColumn <= columnEnd; currentColumn++) {
-//                gridPaneActualCells.getChildren().stream()
-//                        .filter(node -> GridPane.getRowIndex(node) == currentRow && GridPane.getColumnIndex(node) == currentColumn)
-//                        .findFirst()
-//                        .ifPresent(node -> ((Label) node).getStyleClass().add("cell-from-selected-range"));
-//            }
-//        }
-//
-//        RangeFactory.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange().forEach(coordinate -> {
-//            gridPaneActualCells.getChildren().stream()
-//                    .filter(node -> GridPane.getRowIndex(node) == coordinate.getRow() && GridPane.getColumnIndex(node) == coordinate.getColumn())
-//                    .findFirst()
-//                    .ifPresent(node -> ((Label) node).getStyleClass().add("cell-from-selected-range"));
-//        });
     }
 
 

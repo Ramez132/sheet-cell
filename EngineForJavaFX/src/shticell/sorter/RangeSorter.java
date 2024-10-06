@@ -34,25 +34,7 @@ public class RangeSorter {
         this.sheet = sheet;
     }
 
-    //Logic for sorting the range
-
-    //get unique values in the first column to sort by
-
-    //sort the unique values
-
-    //create an array of partialRangeToSort for each unique value in the first column to sort by -
-    // the order of the array will be the order of the sorted unique values in the first column to sort by
-
-    //check if there are more columns to sort by -
-    // if it's true - apply the sorting algorithm for each of partialRangeToSort in the array,
-    // sending the columnsToSortBy list without the first element, so the next column to sort by will be the first element in the list
-
-    //Build the sortedRangeWithRows from the partialRangeToSort array -
-    // the order of the rows will be like this - all the rows from the first partialRangeToSort (in their order),
-    // then all the rows from the second partialRangeToSort (in their order), etc.
-
     public void sortRange() {
-//        List<Double> uniqueNumbersInFirstColumnToSortBy = getSortedUniqueNumbersInFirstColumnToSortBy();
         if (columnsToSortBy.isEmpty()) {
             //no more columns to sort by - then for this system, it's considered sorted
             //updating the sorted range with the original and finishing
@@ -116,34 +98,7 @@ public class RangeSorter {
 
             updateSortedRangeFromArrayOfSortedPartialRangeSorters(arrayOfSortedPartialRangeSorters);
         }
-//        ArrayList<RangeSorter> arrayOfPartialRangeSortersForEachUniqueValueInFirstColumnToSortBy = createArrayOfPartialRangeSorterForEachUniqueValueInFirstColumnToSortBy();
-//        buildSortedRangeFromArrayOfSortedPartialRangeSorters(arrayOfPartialRangeSortersForEachUniqueValueInFirstColumnToSortBy);
     }
-
-
-//    public ArrayList<RangeSorter> createArrayOfPartialRangeSorterForEachUniqueValueInFirstColumnToSortBy() {
-//
-//        ArrayList<RangeSorter> arrayOfRangeSortersForEachUniqueValueInFirstColumnToSortBy = new ArrayList<>();
-//
-////        List<Double> uniqueNumbersInFirstColumnToSortBy = getSortedUniqueNumbersInFirstColumnToSortBy();
-//        int numOfUniqueValuesInFirstColumnToSortBy = sortedUniqueNumbersInFirstColumnToSortBy.size();
-//
-//        List<Character> newListOfColumnsToSortByWithoutFirstColumn = new ArrayList<>(columnsToSortBy);
-//        newListOfColumnsToSortByWithoutFirstColumn.removeFirst();
-//
-//        for (int i = 0; i < numOfUniqueValuesInFirstColumnToSortBy; i++) {
-//            RangeWithRowsInArea partialRangeToSort = new RangeWithRowsInArea(sheet);
-//            RangeSorter partialRangeSorter = new RangeSorter(partialRangeToSort, newListOfColumnsToSortByWithoutFirstColumn, sheet);
-//            arrayOfRangeSortersForEachUniqueValueInFirstColumnToSortBy.add(partialRangeSorter);
-//        }
-//
-////        for (Double uniqueNumberInFirstColumnToSortBy : uniqueNumbersInFirstColumnToSortBy) {
-//////            RangeWithRowsInArea partialRangeToSort = createPartialRangeToSortBy(uniqueNumberInFirstColumnToSortBy);
-//////            arrayOfRangeSorterForEachUniqueValueInFirstColumnToSortBy.add(new RangeSorter(partialRangeToSort, columnsToSortBy, sheet));
-////        }
-//
-//        return arrayOfRangeSortersForEachUniqueValueInFirstColumnToSortBy;
-//    }
 
     public void updateListOfSortedUniqueNumbersInFirstColumnToSortBy() {
         char firstColumnLetterToSortBy = columnsToSortBy.getFirst();
@@ -181,8 +136,6 @@ public class RangeSorter {
     }
 
     public void updateSortedRangeFromArrayOfSortedPartialRangeSorters(ArrayList<RangeSorter> arrayOfPartialRangeSorters) {
-
-//        int numOfRowsInArea = rangeWithRowsToSort.getRange().getNumOfRowsInRange();
         //sorted range has the same start and end coordinates of the original range
         sortedRangeWithRows = new RangeWithRowsInArea(rangeWithRowsToSort.getRange());
 
@@ -197,37 +150,4 @@ public class RangeSorter {
     public RangeWithRowsInArea getSortedRangeWithRows() {
         return sortedRangeWithRows;
     }
-
-
-//    public void sortRange() {
-//        int firstColumnToSortBy = columnsToSortBy.getFirst();
-//        List<Integer> uniqueValuesInFirstColumnToSortBy = rangeToSort.getRowsInAreaList().get(0).getMapColumnToEffectiveValueString().keySet();
-////        Map<Integer, RowInArea> mapFromUniqueValueInColumnToSortByToCounterOfRowsWithThisValueInThisColumn = new HashMap<>();
-//        Map<Integer, RowInArea> mapFromUniqueValueInColumnToSortByToRowInAreaWithThisValueInSelectedColumn = new HashMap<>();
-//
-//        uniqueValuesInFirstColumnToSortBy.sort(Comparator.naturalOrder());
-//        for (int uniqueValueInFirstColumnToSortBy : uniqueValuesInFirstColumnToSortBy) {
-////            mapFromUniqueValueInColumnToSortByToCounterOfRowsWithThisValueInThisColumn.put(uniqueValueInFirstColumnToSortBy, 0);
-//            sortedRangeWithRows
-//            mapFromUniqueValueInColumnToSortByToRowInAreaWithThisValueInSelectedColumn.put(uniqueValueInFirstColumnToSortBy, null);
-//        }
-
-
-//        List<Integer> uniqueValuesInColumns = rangeToSort.getRowsInAreaList().get(0).getMapColumnToEffectiveValueString().keySet();
-
-//        rangeToSort.getRowsInAreaList().sort((row1, row2) -> {
-//            for (int column : columnsToSortBy) {
-//                if (row1.isColumnInRow(column) && row2.isColumnInRow(column)) {
-//                    if (row1.getEffectiveValueOfColumn(column).compareTo(row2.getEffectiveValueOfColumn(column)) != 0) {
-//                        return row1.getEffectiveValueOfColumn(column).compareTo(row2.getEffectiveValueOfColumn(column));
-//                    }
-//                } else if (row1.isColumnInRow(column) && !row2.isColumnInRow(column)) {
-//                    return 1;
-//                } else if (!row1.isColumnInRow(column) && row2.isColumnInRow(column)) {
-//                    return -1;
-//                }
-//            }
-//            return 0;
-//        });
-//    }
 }

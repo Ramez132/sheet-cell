@@ -21,28 +21,13 @@ public class MainController {
     @FXML private SheetController sheetPartController;
     @FXML private TopPartController topPartController;
     @FXML private LeftPartController leftPartController;
-//    private FXMLLoader fxmlLoader;
-
-//    @FXML
-//    private Button loadNewFileButton;
-//    @FXML
-//    private Label filePathLabel;
-//    @FXML
-//    private Label notificationMessageOfRecentActionOutcomeLabel;
-//    @FXML
-//    private Label notificationHeadlineOfRecentActionOutcomeLabel;
 
     @FXML
     public void initialize() {
-        //topComponentController.setAppController(this);
         topPartController.setMainController(this);
         sheetPartController.setMainController(this);
         leftPartController.setMainController(this);
     }
-
-//    public void setFxmlLoader (FXMLLoader fxmlLoaderFromMainMethod) {
-//        this.fxmlLoader = fxmlLoaderFromMainMethod;
-//    }
 
     public void setEngineManager(EngineManagerJavafx engineManager) {
         this.engineManager = engineManager;
@@ -178,51 +163,16 @@ public class MainController {
                     " to " + currentFilteringRange.getBottomRightEndCoordinate() + ".";
             topPartController.setMessageOfRecentActionOutcomeLabel(messageToUser);
             sheetPartController.displaySheetWithFilteredOrSortedRange(sheet, filteredRangeArea);
-
-//            sheetPartController.displayFilteredLines(sheet, filteredRangeArea);
-//            topPartController.setMessageOfRecentActionOutcomeLabel("Filtered lines are displayed");
         }
         catch (Exception e) {
             topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
-//        sheetPartController.loadAndDisplayNewSheet(sheet);
     }
-
-//    private void displaySheetInPopUpWithSortedOrFilteredRange(Sheet sheet, RangeWithRowsInArea filteredOrSortedRangeArea) {
-//       try {
-//           // Load the pop-up FXML
-//           FXMLLoader fxmlLoader = new FXMLLoader();
-//           URL url = getClass().getResource("../popup/main/popup.fxml");
-//           fxmlLoader.setLocation(url);
-//           Parent root = fxmlLoader.load(url.openStream());
-//
-//           // Get the pop-up controller to set the data
-//           PopUpMainController popupController = fxmlLoader.getController();
-//
-//           popupController.setSheetAndRangeToDisplay(sheet, filteredOrSortedRangeArea);
-//
-//           // Create and display the pop-up window
-//           Stage popupStage = new Stage();
-//           popupStage.initModality(Modality.APPLICATION_MODAL); // Block interaction with the main window
-//           popupStage.setTitle("Sheet with filtered rows");
-//           popupStage.setScene(new Scene(root));
-//
-//           popupStage.setOnShown(event -> {
-//               popupController.onShown();  // Call the method after the pop-up is visible
-//           });
-//
-//           popupStage.showAndWait();
-//       } catch (Exception e) {
-//           setNotificationMessageOfRecentActionOutcomeLabel("Error trying to open popup with filtered/sorted area");
-//       }
-
-//    }
 
     public void handleShowSortedLinesButton(Range newSortingRange, List<Character> listOfColumnLettersCharactersToSortBy) {
         try {
             RangeWithRowsInArea sortedRangeArea = engineManager.createSortedRangeArea(newSortingRange, listOfColumnLettersCharactersToSortBy);
             Sheet sheet = engineManager.createCopyOfRecentSheet();
-//            sheetPartController.displayFilteredLines(sheet, sortedRangeArea);
 
             String messageToUser = "Displaying the sorted area: "
                     + newSortingRange.getTopLeftStartCoordinate() +
@@ -235,29 +185,4 @@ public class MainController {
         }
 
     }
-
-
-//    @FXML
-//    public void handleLoadNewFile() {
-//        FileChooser fileChooser = new FileChooser();
-//
-//        fileChooser.getExtensionFilters().add(
-//                new FileChooser.ExtensionFilter("XML Files", "*.xml")
-//        );
-//
-//        // Show the file chooser and wait for user selection
-//        File selectedFile = fileChooser.showOpenDialog(loadNewFileButton.getScene().getWindow());
-//
-//        // If a file is selected, display its name in the label
-//        if (selectedFile != null) {
-//            notificationHeadlineOfRecentActionOutcomeLabel.setText("Message of recent attempt to upload a file:");
-//            try {
-//                engineManager.getSheetFromFile(selectedFile);
-//                notificationMessageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
-//                filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
-//            } catch (Exception e) {
-//                notificationMessageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//            }
-//        }
-//    }
 }

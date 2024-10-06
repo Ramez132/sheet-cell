@@ -125,93 +125,11 @@ public class TopPartController {
         }
     }
 
-//    @FXML
-//    public void handleAddNewRangeButtonAndClearRelevantTextFields() {
-//        String rangeName = newRangeNameTextField.getText().trim();
-//        String leftTopStartCoordinateStr = newRangeStartCoordinateTextField.getText().trim();
-//        String rightBottomEndCoordinateStr = newRangeEndCoordinateTextField.getText().trim();
-//        if (mainController.getMostRecentSheetFromEngine() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
-//        } else if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("One or more fields are empty - the system can not create a new range. Please fill all fields.");
-//        } else {
-//            mainController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-//            newRangeNameTextField.clear(); //will get here even if the range was not created and error caught
-//            newRangeStartCoordinateTextField.clear();
-//            newRangeEndCoordinateTextField.clear();
-//        }
-//    }
-
-//    public void addNewRangeNameToRangesComboBox(String rangeName) {
-//        selectRangeComboBox.getItems().add(rangeName);
-////        selectRangeComboBox.getItems().clear();
-////        if (mainController.isThereAnyRangeInRangesFactory()) {
-////            selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
-////        }
-//    }
-
-//    @FXML
-//    public void handleDeleteSelectedRangeButton() {
-//        if (selectRangeComboBox.getItems().isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("No ranges are available to delete.");
-//            return;
-//        } else if (selectRangeComboBox.getValue() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("There is nothing to delete - no range is selected.");
-//            return;
-//        } else if (mainController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
-//            messageOfRecentActionOutcomeLabel.setText("The selected range is used in a cell/cells with relevant functions - can not delete it.");
-//            return;
-//        }
-//        try {
-//            String rangeName = selectRangeComboBox.getValue();
-//            mainController.deleteRangeFromRangeFactoryMainController(rangeName);
-//            messageOfRecentActionOutcomeLabel.setText("Range '" + rangeName + "' was deleted successfully.");
-//            selectRangeComboBox.getItems().remove(rangeName);
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
-
     private void clearDataInTopPartRegardingSelectedCell() {
         idOfSelectedCell.setText("");
         originalValueStrOfSelectedCell.setText("");
         versionNumOfLastChange.setText("");
     }
-
-//    public void handleCreatingNewRange(SheetReadActions sheet, String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
-//        Range range;
-//        try {
-//            range = RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-//            //update ui with new range
-//            messageOfRecentActionOutcomeLabel.setText("New range created successfully: " + rangeName + " from " + leftTopStartCoordinateStr + " to " + rightBottomEndCoordinateStr);
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
-
-//    @FXML
-//    public void handleDisplayCellsInSelectedRangeButton() {
-//        if (selectRangeComboBox.getItems().isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("No ranges are available to display.");
-//            return;
-//        } else if (selectRangeComboBox.getValue() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("There is nothing to display - no range is selected.");
-//            return;
-//        }
-//        try {
-//            String rangeName = selectRangeComboBox.getValue();
-//            Range range = mainController.getRangeByItsName(rangeName);
-//            String topLeftStartCoordinateStr = range.getTopLeftStartCoordinate().toString();
-//            String bottomRightEndCoordinateStr = range.getBottomRightEndCoordinate().toString();
-//            mainController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
-////            sheet.highlightCellsInRange(range);
-//            messageOfRecentActionOutcomeLabel.setText("Cells in selected range '" + rangeName +
-//                    "' are now highlighted with purple border. The range is from "
-//                    + topLeftStartCoordinateStr + " to " + bottomRightEndCoordinateStr +".");
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
 
     @FXML
     public void handleDisplaySelectedVersionButton() {

@@ -40,19 +40,6 @@ public class CoordinateFactory {
             throw new IllegalArgumentException("Tried to reach " + rowAndColStr + ", but " + e.getMessage());
         }
 
-//        if (letterChar >= 'A' && letterChar <= 'T') {
-//            columnNumFromChar = letterChar - 'A' + 1;
-//        } else {
-//            throw new IllegalArgumentException ("Tried to reach " + rowAndColStr +
-//                    ", but first character, representing a column number, must be a letter from A to T (for columns 1 to max 20)");
-//        }
-//
-//        if (columnNumFromChar > sheet.getNumOfColumns()) {
-//            throw new IllegalArgumentException("Tried to reach " + rowAndColStr +
-//                    ", but column character provided (" + letterChar + "), which represents column number "
-//                    + columnNumFromChar + ", is greater than the maximum column number of the sheet (" + sheet.getNumOfColumns() + ")");
-//        }
-
         String numberPart = rowAndColStr.substring(1);
         try {
             rowNum = Integer.parseInt(numberPart);

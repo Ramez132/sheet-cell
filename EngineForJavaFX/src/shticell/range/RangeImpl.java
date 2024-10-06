@@ -32,12 +32,6 @@ public class RangeImpl implements Range {
     }
 
     private void updateAllCoordinatesThatBelongToThisRange() {
-//        allCoordinatesThatBelongToThisRange = Set.of(topLeftStartCoordinate, bottomRightEndCoordinate);
-//        rowStart = topLeftStartCoordinate.getRow();
-//        rowEnd = bottomRightEndCoordinate.getRow();
-//        columnStart = topLeftStartCoordinate.getColumn();
-//        columnEnd = bottomRightEndCoordinate.getColumn();
-
         for (int currentRow = rowStart; currentRow <= rowEnd; currentRow++) {
             for (int currentColumn = columnStart; currentColumn <= columnEnd; currentColumn++) {
                 allCoordinatesThatBelongToThisRange.add(CoordinateFactory.getCoordinate(currentRow, currentColumn));
@@ -89,74 +83,4 @@ public class RangeImpl implements Range {
     public int getNumOfRowsInRange() {
         return rowEnd - rowStart + 1;
     }
-
-//    @Override
-//    public boolean contains(Coordinate coordinate) {
-//        return coordinate.row() >= topLeftStartCoordinate.row() && coordinate.row() <= bottomRightEndCoordinate.row() &&
-//                coordinate.col() >= topLeftStartCoordinate.col() && coordinate.col() <= bottomRightEndCoordinate.col();
-//    }
-
-//    @Override
-//    public int getRowCount() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public int getColumnCount() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public boolean contains(int row, int col) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean contains(Range range) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isIntersecting(Range range) {
-//        return false;
-//    }
-//
-//    @Override
-//    public Range getIntersection(Range range) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Range getUnion(Range range) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Range getDifference(Range range) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Range getCopy() {
-//        return null;
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj instanceof Range) {
-//            return topLeftStartCoordinate.equals(((Range) obj).topLeft()) && bottomRightEndCoordinate.equals(((Range) obj).bottomRight());
-//        }
-//
-//        return false;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(topLeftStartCoordinate, bottomRightEndCoordinate);
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return topLeftStartCoordinate.toString() + ":" + bottomRightEndCoordinate.toString();
-//    }
 }
