@@ -3,6 +3,8 @@ package left;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.util.Callback;
 import main.MainController;
@@ -19,7 +21,6 @@ public class LeftPartController {
     private Range currentFilteringRange;
     private boolean isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = false;
     private char currentColumnLetterForFiltering;
-//    private boolean isCurrentColumnLetterForFilteringUpdated = false;
     @FXML private ComboBox<String> selectRangeComboBox;
     @FXML private Button displayCellsInSelectedRangeButton;
     @FXML private TextField newRangeNameTextField;
@@ -28,7 +29,6 @@ public class LeftPartController {
     @FXML private TextField newFilterStartCoordinateTextField;
     @FXML private TextField newFilterEndCoordinateTextField;
     @FXML private TextField selectColumnLetterForFilteringTextField;
-//    @FXML private ComboBox<String> selectUniqueValuesToFilterComboBoxWithCheckBoxes;
     @FXML private ListView<String> listViewWithCheckBoxesContainingPossibleUniqueValuesToFilter;
     private ObservableList<String> listViewOptionsForFiltering = FXCollections.observableArrayList();
 
@@ -42,6 +42,9 @@ public class LeftPartController {
     @FXML private TextField thirdColumnLetterToSortByTextField;
     @FXML private TextField fourthColumnLetterToSortByTextField;
     @FXML private TextField fifthColumnLetterToSortByTextField;
+
+    @FXML private Button undoFilteringButton;
+    @FXML private Button undoSortingButton;
 
 
     @FXML
@@ -74,12 +77,6 @@ public class LeftPartController {
                 };
             }
         });
-
-//        // Bind the data to the ComboBox
-//        updateFilteringOptionsListViewWithUniqueValuesFroSelectedColumnAndArea();
-
-//        // Handle button click
-//        submitButton.setOnAction(event -> handleSubmit());
     }
 
 
@@ -90,8 +87,6 @@ public class LeftPartController {
     // Example of fetching and updating ComboBox dynamically
     public void updateFilteringOptionsListViewWithUniqueValuesFroSelectedColumnAndArea(List<String> uniqueValuesInSelectedColumn) {
         List<String> observableListOfUniqueValuesToFilter = FXCollections.observableArrayList(uniqueValuesInSelectedColumn);
-//        // Simulate dynamic data fetching
-//        List<String> dynamicData = fetchDynamicData();
 
         // Update ObservableList
         listViewOptionsForFiltering.clear();
@@ -104,11 +99,6 @@ public class LeftPartController {
         selectionMapOfFilteringListView.clear();
         listViewOptionsForFiltering.forEach(item -> selectionMapOfFilteringListView.put(item, false));
     }
-//
-//    // Simulate dynamic data fetching (from API, database, etc.)
-//    private List<String> fetchDynamicData() {
-//        return FXCollections.observableArrayList("Option 1", "Option 2", "Option 3", "Option 4");
-//    }
 
     @FXML
     public void handleGetUniqueValuesToFilterButton() {
@@ -162,12 +152,6 @@ public class LeftPartController {
             currentFilteringRange = updatedFilteringRange;
             currentColumnLetterForFiltering = charLetterOfColumnToGetUniqueValuesToFilter;
 
-//            // Update the selection map
-//            selectionMapOfFilteringComboBox.clear();
-//            uniqueValuesInSelectedColumn.forEach(value -> selectionMapOfFilteringComboBox.put(value, false));
-//
-//            // Update the ComboBox with the new data
-//            updateComboBoxWithDynamicData();
             mainController.setNotificationMessageOfRecentActionOutcomeLabel("Please select one or more unique values to filter in column '" + stringWithLetterOfColumnToGetUniqueValuesToFilter + "'.");
         } catch (Exception e) {
             mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
@@ -181,11 +165,6 @@ public class LeftPartController {
             mainController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values to filter - first enter filtering coordinates and column letter then press \"Get values to filter\".");
             return;
         }
-//        if (!isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter) {
-//            mainController.setNotificationMessageOfRecentActionOutcomeLabel
-//                    ("No unique values to filter - Please enter filtering coordinates and column letter to get unique values to filter first.");
-//            return;
-//        }
 
         // Collect the selected options
         List<String> selectedUniqueValuesOptions = selectionMapOfFilteringListView.entrySet().stream()
@@ -198,6 +177,7 @@ public class LeftPartController {
             return;
         }
 
+        disableAllButtonsInSceneExceptOne(undoFilteringButton);
         mainController.handleShowFilteredLinesButton(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
 
         listViewOptionsForFiltering.clear();
@@ -205,8 +185,14 @@ public class LeftPartController {
         listViewWithCheckBoxesContainingPossibleUniqueValuesToFilter.setItems(listViewOptionsForFiltering);
 
         isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = false;
-//        mainController.setNotificationMessageOfRecentActionOutcomeLabel("Selected options: " + selectedUniqueValuesOptions);
     }
+
+    @FXML
+    public void handleUndoFilteringButton() {
+        enableAllButtonsInScene();
+        mainController.displaySheetBeforeSortingOrFiltering();
+    }
+
 
     @FXML
     public void handleAddNewRangeButtonAndClearRelevantTextFields() {
@@ -227,10 +213,6 @@ public class LeftPartController {
 
     public void addNewRangeNameToRangesComboBox(String rangeName) {
         selectRangeComboBox.getItems().add(rangeName);
-//        selectRangeComboBox.getItems().clear();
-//        if (mainController.isThereAnyRangeInRangesFactory()) {
-//            selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
-//        }
     }
 
     @FXML
@@ -328,7 +310,6 @@ public class LeftPartController {
             }
 
             boolean areAllColumnLetterInSortingArea = checkIfAllColumnLettersInSortingArea(allColumnLettersToSortByAsString, newSortStartCoordinateStr, newSortEndCoordinateStr);
-//                    mainController.isColumnLetterInFilteringOrSortingArea(stringLetterOfFirstColumnToSortBy, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
             if (!areAllColumnLetterInSortingArea) {
                 mainController.setNotificationMessageOfRecentActionOutcomeLabel
                         ("One or more column letters is not in selected sorting area - please enter valid area and column letters in this area.");
@@ -338,13 +319,18 @@ public class LeftPartController {
             List<Character> listOfColumnLettersCharactersToSortBy = convertArrayOfColumnLettersStringsToArrayOfCharacters(allColumnLettersToSortByAsString);
             //if got here, all fields are filled and valid
 
-
+        disableAllButtonsInSceneExceptOne(undoSortingButton);
         mainController.handleShowSortedLinesButton(newSortingRange, listOfColumnLettersCharactersToSortBy);
-
 
         } catch (Exception e) {
             mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
+    }
+
+    @FXML
+    public void handleUndoSortingButton() {
+        enableAllButtonsInScene();
+        mainController.displaySheetBeforeSortingOrFiltering();
     }
 
     private List<Character> convertArrayOfColumnLettersStringsToArrayOfCharacters(List<String> allColumnLettersToSortByAsString) {
@@ -475,5 +461,32 @@ public class LeftPartController {
         return combinationOfEmptyAndFilledTextFieldsValid;
     }
 
+
+    public void disableAllButtonsInSceneExceptOne(Button buttonToKeepEnabled) {
+        Scene scene = buttonToKeepEnabled.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(button != buttonToKeepEnabled);
+                }
+            }
+        }
     }
+
+    public void enableAllButtonsInScene() {
+        Scene scene = undoFilteringButton.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(false);
+                }
+            }
+        }
+    }
+
+    }
+
+
 

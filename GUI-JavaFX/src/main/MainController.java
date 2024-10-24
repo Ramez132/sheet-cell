@@ -2,8 +2,6 @@ package main;
 
 import engine.api.EngineManagerJavafx;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import left.LeftPartController;
 import sheet.SheetController;
 import shticell.coordinate.Coordinate;
@@ -14,7 +12,6 @@ import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 import top.TopPartController;
 
-import java.net.URL;
 import java.util.List;
 
 public class MainController {
@@ -25,18 +22,8 @@ public class MainController {
     @FXML private TopPartController topPartController;
     @FXML private LeftPartController leftPartController;
 
-//    @FXML
-//    private Button loadNewFileButton;
-//    @FXML
-//    private Label filePathLabel;
-//    @FXML
-//    private Label notificationMessageOfRecentActionOutcomeLabel;
-//    @FXML
-//    private Label notificationHeadlineOfRecentActionOutcomeLabel;
-
     @FXML
     public void initialize() {
-        //topComponentController.setAppController(this);
         topPartController.setMainController(this);
         sheetPartController.setMainController(this);
         leftPartController.setMainController(this);
@@ -77,12 +64,14 @@ public class MainController {
     public void deleteAllRangesInRangeFactoryBeforeLoadingNewSheet() {
         RangeFactory.deleteAllRangesInRangesFactoryBeforeLoadingSheetFromNewFile();
     }
-    private void deleteAllVersionsBeforeLoadingNewSheet() {
-        topPartController.deleteAllVersionNumbersFromPreviousSheet();
-    }
 
     public void loadNewSheet(SheetReadActions sheet){
         sheetPartController.loadAndDisplayNewSheet(sheet);
+    }
+
+    public void displaySheetBeforeSortingOrFiltering() {
+        sheetPartController.clearAllCellsDisplay();
+        sheetPartController.createAndDisplayAllCells(engineManager.getMostRecentSheet());
     }
 
     public void handleCellClick(SheetReadActions sheet, Coordinate selectedCoordinate) {
@@ -93,6 +82,7 @@ public class MainController {
         try {
             SheetReadActions sheet = engineManager.updateValueOfCellAndGetNewSheet
                     (currentlySelectedCoordinate.getRow(), currentlySelectedCoordinate.getColumn(), newValueStr);
+            topPartController.addNewVersionNumberToVersionComboBox(sheet.getVersion());
             loadNewSheet(sheet);
             if (newValueStr.isEmpty()) {
                 topPartController.setMessageOfRecentActionOutcomeLabel
@@ -165,57 +155,53 @@ public class MainController {
         try {
             RangeWithRowsInArea filteredRangeArea = engineManager.createFilteredRangeArea(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
             Sheet sheet = engineManager.createCopyOfRecentSheet();
-            setNotificationMessageOfRecentActionOutcomeLabel("Opened pop-up window - displaying lines with the selected unique values in column " +
-                                                                currentColumnLetterForFiltering + ", in the selected filtering area: "
-                                                                + currentFilteringRange.getTopLeftStartCoordinate() +
-                                                                " to " + currentFilteringRange.getBottomRightEndCoordinate() + ".");
-            displaySheetInPopUpWithSortedOrFilteredRange(sheet, filteredRangeArea);
-
-            sheetPartController.displayFilteredLines(sheet, filteredRangeArea);
-//            topPartController.setMessageOfRecentActionOutcomeLabel("Filtered lines are displayed");
+            String messageToUser = "Displaying lines with the selected unique values in column " +
+                    currentColumnLetterForFiltering + ", in the selected filtering area: "
+                    + currentFilteringRange.getTopLeftStartCoordinate() +
+                    " to " + currentFilteringRange.getBottomRightEndCoordinate() + ".";
+            topPartController.setMessageOfRecentActionOutcomeLabel(messageToUser);
+            sheetPartController.displaySheetWithFilteredOrSortedRange(sheet, filteredRangeArea);
         }
         catch (Exception e) {
             topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
-//        sheetPartController.loadAndDisplayNewSheet(sheet);
-    }
-
-    private void displaySheetInPopUpWithSortedOrFilteredRange(Sheet sheet, RangeWithRowsInArea filteredRangeArea) {
     }
 
     public void handleShowSortedLinesButton(Range newSortingRange, List<Character> listOfColumnLettersCharactersToSortBy) {
         try {
             RangeWithRowsInArea sortedRangeArea = engineManager.createSortedRangeArea(newSortingRange, listOfColumnLettersCharactersToSortBy);
             Sheet sheet = engineManager.createCopyOfRecentSheet();
-            sheetPartController.displayFilteredLines(sheet, sortedRangeArea);
+
+            String messageToUser = "Displaying the sorted area: "
+                    + newSortingRange.getTopLeftStartCoordinate() +
+                    " to " + newSortingRange.getBottomRightEndCoordinate() + ", sorted in the desired columns and provided order.";
+            topPartController.setMessageOfRecentActionOutcomeLabel(messageToUser);
+            sheetPartController.displaySheetWithFilteredOrSortedRange(sheet, sortedRangeArea);
+
         } catch (Exception e) {
             topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
 
     }
 
+    public void displaySheetOfSpecificVersion(int versionNumToDisplay) {
+        try {
+            SheetReadActions sheet = engineManager.getSheetOfSpecificVersion(versionNumToDisplay);
+            loadNewSheet(sheet);
+        } catch (Exception e) {
+            topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
+            topPartController.enableAllButtonsInScene();
+        }
 
-//    @FXML
-//    public void handleLoadNewFile() {
-//        FileChooser fileChooser = new FileChooser();
-//
-//        fileChooser.getExtensionFilters().add(
-//                new FileChooser.ExtensionFilter("XML Files", "*.xml")
-//        );
-//
-//        // Show the file chooser and wait for user selection
-//        File selectedFile = fileChooser.showOpenDialog(loadNewFileButton.getScene().getWindow());
-//
-//        // If a file is selected, display its name in the label
-//        if (selectedFile != null) {
-//            notificationHeadlineOfRecentActionOutcomeLabel.setText("Message of recent attempt to upload a file:");
-//            try {
-//                engineManager.getSheetFromFile(selectedFile);
-//                notificationMessageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
-//                filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
-//            } catch (Exception e) {
-//                notificationMessageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//            }
-//        }
-//    }
+    }
+
+    public void displaySheetOfMostRecentVersion() {
+        try {
+            SheetReadActions sheet = engineManager.getMostRecentSheet();
+            loadNewSheet(sheet);
+        } catch (Exception e) {
+            topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
+            topPartController.enableAllButtonsInScene();
+        }
+    }
 }

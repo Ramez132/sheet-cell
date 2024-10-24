@@ -40,8 +40,6 @@ public class SheetController {
 
 
     public void initialize() {
-//        rightLeftScroller.hvalueProperty().addListener((obs, oldVal, newVal) -> gridPaneColumnLetters.setLayoutX(Math.max(0, -newVal.doubleValue() * (gridPaneActualCells.getWidth() - rightLeftScroller.getViewportBounds().getWidth()))));
-//        upDownScroller.vvalueProperty().addListener((obs, oldVal, newVal) -> gridPaneRowNumbers.setLayoutY(-newVal.doubleValue() * (gridPaneActualCells.getHeight() - upDownScroller.getViewportBounds().getHeight())));
     }
 
     public void setMainController(MainController mainController) {
@@ -57,7 +55,6 @@ public class SheetController {
         clearCurrentSheetDisplay();
 
         for (int i = 1; i <= numOfColumns; i++) {
-//            alignmentPerCol.put(i, new SimpleObjectProperty<>(Pos.CENTER_LEFT));
             widthForEachColumnMapping.put(i,new SimpleIntegerProperty(initializedColumnWidth));
         }
 
@@ -68,16 +65,19 @@ public class SheetController {
         createAndDisplayColumnsLetters(sheet);
         createAndDisplayRowNumbers(sheet);
         createAndDisplayAllCells(sheet);
-        //displaySheet(sheet);
     }
 
     private void clearCurrentSheetDisplay() {
         gridPaneColumnLetters.getChildren().clear();
         gridPaneRowNumbers.getChildren().clear();
+        clearAllCellsDisplay();
+    }
+
+    public void clearAllCellsDisplay() {
         gridPaneActualCells.getChildren().clear();
     }
 
-    private void createAndDisplayAllCells(SheetReadActions sheet) {
+    public void createAndDisplayAllCells(SheetReadActions sheet) {
         int numOfRows = sheet.getNumOfRows();
         int numOfColumns = sheet.getNumOfColumns();
         int initializedRowHeight = sheet.getRowHeight();
@@ -102,7 +102,8 @@ public class SheetController {
                 Label cellLabel = new Label(effectiveValueOfCellAsString);
 
                 cellLabel.prefHeightProperty().set(initializedRowHeight);
-                cellLabel.prefWidthProperty().set(100);
+                cellLabel.prefWidthProperty().set(initializedColumnWidth);
+//                cellLabel.prefWidthProperty().set(100);
 
 //                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
 //                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
@@ -194,22 +195,6 @@ public class SheetController {
                 ((Label) node).getStyleClass().add("cell-from-selected-range");
             }
         }
-//
-//        for (int currentRow = rowStart; currentRow <= rowEnd; currentRow++) {
-//            for (int currentColumn = columnStart; currentColumn <= columnEnd; currentColumn++) {
-//                gridPaneActualCells.getChildren().stream()
-//                        .filter(node -> GridPane.getRowIndex(node) == currentRow && GridPane.getColumnIndex(node) == currentColumn)
-//                        .findFirst()
-//                        .ifPresent(node -> ((Label) node).getStyleClass().add("cell-from-selected-range"));
-//            }
-//        }
-//
-//        RangeFactory.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange().forEach(coordinate -> {
-//            gridPaneActualCells.getChildren().stream()
-//                    .filter(node -> GridPane.getRowIndex(node) == coordinate.getRow() && GridPane.getColumnIndex(node) == coordinate.getColumn())
-//                    .findFirst()
-//                    .ifPresent(node -> ((Label) node).getStyleClass().add("cell-from-selected-range"));
-//        });
     }
 
 
@@ -261,14 +246,15 @@ public class SheetController {
 
     public void createAndDisplayRowNumbers(SheetReadActions sheet){
         int numOfRows = sheet.getNumOfRows();
-//        int rowHeight = sheet.getRowHeight();
+        int initializedRowHeightWidth = sheet.getRowHeight();
         int initializedColumnWidth = sheet.getColumnWidth();
 
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             Label rowLabel = new Label(String.valueOf(currentRowNum));
-//            rowLabel.prefWidthProperty().set(initializedColumnWidth);
-            rowLabel.prefWidthProperty().set(100);
-            rowLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
+            rowLabel.prefWidthProperty().set(initializedColumnWidth);
+//            rowLabel.prefWidthProperty().set(100);
+            rowLabel.prefHeightProperty().set(initializedRowHeightWidth);
+//            rowLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
             rowLabel.setAlignment(Pos.CENTER);
             rowLabel.getStyleClass().add("single-cell");
             gridPaneRowNumbers.add(rowLabel, 0, currentRowNum);
@@ -282,10 +268,12 @@ public class SheetController {
     public void createAndDisplayColumnsLetters(SheetReadActions sheet){
         int numOfColumns = sheet.getNumOfColumns();
         int initializedRowHeight = sheet.getRowHeight();
+        int initializedColumnWidth = sheet.getColumnWidth();
 
         Label leftTopCornerLabel = new Label("");
-        leftTopCornerLabel.prefWidthProperty().set(100);
+//        leftTopCornerLabel.prefWidthProperty().set(100);
         leftTopCornerLabel.prefHeightProperty().set(initializedRowHeight);
+        leftTopCornerLabel.prefWidthProperty().set(initializedColumnWidth);
         leftTopCornerLabel.getStyleClass().add("single-cell");
         gridPaneColumnLetters.add(leftTopCornerLabel, 0, 0);
         Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
@@ -293,10 +281,11 @@ public class SheetController {
 
         for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
             Label columnLabel = new Label(String.valueOf((char) ('A' + currentColumnNum - 1)));
-            columnLabel.prefHeightProperty().set(initializedRowHeight);
             //columnLabel.prefHeightProperty().set(30);
 //            columnLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-            columnLabel.prefWidthProperty().set(100);
+//            columnLabel.prefWidthProperty().set(100);
+            columnLabel.prefHeightProperty().set(initializedRowHeight);
+            columnLabel.prefWidthProperty().set(initializedColumnWidth);
             columnLabel.setAlignment(Pos.CENTER);
             columnLabel.getStyleClass().add("single-cell");
             gridPaneColumnLetters.add(columnLabel, currentColumnNum, 0);
@@ -307,39 +296,20 @@ public class SheetController {
     }
 
 
-    public void displayFilteredLines(SheetReadActions sheet, RangeWithRowsInArea filteredRangeArea) {
+    public void displaySheetWithFilteredOrSortedRange(SheetReadActions sheet, RangeWithRowsInArea filteredRangeArea) {
         int numOfRows = sheet.getNumOfRows();
         int numOfColumns = sheet.getNumOfColumns();
         int initializedRowHeight = sheet.getRowHeight();
         int initializedColumnWidth = sheet.getColumnWidth();
 
-        clearCurrentSheetDisplay();
 
-        for (int i = 1; i <= numOfColumns; i++) {
-//            alignmentPerCol.put(i, new SimpleObjectProperty<>(Pos.CENTER_LEFT));
-            widthForEachColumnMapping.put(i,new SimpleIntegerProperty(initializedColumnWidth));
-        }
-
-        for (int i = 1; i <= numOfRows; i++) {
-            heightForEachRowMapping.put(i,new SimpleIntegerProperty(initializedRowHeight));
-        }
-
-        createAndDisplayColumnsLetters(sheet);
-        createAndDisplayRowNumbers(sheet);
-
-
-
-        cleanUnnecessaryStyleClassesForAllCells();
         Range selectedRange = filteredRangeArea.getRange();
         int filteredRangeRowStart = selectedRange.getRowStart();
         int filteredRangeRowEnd = selectedRange.getRowEnd();
         int filteredRangeColumnStart = selectedRange.getColumnStart();
         int filteredRangeColumnEnd = selectedRange.getColumnEnd();
 
-//        int numOfRows = sheet.getNumOfRows();
-//        int numOfColumns = sheet.getNumOfColumns();
-//        int initializedRowHeight = sheet.getRowHeight();
-//        int initializedColumnWidth = sheet.getColumnWidth();
+        clearAllCellsDisplay();
 
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
@@ -365,18 +335,19 @@ public class SheetController {
                     }
                 }
 
-                Label cellLabel = new Label(effectiveValueOfCellAsString);
+                javafx.scene.control.Label cellLabel = new javafx.scene.control.Label(effectiveValueOfCellAsString);
 
-                cellLabel.prefHeightProperty().set(initializedRowHeight);
-                cellLabel.prefWidthProperty().set(100);
+//                cellLabel.prefHeightProperty().set(initializedRowHeight);
+                cellLabel.setMinHeight(initializedRowHeight);
+                cellLabel.setMinWidth(initializedColumnWidth);
+//                cellLabel.prefWidthProperty().set(100);
 
 //                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
 //                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
                 cellLabel.setAlignment(Pos.CENTER);
                 cellLabel.getStyleClass().add("single-cell");
-                cellLabel.setOnMouseClicked(event -> handleCellClick(sheet, coordinate));
                 gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
-                Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
+                javafx.geometry.Insets margin = new javafx.geometry.Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
                 GridPane.setMargin(cellLabel, margin);
                 GridPane.setHalignment(cellLabel, HPos.CENTER);
                 GridPane.setValignment(cellLabel, VPos.CENTER);

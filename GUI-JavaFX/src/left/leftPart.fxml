@@ -79,11 +79,19 @@
                   </TextField>
                </children>
             </HBox>
-            <Button fx:id="showSortedLinesButton" mnemonicParsing="false" onAction="#handleShowSortedLinesButton" text="Sort lines">
+            <HBox>
                <VBox.margin>
-                  <Insets bottom="7.0" left="118.0" top="4.0" />
+                  <Insets bottom="7.0" left="70.0" right="20.0" top="4.0" />
                </VBox.margin>
-            </Button>
+               <children>
+                  <Button fx:id="showSortedLinesButton" mnemonicParsing="false" onAction="#handleShowSortedLinesButton" text="Sort lines" />
+                  <Button fx:id="undoSortingButton" mnemonicParsing="false" onAction="#handleUndoSortingButton" text="Undo sorting">
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
          </children></VBox>
       <VBox prefHeight="300.0">
          <children>
@@ -125,11 +133,19 @@
                   <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
                </VBox.margin>
             </ListView>
-            <Button fx:id="showFilteredLinesButton" mnemonicParsing="false" onAction="#handleShowFilteredLinesButton" text="Filter lines">
+            <HBox prefHeight="27.0" prefWidth="202.0">
                <VBox.margin>
-                  <Insets bottom="7.0" left="115.0" top="4.0" />
+                  <Insets bottom="7.0" left="70.0" right="20.0" top="4.0" />
                </VBox.margin>
-            </Button>
+               <children>
+                  <Button fx:id="showFilteredLinesButton" mnemonicParsing="false" onAction="#handleShowFilteredLinesButton" text="Filter lines" />
+                  <Button fx:id="undoFilteringButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleUndoFilteringButton" text="Undo filtering">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
             <Line endX="213.5" startX="-100.0" />
          </children>
       </VBox>

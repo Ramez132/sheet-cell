@@ -1,6 +1,8 @@
 package top;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -9,7 +11,6 @@ import javafx.stage.FileChooser;
 import main.MainController;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
-import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 
@@ -46,6 +47,9 @@ public class TopPartController {
     private TextField newRangeEndCoordinateTextField;
     @FXML
     private ComboBox<Integer> selectVersionNumberComboBox;
+    @FXML
+    private Button returnToRecentSheetButton;
+    private boolean displayingMostRecentSheetVersion = true;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
@@ -68,6 +72,9 @@ public class TopPartController {
                 Sheet sheet = mainController.getEngineManager().getSheetFromFile(selectedFile);
                 messageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
                 filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
+
+                deleteAllVersionNumbersInComboBoxFromPreviousSheet();
+                addNewVersionNumberToVersionComboBox(sheet.getVersion());
 //                mainController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
                 //update UI with possible ranges from the new sheet
                 mainController.handleInitialRangesFromNewSheet(sheet);
@@ -125,93 +132,15 @@ public class TopPartController {
         }
     }
 
-//    @FXML
-//    public void handleAddNewRangeButtonAndClearRelevantTextFields() {
-//        String rangeName = newRangeNameTextField.getText().trim();
-//        String leftTopStartCoordinateStr = newRangeStartCoordinateTextField.getText().trim();
-//        String rightBottomEndCoordinateStr = newRangeEndCoordinateTextField.getText().trim();
-//        if (mainController.getMostRecentSheetFromEngine() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
-//        } else if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("One or more fields are empty - the system can not create a new range. Please fill all fields.");
-//        } else {
-//            mainController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-//            newRangeNameTextField.clear(); //will get here even if the range was not created and error caught
-//            newRangeStartCoordinateTextField.clear();
-//            newRangeEndCoordinateTextField.clear();
-//        }
-//    }
-
-//    public void addNewRangeNameToRangesComboBox(String rangeName) {
-//        selectRangeComboBox.getItems().add(rangeName);
-////        selectRangeComboBox.getItems().clear();
-////        if (mainController.isThereAnyRangeInRangesFactory()) {
-////            selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
-////        }
-//    }
-
-//    @FXML
-//    public void handleDeleteSelectedRangeButton() {
-//        if (selectRangeComboBox.getItems().isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("No ranges are available to delete.");
-//            return;
-//        } else if (selectRangeComboBox.getValue() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("There is nothing to delete - no range is selected.");
-//            return;
-//        } else if (mainController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
-//            messageOfRecentActionOutcomeLabel.setText("The selected range is used in a cell/cells with relevant functions - can not delete it.");
-//            return;
-//        }
-//        try {
-//            String rangeName = selectRangeComboBox.getValue();
-//            mainController.deleteRangeFromRangeFactoryMainController(rangeName);
-//            messageOfRecentActionOutcomeLabel.setText("Range '" + rangeName + "' was deleted successfully.");
-//            selectRangeComboBox.getItems().remove(rangeName);
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
-
     private void clearDataInTopPartRegardingSelectedCell() {
         idOfSelectedCell.setText("");
         originalValueStrOfSelectedCell.setText("");
         versionNumOfLastChange.setText("");
     }
 
-//    public void handleCreatingNewRange(SheetReadActions sheet, String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
-//        Range range;
-//        try {
-//            range = RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(sheet, rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
-//            //update ui with new range
-//            messageOfRecentActionOutcomeLabel.setText("New range created successfully: " + rangeName + " from " + leftTopStartCoordinateStr + " to " + rightBottomEndCoordinateStr);
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
-
-//    @FXML
-//    public void handleDisplayCellsInSelectedRangeButton() {
-//        if (selectRangeComboBox.getItems().isEmpty()) {
-//            messageOfRecentActionOutcomeLabel.setText("No ranges are available to display.");
-//            return;
-//        } else if (selectRangeComboBox.getValue() == null) {
-//            messageOfRecentActionOutcomeLabel.setText("There is nothing to display - no range is selected.");
-//            return;
-//        }
-//        try {
-//            String rangeName = selectRangeComboBox.getValue();
-//            Range range = mainController.getRangeByItsName(rangeName);
-//            String topLeftStartCoordinateStr = range.getTopLeftStartCoordinate().toString();
-//            String bottomRightEndCoordinateStr = range.getBottomRightEndCoordinate().toString();
-//            mainController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
-////            sheet.highlightCellsInRange(range);
-//            messageOfRecentActionOutcomeLabel.setText("Cells in selected range '" + rangeName +
-//                    "' are now highlighted with purple border. The range is from "
-//                    + topLeftStartCoordinateStr + " to " + bottomRightEndCoordinateStr +".");
-//        } catch (Exception e) {
-//            messageOfRecentActionOutcomeLabel.setText(e.getMessage());
-//        }
-//    }
+    public void addNewVersionNumberToVersionComboBox(int newVersionNumber) {
+        selectVersionNumberComboBox.getItems().add(newVersionNumber);
+    }
 
     @FXML
     public void handleDisplaySelectedVersionButton() {
@@ -219,14 +148,21 @@ public class TopPartController {
             messageOfRecentActionOutcomeLabel.setText("No versions are available to display.");
             return;
         } else if (selectVersionNumberComboBox.getValue() == null) {
-            messageOfRecentActionOutcomeLabel.setText("There is nothing to display - no version is selected.");
+            messageOfRecentActionOutcomeLabel.setText("Pressed button 'Display selected version', but no version is selected. Please select a version.");
             return;
         }
         try {
-            int version = selectVersionNumberComboBox.getValue();
+            int versionNumToDisplay = selectVersionNumberComboBox.getValue();
+            if (versionNumToDisplay == mainController.getMostRecentSheetFromEngine().getVersion()) {
+                messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
+                return;
+            }
+            displayingMostRecentSheetVersion = false;
+            disableAllButtonsInSceneExceptOne(returnToRecentSheetButton);
+            mainController.displaySheetOfSpecificVersion(versionNumToDisplay);
 //            Sheet sheet = mainController.getSheetOfSpecificVersion(version);
 //            mainController.displayNewSheetFromNewFile(sheet);
-            messageOfRecentActionOutcomeLabel.setText("Version " + version + " is now displayed.");
+            messageOfRecentActionOutcomeLabel.setText("Version " + versionNumToDisplay + " is now displayed.");
         } catch (Exception e) {
             messageOfRecentActionOutcomeLabel.setText(e.getMessage());
         }
@@ -234,15 +170,48 @@ public class TopPartController {
 
     @FXML
     public void handleReturnToRecentSheetButton(){
-
+        if (mainController.getMostRecentSheetFromEngine() == null) {
+            messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not display any sheet. Please load a sheet first.");
+        } else if (displayingMostRecentSheetVersion) {
+            messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
+        } else {
+            displayingMostRecentSheetVersion = true;
+            enableAllButtonsInScene();
+            mainController.displaySheetOfMostRecentVersion();
+            messageOfRecentActionOutcomeLabel.setText("Returned to the most recent version of the sheet.");
+        }
     }
 
     public void setMessageOfRecentActionOutcomeLabel(String message) {
         messageOfRecentActionOutcomeLabel.setText(message);
     }
 
-    //need to implement
-    public void deleteAllVersionNumbersFromPreviousSheet() {
+    public void deleteAllVersionNumbersInComboBoxFromPreviousSheet() {
+        selectVersionNumberComboBox.getItems().clear();
+    }
+
+    public void disableAllButtonsInSceneExceptOne(Button buttonToKeepEnabled) {
+        Scene scene = buttonToKeepEnabled.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(button != buttonToKeepEnabled);
+                }
+            }
+        }
+    }
+
+    public void enableAllButtonsInScene() {
+        Scene scene = returnToRecentSheetButton.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(false);
+                }
+            }
+        }
     }
 
 }

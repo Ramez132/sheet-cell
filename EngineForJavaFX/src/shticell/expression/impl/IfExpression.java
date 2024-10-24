@@ -80,66 +80,6 @@ public class IfExpression implements Expression {
             return unknownResult;
         }
     }
-//
-//
-//                        }
-//
-//
-//
-//                        return unknownResult;
-//            }
-//        } catch (Exception e) {
-//            return unknownResult;
-//        }
-////            if (!thenResult.getClass().equals(elseResult.getClass())) {
-////                return new EffectiveValueImpl(CellType.UNKNOWN, "UNKNOWN");
-////            }
-//
-//            boolean isThenString, isElseString;
-//            isThenString = thenValue.getCellType().isAssignableFrom(String.class);
-//            isElseString = elseValue.getCellType().isAssignableFrom(String.class);
-//
-//            if (isThenString && isElseString) {
-//                try {
-//                    String thenResult = thenValue.extractValueWithExpectation(String.class);
-//                    String elseResult = elseValue.extractValueWithExpectation(String.class);
-//                    if (conditionBoolean) {
-//                        resultValue = new EffectiveValueImpl(CellType.STRING, thenResult);
-//                    } else {
-//                        resultValue = new EffectiveValueImpl(CellType.STRING, elseResult);
-//                    }
-//                } catch (Exception e) {
-//                    resultValue = unknownResult;
-//                }
-//            } else { return unknownResult; }
-//
-//            boolean isThenBoolean, isElseBoolean;
-//            isThenBoolean = thenValue.getCellType().isAssignableFrom(Boolean.class);
-//            isElseBoolean = elseValue.getCellType().isAssignableFrom(Boolean.class);
-//
-//            if (isThenBoolean && isElseBoolean) {
-//                try {
-//                    boolean thenResult = thenValue.extractValueWithExpectation(Boolean.class);
-//                    boolean elseResult = elseValue.extractValueWithExpectation(Boolean.class);
-//                    if (conditionBoolean) {
-//                        resultValue = new EffectiveValueImpl(CellType.BOOLEAN, thenResult);
-//                    } else {
-//                        resultValue = new EffectiveValueImpl(CellType.BOOLEAN, elseResult);
-//                    }
-//                } catch (Exception e) {
-//                    resultValue = unknownResult;
-//                }
-//            } else {
-//                resultValue = unknownResult;
-//            }
-//        } catch (Exception e) {
-//            resultValue = new EffectiveValueImpl(CellType.UNKNOWN, "UNKNOWN");
-//        }
-////
-////        EffectiveValue resultValue = conditionBoolean ? thenValue : elseValue;
-////        return new EffectiveValueImpl(resultValue.getCellType(), resultValue.getValue());
-//        return resultValue;
-
 
     @Override
     public CellType getFunctionResultType() {

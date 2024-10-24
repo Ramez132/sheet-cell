@@ -23,27 +23,4 @@ public interface Range {
 
     int getNumOfRowsInRange();
 
-//    int getRowCount();
-//
-//    int getColumnCount();
-//
-//    boolean contains(int row, int col);
-//
-//    boolean contains(Range range);
-//
-//    boolean isIntersecting(Range range);
-//
-//    Range getIntersection(Range range);
-//
-//    Range getUnion(Range range);
-//
-//    Range getDifference(Range range);
-//
-//    Range getCopy();
-//
-//    boolean equals(Object obj);
-//
-//    int hashCode();
-//
-//    String toString();
 }
