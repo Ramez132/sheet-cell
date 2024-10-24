@@ -61,7 +61,8 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
         Sheet possibleNewSheet;
         boolean isUpdatePartOfSheetInitialization = sheetVersionsArray.isEmpty();
         try {
-            possibleNewSheet = sheetVersionsArray.getLast().updateCellValueAndCalculate(row, col, value, isUpdatePartOfSheetInitialization);
+            Sheet latestSheet = sheetVersionsArray.getLast();
+            possibleNewSheet = latestSheet.updateCellValueAndCalculate(row, col, value, isUpdatePartOfSheetInitialization);
             if (possibleNewSheet != sheetVersionsArray.getLast()) { //the sheet has changed
                 sheetVersionsArray.add(possibleNewSheet); //add the new sheet to the list
             }

@@ -3,10 +3,11 @@ package shticell.range;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RangeImpl implements Range {
+public class RangeImpl implements Range, Serializable {
     private String rangeName;
     private final Coordinate topLeftStartCoordinate;
     private final Coordinate bottomRightEndCoordinate;

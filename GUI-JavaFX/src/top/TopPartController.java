@@ -1,6 +1,8 @@
 package top;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -9,7 +11,6 @@ import javafx.stage.FileChooser;
 import main.MainController;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
-import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
 
@@ -46,6 +47,9 @@ public class TopPartController {
     private TextField newRangeEndCoordinateTextField;
     @FXML
     private ComboBox<Integer> selectVersionNumberComboBox;
+    @FXML
+    private Button returnToRecentSheetButton;
+    private boolean displayingMostRecentSheetVersion = true;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
@@ -68,6 +72,9 @@ public class TopPartController {
                 Sheet sheet = mainController.getEngineManager().getSheetFromFile(selectedFile);
                 messageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
                 filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
+
+                deleteAllVersionNumbersInComboBoxFromPreviousSheet();
+                addNewVersionNumberToVersionComboBox(sheet.getVersion());
 //                mainController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
                 //update UI with possible ranges from the new sheet
                 mainController.handleInitialRangesFromNewSheet(sheet);
@@ -131,20 +138,31 @@ public class TopPartController {
         versionNumOfLastChange.setText("");
     }
 
+    public void addNewVersionNumberToVersionComboBox(int newVersionNumber) {
+        selectVersionNumberComboBox.getItems().add(newVersionNumber);
+    }
+
     @FXML
     public void handleDisplaySelectedVersionButton() {
         if (selectVersionNumberComboBox.getItems().isEmpty()) {
             messageOfRecentActionOutcomeLabel.setText("No versions are available to display.");
             return;
         } else if (selectVersionNumberComboBox.getValue() == null) {
-            messageOfRecentActionOutcomeLabel.setText("There is nothing to display - no version is selected.");
+            messageOfRecentActionOutcomeLabel.setText("Pressed button 'Display selected version', but no version is selected. Please select a version.");
             return;
         }
         try {
-            int version = selectVersionNumberComboBox.getValue();
+            int versionNumToDisplay = selectVersionNumberComboBox.getValue();
+            if (versionNumToDisplay == mainController.getMostRecentSheetFromEngine().getVersion()) {
+                messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
+                return;
+            }
+            displayingMostRecentSheetVersion = false;
+            disableAllButtonsInSceneExceptOne(returnToRecentSheetButton);
+            mainController.displaySheetOfSpecificVersion(versionNumToDisplay);
 //            Sheet sheet = mainController.getSheetOfSpecificVersion(version);
 //            mainController.displayNewSheetFromNewFile(sheet);
-            messageOfRecentActionOutcomeLabel.setText("Version " + version + " is now displayed.");
+            messageOfRecentActionOutcomeLabel.setText("Version " + versionNumToDisplay + " is now displayed.");
         } catch (Exception e) {
             messageOfRecentActionOutcomeLabel.setText(e.getMessage());
         }
@@ -152,15 +170,48 @@ public class TopPartController {
 
     @FXML
     public void handleReturnToRecentSheetButton(){
-
+        if (mainController.getMostRecentSheetFromEngine() == null) {
+            messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not display any sheet. Please load a sheet first.");
+        } else if (displayingMostRecentSheetVersion) {
+            messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
+        } else {
+            displayingMostRecentSheetVersion = true;
+            enableAllButtonsInScene();
+            mainController.displaySheetOfMostRecentVersion();
+            messageOfRecentActionOutcomeLabel.setText("Returned to the most recent version of the sheet.");
+        }
     }
 
     public void setMessageOfRecentActionOutcomeLabel(String message) {
         messageOfRecentActionOutcomeLabel.setText(message);
     }
 
-    //need to implement
-    public void deleteAllVersionNumbersFromPreviousSheet() {
+    public void deleteAllVersionNumbersInComboBoxFromPreviousSheet() {
+        selectVersionNumberComboBox.getItems().clear();
+    }
+
+    public void disableAllButtonsInSceneExceptOne(Button buttonToKeepEnabled) {
+        Scene scene = buttonToKeepEnabled.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(button != buttonToKeepEnabled);
+                }
+            }
+        }
+    }
+
+    public void enableAllButtonsInScene() {
+        Scene scene = returnToRecentSheetButton.getScene();
+        if (scene != null) {
+            for (Node node : scene.getRoot().lookupAll(".button")) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    button.setDisable(false);
+                }
+            }
+        }
     }
 
 }

@@ -64,9 +64,6 @@ public class MainController {
     public void deleteAllRangesInRangeFactoryBeforeLoadingNewSheet() {
         RangeFactory.deleteAllRangesInRangesFactoryBeforeLoadingSheetFromNewFile();
     }
-    private void deleteAllVersionsBeforeLoadingNewSheet() {
-        topPartController.deleteAllVersionNumbersFromPreviousSheet();
-    }
 
     public void loadNewSheet(SheetReadActions sheet){
         sheetPartController.loadAndDisplayNewSheet(sheet);
@@ -85,6 +82,7 @@ public class MainController {
         try {
             SheetReadActions sheet = engineManager.updateValueOfCellAndGetNewSheet
                     (currentlySelectedCoordinate.getRow(), currentlySelectedCoordinate.getColumn(), newValueStr);
+            topPartController.addNewVersionNumberToVersionComboBox(sheet.getVersion());
             loadNewSheet(sheet);
             if (newValueStr.isEmpty()) {
                 topPartController.setMessageOfRecentActionOutcomeLabel
@@ -184,5 +182,26 @@ public class MainController {
             topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
 
+    }
+
+    public void displaySheetOfSpecificVersion(int versionNumToDisplay) {
+        try {
+            SheetReadActions sheet = engineManager.getSheetOfSpecificVersion(versionNumToDisplay);
+            loadNewSheet(sheet);
+        } catch (Exception e) {
+            topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
+            topPartController.enableAllButtonsInScene();
+        }
+
+    }
+
+    public void displaySheetOfMostRecentVersion() {
+        try {
+            SheetReadActions sheet = engineManager.getMostRecentSheet();
+            loadNewSheet(sheet);
+        } catch (Exception e) {
+            topPartController.setMessageOfRecentActionOutcomeLabel(e.getMessage());
+            topPartController.enableAllButtonsInScene();
+        }
     }
 }
