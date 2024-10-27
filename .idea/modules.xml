@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/ClientJavaFx/ClientJavaFx.iml" filepath="$PROJECT_DIR$/ClientJavaFx/ClientJavaFx.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" filepath="$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" filepath="$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" filepath="$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EngineForServer/EngineForServer.iml" filepath="$PROJECT_DIR$/EngineForServer/EngineForServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" filepath="$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Server/Server.iml" filepath="$PROJECT_DIR$/Server/Server.iml" />
       <module fileurl="file://$PROJECT_DIR$/sheet-cell.iml" filepath="$PROJECT_DIR$/sheet-cell.iml" />
     </modules>
   </component>

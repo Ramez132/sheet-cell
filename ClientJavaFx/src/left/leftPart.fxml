@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--        prefHeight="270.0" prefWidth="935.0"-->
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Line?>
+<VBox prefHeight="620.0" prefWidth="286.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="left.LeftPartController">
+   <children>
+      <VBox>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <Label prefHeight="19.0" prefWidth="32.0" text="Sort" underline="true">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="145.0" top="4.0" />
+               </VBox.margin>
+            </Label>
+            <HBox>
+               <children>
+                  <TextField fx:id="newSortStartCoordinateTextField" prefHeight="27.0" prefWidth="89.0" promptText="From (i.e C3)">
+                     <HBox.margin>
+                        <Insets left="60.0" right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="newSortEndCoordinateTextField" prefHeight="27.0" prefWidth="85.0" promptText="To (i.e E6)" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+            <Label prefHeight="19.0" prefWidth="149.0" text="Enter columns to sort by">
+               <VBox.margin>
+                  <Insets left="75.0" />
+               </VBox.margin>
+            </Label>
+            <Label layoutX="40.0" layoutY="68.0" prefHeight="19.0" prefWidth="120.0" text=" (order is important)">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="80.0" />
+               </VBox.margin>
+            </Label>
+            <HBox prefHeight="27.0">
+               <children>
+                  <TextField fx:id="firstColumnLetterToSortByTextField" prefHeight="27.0" prefWidth="89.0" promptText="1st ">
+                     <HBox.margin>
+                        <Insets left="30.0" right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="secondColumnLetterToSortByTextField" prefHeight="27.0" prefWidth="85.0" promptText="2nd" />
+                  <TextField fx:id="thirdColumnLetterToSortByTextField" prefHeight="27.0" prefWidth="71.0" promptText="3rd">
+                     <HBox.margin>
+                        <Insets left="8.0" right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox prefHeight="27.0">
+               <children>
+                  <TextField fx:id="fourthColumnLetterToSortByTextField" prefHeight="27.0" prefWidth="85.0" promptText="4th">
+                     <HBox.margin>
+                        <Insets left="60.0" right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="fifthColumnLetterToSortByTextField" prefHeight="27.0" prefWidth="86.0" promptText="5th">
+                     <HBox.margin>
+                        <Insets right="40.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+            </HBox>
+            <HBox>
+               <VBox.margin>
+                  <Insets bottom="7.0" left="70.0" right="20.0" top="4.0" />
+               </VBox.margin>
+               <children>
+                  <Button fx:id="showSortedLinesButton" mnemonicParsing="false" onAction="#handleShowSortedLinesButton" text="Sort lines" />
+                  <Button fx:id="undoSortingButton" mnemonicParsing="false" onAction="#handleUndoSortingButton" text="Undo sorting">
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </children></VBox>
+      <VBox prefHeight="300.0">
+         <children>
+            <Line endX="216.2928924560547" endY="-0.7071067690849304" startX="-100.0" />
+            <Label prefHeight="19.0" prefWidth="52.0" text="Filtering" underline="true">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="133.0" top="4.0" />
+               </VBox.margin>
+            </Label>
+            <HBox prefHeight="27.0">
+               <children>
+                  <TextField fx:id="newFilterStartCoordinateTextField" prefHeight="27.0" prefWidth="89.0" promptText="From (i.e B1)">
+                     <HBox.margin>
+                        <Insets left="15.0" right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="newFilterEndCoordinateTextField" prefHeight="27.0" prefWidth="85.0" promptText="To (i.e D5)">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="selectColumnLetterForFilteringTextField" prefHeight="27.0" prefWidth="100.0" promptText="Column letter">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+            <Button fx:id="getUniqueValuesToFilterButton" mnemonicParsing="false" onAction="#handleGetUniqueValuesToFilterButton" text="Get values to filter">
+               <VBox.margin>
+                  <Insets bottom="4.0" left="95.0" top="4.0" />
+               </VBox.margin>
+            </Button>
+            <ListView fx:id="listViewWithCheckBoxesContainingPossibleUniqueValuesToFilter" prefHeight="77.0" prefWidth="278.0" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+               </VBox.margin>
+            </ListView>
+            <HBox prefHeight="27.0" prefWidth="202.0">
+               <VBox.margin>
+                  <Insets bottom="7.0" left="70.0" right="20.0" top="4.0" />
+               </VBox.margin>
+               <children>
+                  <Button fx:id="showFilteredLinesButton" mnemonicParsing="false" onAction="#handleShowFilteredLinesButton" text="Filter lines" />
+                  <Button fx:id="undoFilteringButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleUndoFilteringButton" text="Undo filtering">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <Line endX="213.5" startX="-100.0" />
+         </children>
+      </VBox>
+      <VBox>
+         <children>
+            <Label prefHeight="19.0" prefWidth="52.0" text="Ranges" underline="true">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="135.0" top="4.0" />
+               </VBox.margin>
+            </Label>
+            <ComboBox fx:id="selectRangeComboBox" prefHeight="27.0" prefWidth="173.0" promptText="Select range">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="70.0" top="3.0" />
+               </VBox.margin>
+            </ComboBox>
+            <HBox>
+               <children>
+                  <Button fx:id="displayCellsInSelectedRangeButton" mnemonicParsing="false" onAction="#handleDisplayCellsInSelectedRangeButton" text="Display range">
+                     <HBox.margin>
+                        <Insets left="50.0" right="15.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="deleteSelectedRangeButton" mnemonicParsing="false" onAction="#handleDeleteSelectedRangeButton" text="Delete range" />
+               </children>
+               <VBox.margin>
+                  <Insets top="7.0" />
+               </VBox.margin>
+            </HBox>
+            <TextField fx:id="newRangeNameTextField" prefHeight="27.0" promptText="new range name">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="20.0" right="20.0" top="8.0" />
+               </VBox.margin>
+            </TextField>
+            <HBox prefWidth="200.0">
+               <children>
+                  <TextField fx:id="newRangeStartCoordinateTextField" prefHeight="27.0" prefWidth="91.0" promptText="From (i.e A1)">
+                     <HBox.margin>
+                        <Insets left="60.0" right="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <TextField fx:id="newRangeEndCoordinateTextField" prefHeight="27.0" prefWidth="81.0" promptText="To (i.e C3)" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="2.0" />
+               </VBox.margin>
+            </HBox>
+            <Button fx:id="addNewRangeButton" mnemonicParsing="false" onAction="#handleAddNewRangeButtonAndClearRelevantTextFields" text="Add new range">
+               <VBox.margin>
+                  <Insets bottom="3.0" left="100.0" top="5.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+         <VBox.margin>
+            <Insets bottom="4.0" />
+         </VBox.margin>
+      </VBox>
+   </children>
+</VBox>

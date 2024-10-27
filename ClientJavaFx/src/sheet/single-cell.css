@@ -1,0 +1,44 @@
+.single-cell {
+    -fx-border-color: black;
+    -fx-padding: 3px;
+}
+
+.background-cell {
+    -fx-background-color: white;
+}
+
+.single-cell:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.5, 0, 0);
+}
+
+.single-cell.selected-cell {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 5, 0.5, 0, 0);
+}
+
+/*#selected-cell {*/
+/*    -fx-effect: dropshadow(gaussian, rgba(0, 40, 255, 0.75), 10, 0.5, 0, 0);*/
+/*}*/
+
+.single-cell.depends-on-cell {
+    -fx-effect: dropshadow(gaussian, rgba(30, 173, 249, 0.5), 2, 0.5, 0, 0);
+    -fx-border-style: dotted;
+    -fx-border-width: 1px;
+    /*-fx-background-color: rgba(33, 207, 242, 0.75);*/
+    -fx-border-color: rgba(30, 173, 249, 0.75);
+}
+
+.single-cell.influence-on-cell {
+    -fx-effect: dropshadow(gaussian, rgba(5, 203, 61, 0.5), 2, 0.5, 0, 0);
+    -fx-border-style: dotted;
+    -fx-border-width: 1px;
+    /*-fx-background-color: rgba(31, 236, 89, 0.75);*/
+    -fx-border-color: rgba(5, 203, 61, 0.91);
+}
+
+.single-cell.cell-from-selected-range {
+    -fx-effect: dropshadow(gaussian, rgba(218, 46, 245, 0.5), 2, 0.5, 0, 0);
+    -fx-border-style: dotted;
+    -fx-border-width: 1px;
+    /*-fx-background-color: rgba(218, 46, 245, 0.75);*/
+    -fx-border-color: rgba(218, 46, 245, 0.75);
+}
