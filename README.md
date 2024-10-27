@@ -1,6 +1,6 @@
-This repository contains the code of an application that allow users to manage and manipulate data in a tabular format (the system refers to it as a sheet - the concept is similar in principle to Excel and Google Sheet).
+This repository contains the code of a Java application that allow users to manage and manipulate data in a tabular format. The system refers to it as a sheet (the concept is similar in principle to Excel and Google Sheet).
 
-Written as part of a college course, by Meir Zoref and Ramez Mannaa.
+Written as part of a Java college course, by Meir Zoref and Ramez Mannaa.
 
 The first exercise is a console application.
 
@@ -14,7 +14,7 @@ The server will manage several users and sheets at the same time, different auth
 ![java ex2 screenshot exmaple](https://github.com/user-attachments/assets/2422a611-b5e0-4d72-86d9-2aa50786805a)
 
 
-The system is a JavaFX spreadsheet application that allows the user to manage and manipulate data in a tabular format (the system refers to it as a sheet).
+The system is a JavaFX spreadsheet application that allows the user to manage and manipulate data in a tabular format.
 
 The GUI app expands the options and capabilities for the user, compared to the console application from the 1st exercise. 
 
