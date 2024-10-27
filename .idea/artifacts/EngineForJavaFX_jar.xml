@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="EngineForJavaFX:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/EngineForJavaFX_jar</output-path>
+    <root id="archive" name="EngineForJavaFX.jar">
+      <element id="module-output" name="EngineForJavaFX" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jaxb-jxc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jaxb-xjc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jaxb-core.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jaxb-impl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/angus-activation.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jakarta.xml.bind-api.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jaxb-ri-4.0.5/lib/jakarta.activation-api.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
