@@ -1,24 +1,26 @@
-package main;
+package operating.window;
 
 import engine.api.EngineManagerJavafx;
 import javafx.fxml.FXML;
-import left.LeftPartController;
-import sheet.SheetController;
+import login.LoginWindowController;
+import operating.left.LeftPartController;
+import operating.table.TablePartController;
 import shticell.coordinate.Coordinate;
 import shticell.range.Range;
 import shticell.range.RangeFactory;
 import shticell.row.RangeWithRowsInArea;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.api.SheetReadActions;
-import top.TopPartController;
+import operating.top.TopPartController;
 
 import java.util.List;
 
-public class MainController {
+public class SheetWindowController {
 
+    private LoginWindowController loginWindowController;
     private EngineManagerJavafx engineManager;
 
-    @FXML private SheetController sheetPartController;
+    @FXML private TablePartController sheetPartController;
     @FXML private TopPartController topPartController;
     @FXML private LeftPartController leftPartController;
 
@@ -27,6 +29,10 @@ public class MainController {
         topPartController.setMainController(this);
         sheetPartController.setMainController(this);
         leftPartController.setMainController(this);
+    }
+
+    public void setLoginWindowController(LoginWindowController loginWindowController) {
+        this.loginWindowController = loginWindowController;
     }
 
     public void setEngineManager(EngineManagerJavafx engineManager) {

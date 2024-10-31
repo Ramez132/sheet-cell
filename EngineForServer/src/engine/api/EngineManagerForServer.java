@@ -8,9 +8,10 @@ import shticell.sheet.api.Sheet;
 import java.io.File;
 import java.util.List;
 
-public interface EngineManagerJavafx {
+public interface EngineManagerForServer {
     Sheet getSheetFromFile(File file) throws Exception;
-    Sheet getMostRecentSheet();
+    Sheet getMostRecentSheetWithSelectedName(String sheetName);
+//    Sheet getMostRecentSheet();
 
     /**
      * Returns a cell from the most recent sheet.
@@ -19,8 +20,8 @@ public interface EngineManagerJavafx {
      * @param col the column of the cell
      * @return the cell from the most recent sheet
      */
-    Cell getCellFromMostRecentSheet(int row, int col);
-    Sheet updateValueOfCellAndGetNewSheet(int row, int col, String value);
+    Cell getCellFromMostRecentSheetWithSelectedName(String sheetName, int row, int col);
+    Sheet updateValueOfCellAndGetNewSheetWithSelectedName(String sheetName, int row, int col, String value);
 
     /**
      * @param version should be a number of requested version, starting from 1 (not 0)

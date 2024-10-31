@@ -1,4 +1,4 @@
-package main;
+package login;
 
 import engine.api.EngineManagerJavafx;
 import engine.impl.EngineManagerJavafxImpl;
@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import operating.window.SheetWindowController;
 
 import java.net.URL;
 
@@ -25,13 +26,16 @@ public class MainJavafxProgram extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         //URL url = getClass().getResource("main.fxml");
-        URL url = getClass().getResource("app.fxml");
+        URL url = getClass().getResource("loginWindow.fxml");
         fxmlLoader.setLocation(url);
         Parent root = fxmlLoader.load(url.openStream());
 
-        MainController mainController = fxmlLoader.getController();
-        mainController.setEngineManager(engineManager);
-//        mainController.setFxmlLoader(fxmlLoader);
+        LoginWindowController loginWindowController = fxmlLoader.getController();
+
+
+        SheetWindowController sheetWindowController = fxmlLoader.getController();
+        sheetWindowController.setEngineManager(engineManager);
+//        SheetWindowController.setFxmlLoader(fxmlLoader);
 
 //      Parent load = FXMLLoader.load(getClass().getResource("main.fxml"));
         Scene scene = new Scene(root);

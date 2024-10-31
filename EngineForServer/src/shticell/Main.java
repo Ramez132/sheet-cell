@@ -1,7 +1,7 @@
 package shticell;//package shticell;
 
-import engine.api.EngineManagerJavafx;
-import engine.impl.EngineManagerJavafxImpl;
+import engine.api.EngineManagerForServer;
+import engine.impl.EngineManagerForServerImpl;
 import shticell.cell.api.Cell;
 import shticell.range.RangeFactory;
 import shticell.sheet.api.Sheet;
@@ -13,7 +13,7 @@ public class Main {
         Sheet sheet = new SheetImpl("newSheet", 10, 10,15,30,1);
 
 
-        EngineManagerJavafx manager = new EngineManagerJavafxImpl();
+        EngineManagerForServer manager = new EngineManagerForServerImpl();
         sheet = sheet.updateCellValueAndCalculate(1, 1, "5", true);
         Object  value;
         Cell cell = sheet.getCell(1, 1);
@@ -61,7 +61,7 @@ public class Main {
 
 //         String filePath = "C:\\java-ex2-files\\grades - Copy.xml";
 //         File file = new File(filePath);
-//         EngineManagerJavafx engineManager = new EngineManagerJavafxImpl();
+//         EngineManagerForServer engineManager = new EngineManagerForServerImpl();
 //         try {
 //             sheet = engineManager.getSheetFromFile(file);
 //         }

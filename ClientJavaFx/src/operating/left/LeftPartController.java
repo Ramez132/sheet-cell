@@ -1,12 +1,13 @@
-package left;
+package operating.left;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.util.Callback;
-import main.MainController;
+import operating.window.SheetWindowController;
 import shticell.range.Range;
 import shticell.sheet.api.Sheet;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LeftPartController {
-    private MainController mainController;
+    private SheetWindowController sheetWindowController;
     private Range currentFilteringRange;
     private boolean isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = false;
     private char currentColumnLetterForFiltering;
@@ -79,8 +80,8 @@ public class LeftPartController {
     }
 
 
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
+    public void setMainController(SheetWindowController sheetWindowController) {
+        this.sheetWindowController = sheetWindowController;
     }
 
     // Example of fetching and updating ComboBox dynamically
@@ -102,10 +103,10 @@ public class LeftPartController {
     @FXML
     public void handleGetUniqueValuesToFilterButton() {
         if (newFilterStartCoordinateTextField.getText().isEmpty() || newFilterEndCoordinateTextField.getText().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("One or more coordinate fields are empty - the system can not get unique values to filter. Please fill all fields.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("One or more coordinate fields are empty - the system can not get unique values to filter. Please fill all fields.");
             return;
         } else if (selectColumnLetterForFilteringTextField.getText().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("The column letter is empty - the system can not get unique values to filter. Please fill the column letter.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("The column letter is empty - the system can not get unique values to filter. Please fill the column letter.");
             return;
         }
         try {
@@ -117,20 +118,20 @@ public class LeftPartController {
             selectColumnLetterForFilteringTextField.clear();
             Range updatedFilteringRange;
 
-            boolean isFilteringAreaValid = mainController.isFilteringOrSortingAreaValid(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
+            boolean isFilteringAreaValid = sheetWindowController.isFilteringOrSortingAreaValid(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
             if (!isFilteringAreaValid) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
                     ("The filtering area " + newFilterStartCoordinateStr + " to" + newFilterEndCoordinateStr +
                         " is not valid. Please enter valid area for filtering and column letter in this area.");
                 return;
             } else {
                 //method will be invoked only if the area and coordinates are valid
-                updatedFilteringRange = mainController.createRangeToSortOrFilter(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
+                updatedFilteringRange = sheetWindowController.createRangeToSortOrFilter(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
             }
 
-            boolean isColumnLetterInFilteringArea = mainController.isColumnLetterInFilteringOrSortingArea(stringWithLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
+            boolean isColumnLetterInFilteringArea = sheetWindowController.isColumnLetterInFilteringOrSortingArea(stringWithLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
             if (!isColumnLetterInFilteringArea) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
                     ("The column letter is not in selected filtering area - please enter valid area for filtering and column letter in this area.");
                 return;
             }
@@ -138,9 +139,9 @@ public class LeftPartController {
             char charLetterOfColumnToGetUniqueValuesToFilter = stringWithLetterOfColumnToGetUniqueValuesToFilter.charAt(0);
 
             //if got here, all fields are filled and valid
-            List<String> uniqueValuesInSelectedColumn = mainController.getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(charLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
+            List<String> uniqueValuesInSelectedColumn = sheetWindowController.getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(charLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
             if (uniqueValuesInSelectedColumn.isEmpty()) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values found in selected column '" + charLetterOfColumnToGetUniqueValuesToFilter + "'.");
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values found in selected column '" + charLetterOfColumnToGetUniqueValuesToFilter + "'.");
                 return;
             }
 
@@ -151,9 +152,9 @@ public class LeftPartController {
             currentFilteringRange = updatedFilteringRange;
             currentColumnLetterForFiltering = charLetterOfColumnToGetUniqueValuesToFilter;
 
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("Please select one or more unique values to filter in column '" + stringWithLetterOfColumnToGetUniqueValuesToFilter + "'.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Please select one or more unique values to filter in column '" + stringWithLetterOfColumnToGetUniqueValuesToFilter + "'.");
         } catch (Exception e) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
@@ -161,7 +162,7 @@ public class LeftPartController {
     // Handle button click event to get selected options
     private void handleShowFilteredLinesButton() {
         if (listViewWithCheckBoxesContainingPossibleUniqueValuesToFilter.getItems().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values to filter - first enter filtering coordinates and column letter then press \"Get values to filter\".");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values to filter - first enter filtering coordinates and column letter then press \"Get values to filter\".");
             return;
         }
 
@@ -172,12 +173,12 @@ public class LeftPartController {
                 .toList();
 
         if (selectedUniqueValuesOptions.isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values were selected to filter. Please select one or more unique values to filter.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values were selected to filter. Please select one or more unique values to filter.");
             return;
         }
 
         disableAllButtonsInSceneExceptOne(undoFilteringButton);
-        mainController.handleShowFilteredLinesButton(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
+        sheetWindowController.handleShowFilteredLinesButton(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
 
         listViewOptionsForFiltering.clear();
         selectionMapOfFilteringListView.clear();
@@ -189,7 +190,7 @@ public class LeftPartController {
     @FXML
     public void handleUndoFilteringButton() {
         enableAllButtonsInScene();
-        mainController.displaySheetBeforeSortingOrFiltering();
+        sheetWindowController.displaySheetBeforeSortingOrFiltering();
     }
 
 
@@ -198,12 +199,12 @@ public class LeftPartController {
         String rangeName = newRangeNameTextField.getText().trim();
         String leftTopStartCoordinateStr = newRangeStartCoordinateTextField.getText().trim();
         String rightBottomEndCoordinateStr = newRangeEndCoordinateTextField.getText().trim();
-        if (mainController.getMostRecentSheetFromEngine() == null) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
+        if (sheetWindowController.getMostRecentSheetFromEngine() == null) {
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
         } else if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("One or more fields are empty - the system can not create a new range. Please fill all fields.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("One or more fields are empty - the system can not create a new range. Please fill all fields.");
         } else {
-            mainController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+            sheetWindowController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
             newRangeNameTextField.clear(); //will get here even if the range was not created and error caught
             newRangeStartCoordinateTextField.clear();
             newRangeEndCoordinateTextField.clear();
@@ -217,52 +218,52 @@ public class LeftPartController {
     @FXML
     public void handleDeleteSelectedRangeButton() {
         if (selectRangeComboBox.getItems().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("No ranges are available to delete.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No ranges are available to delete.");
             return;
         } else if (selectRangeComboBox.getValue() == null) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("There is nothing to delete - no range is selected.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("There is nothing to delete - no range is selected.");
             return;
-        } else if (mainController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("The selected range is used in a cell/cells with relevant functions - can not delete it.");
+        } else if (sheetWindowController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("The selected range is used in a cell/cells with relevant functions - can not delete it.");
             return;
         }
         try {
             String rangeName = selectRangeComboBox.getValue();
-            mainController.deleteRangeFromRangeFactoryMainController(rangeName);
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("Range '" + rangeName + "' was deleted successfully.");
+            sheetWindowController.deleteRangeFromRangeFactoryMainController(rangeName);
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Range '" + rangeName + "' was deleted successfully.");
             selectRangeComboBox.getItems().remove(rangeName);
         } catch (Exception e) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
     @FXML
     public void handleDisplayCellsInSelectedRangeButton() {
         if (selectRangeComboBox.getItems().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("No ranges are available to display.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No ranges are available to display.");
             return;
         } else if (selectRangeComboBox.getValue() == null) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("There is nothing to display - no range is selected.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("There is nothing to display - no range is selected.");
             return;
         }
         try {
             String rangeName = selectRangeComboBox.getValue();
-            Range range = mainController.getRangeByItsName(rangeName);
+            Range range = sheetWindowController.getRangeByItsName(rangeName);
             String topLeftStartCoordinateStr = range.getTopLeftStartCoordinate().toString();
             String bottomRightEndCoordinateStr = range.getBottomRightEndCoordinate().toString();
-            mainController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("Cells in selected range '" + rangeName +
+            sheetWindowController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Cells in selected range '" + rangeName +
                     "' are now highlighted with purple border. The range is from "
                     + topLeftStartCoordinateStr + " to " + bottomRightEndCoordinateStr +".");
         } catch (Exception e) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
     public void handleInitialRangesFromNewSheet(Sheet sheet) {
         selectRangeComboBox.getItems().clear();
-        if (mainController.isThereAnyRangeInRangesFactory()) {
-            selectRangeComboBox.getItems().addAll(mainController.getAllRangeNamesInTheSystem());
+        if (sheetWindowController.isThereAnyRangeInRangesFactory()) {
+            selectRangeComboBox.getItems().addAll(sheetWindowController.getAllRangeNamesInTheSystem());
         }
         selectRangeComboBox.setPromptText("Select range");
     }
@@ -277,13 +278,13 @@ public class LeftPartController {
         boolean fifthColumnTextFieldEmpty = fifthColumnLetterToSortByTextField.getText().isEmpty();
 
         if (newSortStartCoordinateTextField.getText().isEmpty() || newSortEndCoordinateTextField.getText().isEmpty()) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel("Please enter both start and end coordinates of area to sort.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Please enter both start and end coordinates of area to sort.");
             return;
         } else {
             try {
                 boolean areAllTextFieldsFilledOrEmptyProperlyForSorting = isCombinationOfEmptyAndFilledTextFieldsValidForSorting(firstColumnTextFieldEmpty, secondColumnTextFieldEmpty, thirdColumnTextFieldEmpty, fourthColumnTextFieldEmpty, fifthColumnTextFieldEmpty);
             } catch (Exception e) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
                 return;
             }
         }
@@ -297,20 +298,20 @@ public class LeftPartController {
 
             Range newSortingRange;
 
-            boolean isSortingAreaValid = mainController.isFilteringOrSortingAreaValid(newSortStartCoordinateStr, newSortEndCoordinateStr);
+            boolean isSortingAreaValid = sheetWindowController.isFilteringOrSortingAreaValid(newSortStartCoordinateStr, newSortEndCoordinateStr);
             if (!isSortingAreaValid) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
                         ("The sorting area " + newSortStartCoordinateStr + " to" + newSortEndCoordinateStr +
                                 " is not valid. Please enter valid area for sorting and column letters in this area.");
                 return;
             } else {
                 //method will be invoked only if the area and coordinates are valid
-                newSortingRange = mainController.createRangeToSortOrFilter(newSortStartCoordinateStr, newSortEndCoordinateStr);
+                newSortingRange = sheetWindowController.createRangeToSortOrFilter(newSortStartCoordinateStr, newSortEndCoordinateStr);
             }
 
             boolean areAllColumnLetterInSortingArea = checkIfAllColumnLettersInSortingArea(allColumnLettersToSortByAsString, newSortStartCoordinateStr, newSortEndCoordinateStr);
             if (!areAllColumnLetterInSortingArea) {
-                mainController.setNotificationMessageOfRecentActionOutcomeLabel
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
                         ("One or more column letters is not in selected sorting area - please enter valid area and column letters in this area.");
                 return;
             }
@@ -319,17 +320,17 @@ public class LeftPartController {
             //if got here, all fields are filled and valid
 
         disableAllButtonsInSceneExceptOne(undoSortingButton);
-        mainController.handleShowSortedLinesButton(newSortingRange, listOfColumnLettersCharactersToSortBy);
+        sheetWindowController.handleShowSortedLinesButton(newSortingRange, listOfColumnLettersCharactersToSortBy);
 
         } catch (Exception e) {
-            mainController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
     @FXML
     public void handleUndoSortingButton() {
         enableAllButtonsInScene();
-        mainController.displaySheetBeforeSortingOrFiltering();
+        sheetWindowController.displaySheetBeforeSortingOrFiltering();
     }
 
     private List<Character> convertArrayOfColumnLettersStringsToArrayOfCharacters(List<String> allColumnLettersToSortByAsString) {
@@ -345,7 +346,7 @@ public class LeftPartController {
     private boolean checkIfAllColumnLettersInSortingArea(List<String> allColumnLettersToSortByAsString, String newSortStartCoordinateStr, String newSortEndCoordinateStr) {
         boolean allColumnLettersInSortingArea = true;
         for (String currentColumnLetterString : allColumnLettersToSortByAsString) {
-            boolean currentColumnInSortingArea = mainController.isColumnLetterInFilteringOrSortingArea(currentColumnLetterString, newSortStartCoordinateStr, newSortEndCoordinateStr);
+            boolean currentColumnInSortingArea = sheetWindowController.isColumnLetterInFilteringOrSortingArea(currentColumnLetterString, newSortStartCoordinateStr, newSortEndCoordinateStr);
             if (!currentColumnInSortingArea) {
                 allColumnLettersInSortingArea = false;
                 break;

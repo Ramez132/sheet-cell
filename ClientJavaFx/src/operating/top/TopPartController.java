@@ -1,4 +1,4 @@
-package top;
+package operating.top;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -8,7 +8,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
-import main.MainController;
+import operating.window.SheetWindowController;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.sheet.api.Sheet;
@@ -17,7 +17,7 @@ import shticell.sheet.api.SheetReadActions;
 import java.io.File;
 
 public class TopPartController {
-    private MainController mainController;
+    private SheetWindowController sheetWindowController;
     private Coordinate currentlySelectedCoordinate;
     @FXML
     private Button loadNewFileButton;
@@ -51,8 +51,8 @@ public class TopPartController {
     private Button returnToRecentSheetButton;
     private boolean displayingMostRecentSheetVersion = true;
 
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
+    public void setMainController(SheetWindowController sheetWindowController) {
+        this.sheetWindowController = sheetWindowController;
     }
 
     @FXML
@@ -69,16 +69,16 @@ public class TopPartController {
         // If a file is selected, display its name in the label
         if (selectedFile != null) {
             try {
-                Sheet sheet = mainController.getEngineManager().getSheetFromFile(selectedFile);
+                Sheet sheet = sheetWindowController.getEngineManager().getSheetFromFile(selectedFile);
                 messageOfRecentActionOutcomeLabel.setText("Recent file loaded successfully");
                 filePathLabel.setText(selectedFile.getAbsoluteFile().toString());
 
                 deleteAllVersionNumbersInComboBoxFromPreviousSheet();
                 addNewVersionNumberToVersionComboBox(sheet.getVersion());
-//                mainController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
+//                SheetWindowController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
                 //update UI with possible ranges from the new sheet
-                mainController.handleInitialRangesFromNewSheet(sheet);
-                mainController.displayNewSheetFromNewFile(sheet);
+                sheetWindowController.handleInitialRangesFromNewSheet(sheet);
+                sheetWindowController.displayNewSheetFromNewFile(sheet);
             } catch (Exception e) {
                 messageOfRecentActionOutcomeLabel.setText(e.getMessage());
             }
@@ -116,17 +116,17 @@ public class TopPartController {
         String newValueStr = newValueToCellTextField.getText().trim();
         //in case no cell is selected or no value was entered - should we pop a message to the user before preforming the action?
 
-        if (mainController.getMostRecentSheetFromEngine() == null) {
+        if (sheetWindowController.getMostRecentSheetFromEngine() == null) {
             messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not update a value. Please load a sheet first.");
         } else if (currentlySelectedCoordinate == null) {
             messageOfRecentActionOutcomeLabel.setText("No cell is selected - the system can not update a value. Please select a cell first.");
         } else if (newValueStr != null && newValueStr.isEmpty()) {
             messageOfRecentActionOutcomeLabel.setText("No value was entered - the system updated the selected cell " +
                     currentlySelectedCoordinate +" to be an empty cell.");
-            mainController.updateCellValue(currentlySelectedCoordinate, "");
+            sheetWindowController.updateCellValue(currentlySelectedCoordinate, "");
             clearDataInTopPartRegardingSelectedCell();
         } else if (newValueStr != null) {
-            mainController.updateCellValue(currentlySelectedCoordinate, newValueStr);
+            sheetWindowController.updateCellValue(currentlySelectedCoordinate, newValueStr);
             newValueToCellTextField.clear();
             clearDataInTopPartRegardingSelectedCell();
         }
@@ -153,15 +153,15 @@ public class TopPartController {
         }
         try {
             int versionNumToDisplay = selectVersionNumberComboBox.getValue();
-            if (versionNumToDisplay == mainController.getMostRecentSheetFromEngine().getVersion()) {
+            if (versionNumToDisplay == sheetWindowController.getMostRecentSheetFromEngine().getVersion()) {
                 messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
                 return;
             }
             displayingMostRecentSheetVersion = false;
             disableAllButtonsInSceneExceptOne(returnToRecentSheetButton);
-            mainController.displaySheetOfSpecificVersion(versionNumToDisplay);
-//            Sheet sheet = mainController.getSheetOfSpecificVersion(version);
-//            mainController.displayNewSheetFromNewFile(sheet);
+            sheetWindowController.displaySheetOfSpecificVersion(versionNumToDisplay);
+//            Sheet sheet = SheetWindowController.getSheetOfSpecificVersion(version);
+//            SheetWindowController.displayNewSheetFromNewFile(sheet);
             messageOfRecentActionOutcomeLabel.setText("Version " + versionNumToDisplay + " is now displayed.");
         } catch (Exception e) {
             messageOfRecentActionOutcomeLabel.setText(e.getMessage());
@@ -170,14 +170,14 @@ public class TopPartController {
 
     @FXML
     public void handleReturnToRecentSheetButton(){
-        if (mainController.getMostRecentSheetFromEngine() == null) {
+        if (sheetWindowController.getMostRecentSheetFromEngine() == null) {
             messageOfRecentActionOutcomeLabel.setText("No sheet is loaded - the system can not display any sheet. Please load a sheet first.");
         } else if (displayingMostRecentSheetVersion) {
             messageOfRecentActionOutcomeLabel.setText("The most recent version is already displayed.");
         } else {
             displayingMostRecentSheetVersion = true;
             enableAllButtonsInScene();
-            mainController.displaySheetOfMostRecentVersion();
+            sheetWindowController.displaySheetOfMostRecentVersion();
             messageOfRecentActionOutcomeLabel.setText("Returned to the most recent version of the sheet.");
         }
     }

@@ -1,6 +1,6 @@
 package engine.impl;
 
-import engine.api.EngineManagerJavafx;
+import engine.api.EngineManagerForServer;
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
@@ -13,25 +13,34 @@ import shticell.sheet.api.Sheet;
 import shticell.sorter.RangeSorter;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-public class EngineManagerJavafxImpl implements EngineManagerJavafx {
+public class EngineManagerForServerImpl implements EngineManagerForServer {
 
     private List<Sheet> sheetVersionsArray;
+    Map<String, List<Sheet>> mapSheetNameToSheetVersionsArray;
 
-    public EngineManagerJavafxImpl() {
-        this.sheetVersionsArray = new ArrayList<Sheet>();
+    public EngineManagerForServerImpl() {
+        //this.sheetVersionsArray = new ArrayList<Sheet>();
+        this.mapSheetNameToSheetVersionsArray = new HashMap<>();
     }
 
     @Override
     public Sheet getSheetFromFile(File file) throws Exception {
-        Sheet currentSheet;
-
         try {
+            Sheet currentSheet;
+
             currentSheet = SheetFromFilesFactory.CreateSheetObjectFromXmlFile(file);
-            sheetVersionsArray.clear(); //if the code gets here, the file is valid and new Sheet object was created - clear all previous versions
+            //if the code gets here, the file is valid and new Sheet object was created - clear all previous versions
+//            sheetVersionsArray.clear();
+            String newSheetName = currentSheet.getNameOfSheet();
+            if (mapSheetNameToSheetVersionsArray.containsKey(newSheetName)) {
+                throw new IllegalArgumentException("Sheet with the same name already exists in the system.");
+            }
+            else {
+                mapSheetNameToSheetVersionsArray.put(newSheetName, new ArrayList<>());
+            }
+            List<Sheet> sheetVersionsArray = mapSheetNameToSheetVersionsArray.get(newSheetName);
             sheetVersionsArray.add(currentSheet);
         }
         catch (Exception e) {
@@ -42,22 +51,32 @@ public class EngineManagerJavafxImpl implements EngineManagerJavafx {
     }
 
     @Override
-    public Sheet getMostRecentSheet() throws NoSuchElementException {
-        if (!sheetVersionsArray.isEmpty()) {
+    public Sheet getMostRecentSheetWithSelectedName(String sheetName) throws NoSuchElementException {
+        if (mapSheetNameToSheetVersionsArray.containsKey(sheetName)) {
+            List<Sheet> sheetVersionsArray = mapSheetNameToSheetVersionsArray.get(sheetName);
             return sheetVersionsArray.getLast();
         }
         else {
-            throw new NoSuchElementException("There is no sheet in the system.");
+            throw new NoSuchElementException("There is no sheet with the requested name in the system.");
         }
+
+//
+//        if (!sheetVersionsArray.isEmpty()) {
+//            return sheetVersionsArray.getLast();
+//        }
+//        else {
+//            throw new NoSuchElementException("There is no sheet in the system.");
+//        }
     }
 
     @Override
-    public Cell getCellFromMostRecentSheet(int row, int column) {
+    public Cell getCellFromMostRecentSheetWithSelectedName(String sheetName, int row, int column) {
+        List<Sheet> sheetVersionsArray = mapSheetNameToSheetVersionsArray.get(sheetName);
         return sheetVersionsArray.getLast().getCell(row, column); //is it the expected behavior?
     }
 
     @Override
-    public Sheet updateValueOfCellAndGetNewSheet(int row, int col, String value) throws RuntimeException {
+    public Sheet updateValueOfCellAndGetNewSheetWithSelectedName(String sheetName, int row, int col, String value) throws RuntimeException {
         Sheet possibleNewSheet;
         boolean isUpdatePartOfSheetInitialization = sheetVersionsArray.isEmpty();
         try {
