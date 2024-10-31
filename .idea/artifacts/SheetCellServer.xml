@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="SheetCellServer">
+    <output-path>$PROJECT_DIR$/out/artifacts/SheetCellServer</output-path>
+    <root id="archive" name="SheetCellServer.war">
+      <element id="artifact" artifact-name="Server:Web exploded" />
+    </root>
+  </artifact>
+</component>
