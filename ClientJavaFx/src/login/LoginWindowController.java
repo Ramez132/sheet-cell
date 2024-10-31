@@ -12,4 +12,10 @@ public class LoginWindowController {
     public void initialize() {
         sheetWindowController.setLoginWindowController(this);
     }
+
+    @FXML
+    void handleLoginButton() {
+
+    }
+
 }
