@@ -4,7 +4,7 @@
 <!--            maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"-->
 <!--            prefHeight="300.0" prefWidth="1262.0"-->
 <!--            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22"-->
-<!--            fx:controller="sheet.SheetController">-->
+<!--            fx:controller="sheet.TablePartController">-->
 <!--   <ScrollPane fx:id="rightLeftScroller" stylesheets="@single-cell.css">-->
 <!--   </ScrollPane>-->
 <!--</ScrollPane>-->
@@ -12,7 +12,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
-<BorderPane stylesheets="@single-cell.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sheet.SheetController">
+<BorderPane stylesheets="@single-cell.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="operating.table.TablePartController">
          <top>
             <GridPane fx:id="gridPaneColumnLetters" hgap="5" vgap="5" />
          </top>

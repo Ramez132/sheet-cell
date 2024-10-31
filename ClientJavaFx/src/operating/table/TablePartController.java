@@ -1,4 +1,4 @@
-package sheet;
+package operating.table;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
@@ -10,7 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
-import main.MainController;
+import operating.window.SheetWindowController;
 import shticell.cell.api.Cell;
 import shticell.cell.api.EffectiveValue;
 import shticell.coordinate.Coordinate;
@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class SheetController {
+public class TablePartController {
 
-    private MainController mainController;
+    private SheetWindowController sheetWindowController;
     private Coordinate currentlySelectedCoordinate = CoordinateFactory.getCoordinate(1, 1);
 
     @FXML private GridPane gridPaneColumnLetters;
@@ -42,8 +42,8 @@ public class SheetController {
     public void initialize() {
     }
 
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
+    public void setMainController(SheetWindowController sheetWindowController) {
+        this.sheetWindowController = sheetWindowController;
     }
 
     public void loadAndDisplayNewSheet(SheetReadActions sheet){
@@ -125,7 +125,7 @@ public class SheetController {
         Cell selectedCell = sheet.getCell(selectedCoordinate.getRow(), selectedCoordinate.getColumn());
 //        Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
 
-        mainController.handleCellClick(sheet, selectedCoordinate);
+        sheetWindowController.handleCellClick(sheet, selectedCoordinate);
 
 //        style cleanup - should be done inside the next block?
 
@@ -178,7 +178,7 @@ public class SheetController {
 
     //assuming rangeName parameter exists in the system - user chooses only from existing ranges
     public void highlightCellsInSelectedRange(Range selectedRange) {
-//        mainController.handleChoosingRangeAndHighlightCellsInRange(sheet, rangeName);
+//        SheetWindowController.handleChoosingRangeAndHighlightCellsInRange(sheet, rangeName);
         cleanUnnecessaryStyleClassesForAllCells();
 
 //        Range selectedRange = RangeFactory.getRangeByItsName(rangeName);
