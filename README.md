@@ -2,34 +2,44 @@ This repository contains the code of a Java application that allow users to mana
 
 Written as part of a Java college course, by Meir Zoref and Ramez Mannaa.
 
-The first exercise is a console application.
+The first exercise was a console application.
 
-The second exercise is a GUI application using JavaFX.
+The second exercise was a GUI application using JavaFX.
 
-### The third exercise, which we are currently working on, will be a client-server application, using Apache Tomcat server and OkHttp client.
-The server will manage several users and sheets at the same time, different authorization levels and the possibility of simultaneous editing.
+### The third and final exercise is a client-server application, using Apache Tomcat server and OkHttp client.
+The server manages several users and sheets at the same time, different authorization levels and the possibility of simultaneous editing.
 
-# Sheet-Cell (2nd exercise example and explanation)
+# Sheet-Cell (3rd exercise screenshots and explanation)
 
-![java ex2 screenshot exmaple](https://github.com/user-attachments/assets/2422a611-b5e0-4d72-86d9-2aa50786805a)
+![Java Ex3 Screenshot - login screen](https://github.com/user-attachments/assets/09dc7fe6-789b-45f9-9b1f-c645c6004f6e)
 
 
-The system is a JavaFX spreadsheet application that allows the user to manage and manipulate data in a tabular format.
 
-The GUI app expands the options and capabilities for the user, compared to the console application from the 1st exercise. 
+![Java Ex3 Screenshot - managing screen](https://github.com/user-attachments/assets/1e90f50f-cb35-4efe-a0d3-ea93bab44078)
 
-In addition, the app makes the system more friendly and usable. 
 
-### The main differences from the previous application are:
+![Java Ex3 Screenshot - table screen](https://github.com/user-attachments/assets/811ae3e8-b951-46e5-b186-2838613121fc)
 
-●	The transition from a console application to a JavaFX application.
 
-●	Displaying and using the sheet in a user-friendly graphical user interface.
+The client is a JavaFX spreadsheet application that allows the user to manage and manipulate data in a tabular format (the system refers to it as a sheet).
 
-●	Easy way to access and change the cells in the sheet.
+The server contains the system engine, which manages several sheets from different users. All communication of a client is only with the server. The clients do not communicate “directly" with each other.
 
-●	Working with ranges of cells, spreading across different rows and columns: getting data of ranges from the file and then allowing to display cells in range, add new range and trying to delete unused range.
 
-●	Filtering rows in a range, according to selected column and unique values.
+### Users can do the following:
 
-●	Sorting rows in a selected range, from lowest number to highest, according to one or more columns provided by the user.
+●	Upload their own sheets.
+
+●	See all the sheets that exist in the system and all access permissions/permission requests that each sheet has.
+
+●	Request access to other users' sheets (Access to the sheet can be for reading only or also for editing).
+
+●	Approve/deny access requests to their sheets.
+
+●	Watch and edit a sheet, depending on the permission level.
+  
+  All capabilities are the same as the 2nd exercise app, with addition of dynamic analysis:
+  See the data of a single cell, update cell value, watch previous versions, watch/add/delete a range of cells, filter a range, sort a range. 
+  The dynamic analysis is the possibility to mark a cell, set min and max values, and a step size, and using a slider to watch the sheet changes dynamically.
+
+If several users have editing capabilities - they can edit the sheet at the same time and see the changes that each of them makes in the system.
