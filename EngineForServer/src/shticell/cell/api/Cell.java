@@ -24,4 +24,6 @@ public interface Cell {
     Map<String, Range> getRangesReferencedInCell();
     void removeRangeFromRangesReferencedInCell(String rangeName);
     int getCounterOfReferencesToSelectedRange(String rangeName);
+    String getNameOfUserWhoCausedUpdateOfValue();
+    void setNameOfUserWhoCausedUpdateOfValue(String nameOfUserWhoCausedUpdateOfValue);
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="630.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="management.center.ManagementCenterController">
+   <children>
+      <Label text="All sheets in the system">
+         <font>
+            <Font size="16.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="5.0" left="200.0" right="200.0" top="5.0" />
+         </VBox.margin>
+      </Label>
+      <TableView fx:id="allSheetsTableView" onMouseClicked="#handleRowSelectionInSheetsTableView" prefHeight="245.0" prefWidth="600.0">
+        <columns>
+          <TableColumn fx:id="sheetNameColumn" prefWidth="111.0" text="Sheet name" />
+          <TableColumn fx:id="ownerNameColumn" prefWidth="151.0" text="Owner name" />
+            <TableColumn fx:id="numRowsColumn" prefWidth="87.0" text="No. of rows" />
+            <TableColumn fx:id="numColumnsColumn" prefWidth="94.0" text="No. of columns" />
+            <TableColumn fx:id="permissionLevelColumn" prefWidth="156.0" text="Your permission level" />
+        </columns>
+      </TableView>
+      <Label text="Permissions for selected sheet">
+         <font>
+            <Font size="16.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="5.0" left="180.0" right="200.0" top="10.0" />
+         </VBox.margin>
+      </Label>
+      <TableView fx:id="allPermissionsTableView" onMouseClicked="#handleRowSelectionInPermissionsTableView" prefHeight="245.0" prefWidth="200.0">
+        <columns>
+          <TableColumn fx:id="permissionRequestNumColumn" prefWidth="125.0" text="Req. ID" />
+          <TableColumn fx:id="permissionRequestUserNameColumn" prefWidth="163.0" text="User name" />
+          <TableColumn fx:id="permissionLevelRequestedColumn" prefWidth="142.0" text="Permission level" />
+          <TableColumn fx:id="permissionRequestStatusColumn" prefWidth="168.0" text="Is approved?" />
+        </columns>
+      </TableView>
+   </children>
+   <padding>
+      <Insets bottom="15.0" left="15.0" right="15.0" top="10.0" />
+   </padding>
+</VBox>

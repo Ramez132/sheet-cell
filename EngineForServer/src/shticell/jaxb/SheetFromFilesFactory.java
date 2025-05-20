@@ -7,7 +7,7 @@ import shticell.jaxb.schema.classes.STLBoundaries;
 import shticell.jaxb.schema.classes.STLCell;
 import shticell.jaxb.schema.classes.STLRange;
 import shticell.jaxb.schema.classes.STLSheet;
-import shticell.range.RangeFactory;
+import shticell.range.RangesManager;
 import shticell.sheet.api.Sheet;
 import shticell.sheet.impl.SheetImpl;
 
@@ -19,17 +19,16 @@ import java.util.List;
 
 public class SheetFromFilesFactory {
 
-//    private final static String JAXB_XML_GAME_PACKAGE_NAME = "shticell/jaxb/schema";
     private static final int maxPossibleNumOfRows = 50;
     private static final int maxPossibleNumOfColumns = 20;
 
-    public static Sheet CreateSheetObjectFromXmlFile(File file) throws Exception {
+    public static Sheet CreateSheetObjectFromXmlFile(File file, String ownerUsername) throws Exception {
         STLSheet stlSheet;
         Sheet newSheet = new SheetImpl();
 
         try (InputStream inputStreamFromFile = new FileInputStream(file)) {
             stlSheet = unMarshalFromFile(inputStreamFromFile);
-            newSheet = convertStlSheetFromFileToSheetImpl(stlSheet);
+            newSheet = convertStlSheetFromFileToSheetImpl(stlSheet, ownerUsername);
         }
         catch (FileNotFoundException ex) {
             throw new FileNotFoundException("Missing file: " + file.getAbsolutePath());
@@ -47,7 +46,7 @@ public class SheetFromFilesFactory {
 
     }
 
-    private static Sheet convertStlSheetFromFileToSheetImpl(STLSheet stlSheet) {
+    private static Sheet convertStlSheetFromFileToSheetImpl(STLSheet stlSheet, String ownerUsername) {
 
         Sheet sheetImplFromFile;
         boolean cellAddedAsPartOfInitialization = true;
@@ -59,7 +58,6 @@ public class SheetFromFilesFactory {
             sheetImplFromFile = new SheetImpl(stlSheet.getName(), stlSheet.getSTLLayout().getRows(), stlSheet.getSTLLayout().getColumns(),
                     stlSheet.getSTLLayout().getSTLSize().getRowsHeightUnits(), stlSheet.getSTLLayout().getSTLSize().getColumnWidthUnits(),newSheetVersion);
 
-            RangeFactory.cacheRangesBeforeLoadingNewFileInCaseFileLoadingFails();
             updateRangesInRangeFactoryFromStlSheet(stlSheet, sheetImplFromFile);
 
             List<STLCell> allCellsFromFile = stlSheet.getSTLCells().getSTLCell();
@@ -67,12 +65,13 @@ public class SheetFromFilesFactory {
             for (STLCell cellFromFile : allCellsFromFile) {
                 currentRowNum = cellFromFile.getRow();
                 currentColumnNum = getColumnNumFromString(cellFromFile.getColumn());
-                sheetImplFromFile = sheetImplFromFile.updateCellValueAndCalculate(currentRowNum, currentColumnNum, cellFromFile.getSTLOriginalValue(), cellAddedAsPartOfInitialization);
+                sheetImplFromFile = sheetImplFromFile.updateCellValueAndCalculate
+                                    (currentRowNum, currentColumnNum, cellFromFile.getSTLOriginalValue(),
+                                     cellAddedAsPartOfInitialization, ownerUsername);
             }
 
             return sheetImplFromFile;
         } catch (Exception e) {
-            RangeFactory.restoreRangesFromPreviousFileAfterFileLoadingFailed();
             throw new RuntimeException("Error when trying to load recent file: " + e.getMessage());
         }
 
@@ -83,13 +82,14 @@ public class SheetFromFilesFactory {
             List<STLRange> allStlRangesFromFile = stlSheet.getSTLRanges().getSTLRange();
             STLBoundaries currentStlBoundaries;
             String topLeftStartCoordinateString, bottomRightEndCoordinateString;
+            RangesManager rangesManager = actualBasicSheet.getRangesManager();
 
             for (STLRange currentStlRangeFromFile : allStlRangesFromFile) {
                 currentStlBoundaries = currentStlRangeFromFile.getSTLBoundaries();
                 topLeftStartCoordinateString = currentStlBoundaries.getFrom();
                 bottomRightEndCoordinateString = currentStlBoundaries.getTo();
 
-                RangeFactory.createRangeFromTwoCoordinateStringsAndNameString(actualBasicSheet,
+                rangesManager.createRangeFromTwoCoordinateStringsAndNameString(actualBasicSheet,
                         currentStlRangeFromFile.getName(), topLeftStartCoordinateString, bottomRightEndCoordinateString);
             }
         } catch (Exception e) {

@@ -8,6 +8,7 @@ import shticell.coordinate.CoordinateFactory;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
 import shticell.range.Range;
+import shticell.range.RangesManager;
 import shticell.sheet.api.Sheet;
 
 import java.io.*;
@@ -28,6 +29,7 @@ public class SheetImpl implements Sheet, Serializable {
     private int numOfCellsWhichEffectiveValueChangedInNewVersion = 0;
     private static final int versionNumForEmptyCellWithoutPreviousValues = -1 ;//-1 to indicate that the cell has never been set before
 
+    private RangesManager rangesManager = new RangesManager();
 
     public SheetImpl(String nameOfSheet, int numOfRows, int numOfColumns, int rowHeight, int columnWidth, int thisSheetVersion) {
         this();
@@ -71,6 +73,11 @@ public class SheetImpl implements Sheet, Serializable {
     @Override
     public int getRowHeight() {
         return rowHeight;
+    }
+
+    @Override
+    public RangesManager getRangesManager() {
+        return rangesManager;
     }
 
     @Override
@@ -199,18 +206,11 @@ public class SheetImpl implements Sheet, Serializable {
         }
 
         return isCellEmptyBoolean;
-
-        // return (activeCells.containsKey(coordinate) && activeCells.get(coordinate).getIsCellEmptyBoolean());
-
-
-//        Cell cellThatMightBeEmpty = activeCells.get(coordinate);
-//        isCellEmptyBoolean = cellThatMightBeEmpty == null || cellThatMightBeEmpty.getIsCellEmptyBoolean();
-//        return Optional.ofNullable(activeCells.get(coordinate)).isEmpty();
     }
 
     @Override
     public Cell setNewEmptyCell(int row, int column) {
-        Cell emptyCell = new CellImpl(row, column, "", versionNumForEmptyCellWithoutPreviousValues, this);
+        Cell emptyCell = new CellImpl(row, column, "", versionNumForEmptyCellWithoutPreviousValues, this,"");
         activeCells.put(CoordinateFactory.createCoordinate(row, column), emptyCell);
 
         return emptyCell;
@@ -235,7 +235,8 @@ public class SheetImpl implements Sheet, Serializable {
     @Override
     public Sheet updateCellValueAndCalculate
                         (int row, int column, String value,
-                         boolean isUpdatePartOfSheetInitialization)
+                         boolean isUpdatePartOfSheetInitialization,
+                         String nameOfUserWhoCausedUpdateOfValue)
                          throws IllegalArgumentException {
 
         try {
@@ -265,7 +266,7 @@ public class SheetImpl implements Sheet, Serializable {
                     newSheetVersion.thisSheetVersion = sheetVersionNumForNewCell = this.thisSheetVersion + 1;
                 }
 
-                Cell newCell = new CellImpl(row, column, value, sheetVersionNumForNewCell, newSheetVersion);
+                Cell newCell = new CellImpl(row, column, value, sheetVersionNumForNewCell, newSheetVersion, nameOfUserWhoCausedUpdateOfValue);
                 if (!isUpdatePartOfSheetInitialization && cellBeforeUpdate != null) {
                     newCell.setPreviousEffectiveValue(cellBeforeUpdate.getCurrentEffectiveValue());
                 }
@@ -284,9 +285,6 @@ public class SheetImpl implements Sheet, Serializable {
                         //remove the current range from rangesReferencedInCell of the cell before the update
                         newCell.removeRangeFromRangesReferencedInCell(rangeNameReferencedInCellBeforeUpdate);
                         this.countersOfReferencesToRange.put(rangeNameReferencedInCellBeforeUpdate, this.countersOfReferencesToRange.get(rangeNameReferencedInCellBeforeUpdate) - 1);
-//                        int numOfReferencesToSelectedRange = cellBeforeUpdate.getCounterOfReferencesToSelectedRange(rangeNameReferencedInCellBeforeUpdate);
-//                        int newNumOfReferencesToSelectedRange = this.countersOfReferencesToRange.get(rangeNameReferencedInCellBeforeUpdate) - numOfReferencesToSelectedRange;
-//                        this.countersOfReferencesToRange.put(rangeNameReferencedInCellBeforeUpdate, numOfReferencesToSelectedRange - 1);
                     }
                 }
 
@@ -335,10 +333,14 @@ public class SheetImpl implements Sheet, Serializable {
                 {
                     effectiveValueChanged = currentCellToCalcEffectiveValue.calculateNewEffectiveValueAndDetermineIfItChanged();
                     EffectiveValue currentEffectiveValue = currentCellToCalcEffectiveValue.getCurrentEffectiveValue();
-                    EffectiveValue previousEffectiveValue = currentCellToCalcEffectiveValue.getPreviousEffectiveValue();
-                    if (effectiveValueChanged && !currentEffectiveValue.equals(previousEffectiveValue)) {
-                        numOfCellsWhichEffectiveValueChangedInNewVersion++;
+                    EffectiveValue previousEffectiveValue =
+                            getCell(currentCellToCalcEffectiveValue.getCoordinate().getRow(), currentCellToCalcEffectiveValue.getCoordinate().getColumn()).getCurrentEffectiveValue();
+//                    EffectiveValue previousEffectiveValue = currentCellToCalcEffectiveValue.getPreviousEffectiveValue();
+//                    if (effectiveValueChanged && !currentEffectiveValue.equals(previousEffectiveValue)) {
+                    if (!currentEffectiveValue.equals(previousEffectiveValue)) {
+                            numOfCellsWhichEffectiveValueChangedInNewVersion++;
                         currentCellToCalcEffectiveValue.setLastVersionInWhichCellHasChanged(newSheetVersion.thisSheetVersion);
+                        currentCellToCalcEffectiveValue.setNameOfUserWhoCausedUpdateOfValue(nameOfUserWhoCausedUpdateOfValue);
                     }
                 }
 
@@ -453,4 +455,5 @@ public class SheetImpl implements Sheet, Serializable {
     public SheetImpl createCopyOfSheet() {
         return copySheet();
     }
+
 }

@@ -8,7 +8,7 @@ import shticell.coordinate.Coordinate;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
 import shticell.range.Range;
-import shticell.range.RangeFactory;
+import shticell.range.RangesManager;
 import shticell.sheet.api.SheetReadActions;
 
 import static java.lang.Double.NaN;
@@ -36,12 +36,14 @@ public class SumExpression implements Expression {
             rangeNameString = "!UNDEFINED!";
         }
 
-        if (!RangeFactory.isThereAnyRangeInRangesFactory() || !RangeFactory.isRangeNameAlreadyExistsInTheSystem(rangeNameString)) {
+        RangesManager rangesManager = sheet.getRangesManager();
+
+        if (!rangesManager.isThereAnyRangeInRangesManager() || !rangesManager.isRangeNameAlreadyExistsForThisSheet(rangeNameString)) {
             return new EffectiveValueImpl(CellType.NUMERIC, NaN);
         } else { //rangeNameString is a valid range name
             Range selectedRange;
             try {
-                selectedRange = RangeFactory.getRangeByItsName(rangeNameString);
+                selectedRange = rangesManager.getRangeByItsName(rangeNameString);
             } catch (Exception e) {
                 return new EffectiveValueImpl(CellType.NUMERIC, NaN);
             }

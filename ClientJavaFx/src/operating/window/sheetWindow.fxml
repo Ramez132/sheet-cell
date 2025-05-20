@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--<?import javafx.scene.layout.VBox?>-->
-<!--<ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.SheetWindowController"-->
-<!--prefHeight="500" prefWidth="950">-->
-<!--   <content>-->
-<!--      <VBox fx:id="root">-->
-<!--              <fx:include fx:id="topPart" source="../top/newTop.fxml" />-->
-<!--      -->
-<!--              <fx:include fx:id="sheetPart" source="../sheet/table.fxml" />-->
-<!--      </VBox>-->
-<!--   </content>-->
-<!--</ScrollPane>-->
-<!--        prefHeight="500"-->
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="operating.window.SheetWindowController">
@@ -22,7 +9,7 @@
         </top>
 
         <center>
-            <fx:include fx:id="sheetPart" source="../table/table.fxml" />
+            <fx:include fx:id="tablePart" source="../table/tablePart.fxml" />
         </center>
 
         <left>

@@ -25,8 +25,6 @@ public class TopPartController {
     private Label filePathLabel;
     @FXML
     private Label messageOfRecentActionOutcomeLabel;
-    //    @FXML
-//    private Label notificationHeadlineOfRecentActionOutcomeLabel;
     @FXML
     private Label idOfSelectedCell;
     @FXML
@@ -75,7 +73,6 @@ public class TopPartController {
 
                 deleteAllVersionNumbersInComboBoxFromPreviousSheet();
                 addNewVersionNumberToVersionComboBox(sheet.getVersion());
-//                mainController.deleteAllRangesInRangeFactoryBeforeLoadingNewSheet();
                 //update UI with possible ranges from the new sheet
                 mainController.handleInitialRangesFromNewSheet(sheet);
                 mainController.displayNewSheetFromNewFile(sheet);
@@ -87,10 +84,6 @@ public class TopPartController {
 
     public void handleCellClick(SheetReadActions sheet, Coordinate selectedCoordinate) {
         Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
-//        if (selectedCell != null) {
-//            notificationHeadlineOfRecentActionOutcomeLabel.setText("Selected cell:");
-//            messageOfRecentActionOutcomeLabel.setText(selectedCell.getEffectiveValue().toString());
-//        }
         boolean thereAreCellsThatSelectedCellDependsOn = sheet.getActiveCells().containsKey(selectedCoordinate) && !sheet.getActiveCells().get(selectedCoordinate).getDependsOnMap().isEmpty();
         boolean thereAreCellsThatSelectedCellInfluenceOn = sheet.getActiveCells().containsKey(selectedCoordinate) && !sheet.getActiveCells().get(selectedCoordinate).getInfluencingOnMap().isEmpty();
         String messageRegardingCellsItDependsOn = thereAreCellsThatSelectedCellDependsOn ? " The cell depends on cells with blue border blue." : "";
@@ -160,8 +153,6 @@ public class TopPartController {
             displayingMostRecentSheetVersion = false;
             disableAllButtonsInSceneExceptOne(returnToRecentSheetButton);
             mainController.displaySheetOfSpecificVersion(versionNumToDisplay);
-//            Sheet sheet = mainController.getSheetOfSpecificVersion(version);
-//            mainController.displayNewSheetFromNewFile(sheet);
             messageOfRecentActionOutcomeLabel.setText("Version " + versionNumToDisplay + " is now displayed.");
         } catch (Exception e) {
             messageOfRecentActionOutcomeLabel.setText(e.getMessage());

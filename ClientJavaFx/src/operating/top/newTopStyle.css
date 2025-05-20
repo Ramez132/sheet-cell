@@ -1,3 +1,7 @@
 #messageOfRecentActionOutcomeLabel {
     -fx-background-color: #dedddd;
 }
+
+.version-number-changed {
+    -fx-background-color: rgba(63, 249, 30, 0.64);
+}

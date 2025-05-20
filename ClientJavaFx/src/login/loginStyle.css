@@ -1,0 +1,4 @@
+.error-trying-to-login {
+    -fx-text-fill: red;
+    -fx-font-size: 15;
+}

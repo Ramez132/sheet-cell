@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ClientJavaFx:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ClientJavaFx_jar</output-path>
+    <root id="archive" name="ClientJavaFx.jar">
+      <element id="module-output" name="ClientJavaFx" />
+      <element id="module-output" name="DTO" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/OK Http/okio-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/OK Http/okhttp-4.9.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/OK Http/annotations-13.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/OK Http/kotlin-stdlib-1.4.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/OK Http/kotlin-stdlib-common-1.4.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gson 2.11.0/gson-2.11.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gson 2.11.0/gson-2.11.0-javadoc.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gson 2.11.0/gson-2.11.0-sources.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

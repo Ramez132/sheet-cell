@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="management.window.ManagementWindowController">
+<content>
+    <BorderPane fx:id="root">
+        <top>
+            <fx:include fx:id="managementTop" source="../top/managementTop.fxml" />
+        </top>
+
+        <center>
+            <fx:include fx:id="managementCenter" source="../center/managementCenter.fxml" />
+        </center>
+
+        <right>
+            <fx:include fx:id="managementRight" source="../right/managementRight.fxml" />
+        </right>
+    </BorderPane>
+</content>
+</ScrollPane>

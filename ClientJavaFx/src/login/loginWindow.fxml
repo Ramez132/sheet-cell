@@ -9,22 +9,21 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <ScrollPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.LoginWindowController">
    <content>
-      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="650.0">
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="750.0">
          <children>
             <Label text="Sheet-Cell Login">
                <font>
                   <Font size="30.0" />
                </font>
                <VBox.margin>
-                  <Insets bottom="20.0" left="210.0" right="200.0" top="20.0" />
+                  <Insets bottom="20.0" left="260.0" right="200.0" top="20.0" />
                </VBox.margin>
             </Label>
             <HBox>
                <VBox.margin>
-                  <Insets bottom="15.0" left="60.0" right="80.0" top="15.0" />
+                  <Insets bottom="15.0" left="110.0" right="80.0" top="15.0" />
                </VBox.margin>
                <children>
                   <Label prefHeight="35.0" text="User name:">
@@ -42,42 +41,22 @@
                   </TextField>
                </children>
             </HBox>
-            <Label fx:id="messageToUserLabel" layoutX="160.0" layoutY="105.0" text="Note: each user must have a unique name" VBox.vgrow="ALWAYS">
-               <font>
-                  <Font size="15.0" />
-               </font>
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLoginButtonClicked" text="Login">
                <VBox.margin>
-                  <Insets bottom="15.0" left="200.0" />
-               </VBox.margin>
-            </Label>
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLoginButton" text="Login">
-               <VBox.margin>
-                  <Insets left="290.0" top="10.0" />
+                  <Insets left="330.0" top="10.0" />
                </VBox.margin>
                <font>
                   <Font size="16.0" />
                </font>
             </Button>
-            <HBox VBox.vgrow="ALWAYS">
+            <Label fx:id="messageToUserLabel" stylesheets="@loginStyle.css" text="Note: each user must have a unique name ">
+               <font>
+                  <Font size="15.0" />
+               </font>
                <VBox.margin>
-                  <Insets bottom="50.0" left="50.0" right="30.0" top="50.0" />
+                  <Insets bottom="30.0" left="30.0" top="30.0" />
                </VBox.margin>
-               <children>
-                  <Label text="Error trying to login:" textFill="#e10e0e">
-                     <font>
-                        <Font size="15.0" />
-                     </font>
-                  </Label>
-                  <Label text="User name is already in use. Please enter another name." textFill="#e10e0e" HBox.hgrow="ALWAYS">
-                     <font>
-                        <Font size="15.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
+            </Label>
          </children>
       </VBox>
    </content>

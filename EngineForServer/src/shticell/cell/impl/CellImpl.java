@@ -9,7 +9,7 @@ import shticell.coordinate.CoordinateImpl;
 import shticell.expression.api.Expression;
 import shticell.expression.parser.FunctionParser;
 import shticell.range.Range;
-import shticell.range.RangeFactory;
+import shticell.range.RangesManager;
 import shticell.sheet.api.Sheet;
 
 import java.io.Serializable;
@@ -20,6 +20,7 @@ public class CellImpl implements Cell, Serializable {
 
     private final Coordinate coordinate;
     private String originalValueStr;
+    private String nameOfUserWhoCausedUpdateOfValue;
     private EffectiveValue previousEffectiveValue;
     private EffectiveValue currentEffectiveValue; //null means: no effective value - empty cell or reference to an empty cell
     private int lastVersionInWhichCellHasChanged = -1;
@@ -32,13 +33,14 @@ public class CellImpl implements Cell, Serializable {
     private boolean isCellEmptyBoolean;
 
     public CellImpl(int row, int column, String originalValueStr,
-                    int lastVersionInWhichCellHasChanged, Sheet sheet)  {
+                    int lastVersionInWhichCellHasChanged, Sheet sheet, String nameOfUserWhoCausedUpdateOfValue) {
             this.sheet = sheet;
             this.coordinate = new CoordinateImpl(row, column);
             this.originalValueStr = originalValueStr;
             this.lastVersionInWhichCellHasChanged = lastVersionInWhichCellHasChanged;
             this.dependsOnMap = new HashMap<>();
             this.influencingOnMap = new HashMap<>();
+            this.nameOfUserWhoCausedUpdateOfValue = nameOfUserWhoCausedUpdateOfValue;
             isCellEmptyBoolean = originalValueStr.isEmpty();
             handleOriginalValueStrWithRef();
             handleOriginalValueStrWithRangeNameInRelevantFunctions();
@@ -89,13 +91,15 @@ public class CellImpl implements Cell, Serializable {
                 rangeNamesAfterFunctionUsingRange.add(rowAndColStr.toString());
             }
 
+            RangesManager rangesManager = sheet.getRangesManager();
+
             for (String rangeName : rangeNamesAfterFunctionUsingRange) {
                 try {
-                    if (!RangeFactory.isRangeNameAlreadyExistsInTheSystem(rangeName)) {
+                    if (!rangesManager.isRangeNameAlreadyExistsForThisSheet(rangeName)) {
                         continue; //range doesn't exist, continue to the next range name
                     }
-                    Range referencedRange = RangeFactory.getRangeByItsName(rangeName);
-                    Set<Coordinate> allCoordinatesInThisRange = RangeFactory.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange();
+                    Range referencedRange = rangesManager.getRangeByItsName(rangeName);
+                    Set<Coordinate> allCoordinatesInThisRange = rangesManager.getRangeByItsName(rangeName).getAllCoordinatesThatBelongToThisRange();
 
                     if (allCoordinatesInThisRange.contains(this.coordinate)) {
                         throw new IllegalArgumentException("A cell with function using range can't reference itself. Cell " + this.coordinate + " tried to reference " + rangeName);
@@ -148,6 +152,11 @@ public class CellImpl implements Cell, Serializable {
     @Override
     public int getCounterOfReferencesToSelectedRange(String rangeName) {
         return countersOfReferencesToRanges.getOrDefault(rangeName, 0);
+    }
+
+    @Override
+    public void setNameOfUserWhoCausedUpdateOfValue(String nameOfUserWhoCausedUpdateOfValue) {
+        this.nameOfUserWhoCausedUpdateOfValue = nameOfUserWhoCausedUpdateOfValue;
     }
 
     public void handleOriginalValueStrWithRef() {
@@ -284,6 +293,7 @@ public class CellImpl implements Cell, Serializable {
                 newEffectiveValue = null;
             }
             if (newEffectiveValue != null && newEffectiveValue.equals(previousEffectiveValue)) {
+                currentEffectiveValue = newEffectiveValue;
                 return false;
             }
 
@@ -336,4 +346,8 @@ public class CellImpl implements Cell, Serializable {
         return isCellEmptyBoolean;
     }
 
+    @Override
+    public String getNameOfUserWhoCausedUpdateOfValue() {
+        return nameOfUserWhoCausedUpdateOfValue;
+    }
 }

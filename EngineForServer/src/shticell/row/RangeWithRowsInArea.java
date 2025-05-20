@@ -20,7 +20,6 @@ public class RangeWithRowsInArea {
     public RangeWithRowsInArea(Sheet sheet, Range range) {
         this.sheet = sheet;
         this.range = range;
-//        buildRowsInAreaList();
         buildRangeWithRowsInAreaMapCollection();
     }
 
@@ -157,5 +156,9 @@ public class RangeWithRowsInArea {
 
     public double getEffectiveValueOfCellAsDouble(int currentRow, int columnNumberFromChar) {
         return Double.parseDouble(getEffectiveValueOfCellAsString(currentRow, columnNumberFromChar));
+    }
+
+    public String getEffectiveValueForCoordinate(Coordinate coordinate) {
+        return getEffectiveValueOfCellAsString(coordinate.getRow(), coordinate.getColumn());
     }
 }
