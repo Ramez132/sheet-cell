@@ -1,5 +1,11 @@
 package operating.table;
 
+import dto.cell.CellDto;
+import dto.coordinate.CoordinateDto;
+import dto.range.RangeDto;
+import dto.range.RangeWithEffectiveValuesDto;
+import dto.sheet.SheetDto;
+import dto.sheet.SheetWithSortedOrFilteredRangeDto;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
@@ -8,50 +14,41 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import operating.window.SheetWindowController;
-import shticell.cell.api.Cell;
-import shticell.cell.api.EffectiveValue;
-import shticell.coordinate.Coordinate;
-import shticell.coordinate.CoordinateFactory;
-import shticell.range.Range;
-import shticell.row.RangeWithRowsInArea;
-import shticell.sheet.api.SheetReadActions;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class TablePartController {
 
     private SheetWindowController sheetWindowController;
-    private Coordinate currentlySelectedCoordinate = CoordinateFactory.getCoordinate(1, 1);
+    private CoordinateDto currentlySelectedCoordinate = new CoordinateDto(1, 1);
+    SheetDto recentSheetDto;
 
     @FXML private GridPane gridPaneColumnLetters;
     @FXML private GridPane gridPaneRowNumbers;
     @FXML private GridPane gridPaneActualCells;
-    @FXML public ScrollPane upDownScroller;
-    @FXML public ScrollPane rightLeftScroller;
+    private String currentSheetName;
+
 
     private final Map<Integer, SimpleIntegerProperty> heightForEachRowMapping = new HashMap<>();
     private final Map<Integer, SimpleIntegerProperty> widthForEachColumnMapping = new HashMap<>();
-
-
-    public void initialize() {
-    }
 
     public void setMainController(SheetWindowController sheetWindowController) {
         this.sheetWindowController = sheetWindowController;
     }
 
-    public void loadAndDisplayNewSheet(SheetReadActions sheet){
-        int numOfRows = sheet.getNumOfRows();
-        int numOfColumns = sheet.getNumOfColumns();
-        int initializedRowHeight = sheet.getRowHeight();
-        int initializedColumnWidth = sheet.getColumnWidth();
+    public void loadAndDisplayNewSheet(SheetDto sheetDto){
+        int numOfRows = sheetDto.numOfRows();
+        int numOfColumns = sheetDto.numOfColumns();
+        int initializedRowHeight = sheetDto.rowHeight();
+        int initializedColumnWidth = sheetDto.columnWidth();
 
+        cacheRecentSheetDto(sheetDto);
         clearCurrentSheetDisplay();
 
         for (int i = 1; i <= numOfColumns; i++) {
@@ -62,9 +59,17 @@ public class TablePartController {
             heightForEachRowMapping.put(i,new SimpleIntegerProperty(initializedRowHeight));
         }
 
-        createAndDisplayColumnsLetters(sheet);
-        createAndDisplayRowNumbers(sheet);
-        createAndDisplayAllCells(sheet);
+        createAndDisplayColumnsLetters(sheetDto);
+        createAndDisplayRowNumbers(sheetDto);
+        createAndDisplayAllCells(sheetDto);
+    }
+
+    public void displayRecentSheetBeforeSortingOrFilteringCachedInTablePart() {
+        loadAndDisplayNewSheet(recentSheetDto);
+    }
+
+    private void cacheRecentSheetDto(SheetDto sheetDto) {
+        recentSheetDto = sheetDto;
     }
 
     private void clearCurrentSheetDisplay() {
@@ -77,24 +82,24 @@ public class TablePartController {
         gridPaneActualCells.getChildren().clear();
     }
 
-    public void createAndDisplayAllCells(SheetReadActions sheet) {
-        int numOfRows = sheet.getNumOfRows();
-        int numOfColumns = sheet.getNumOfColumns();
-        int initializedRowHeight = sheet.getRowHeight();
-        int initializedColumnWidth = sheet.getColumnWidth();
+    public void createAndDisplayAllCells(SheetDto sheetDto) {
+        int numOfRows = sheetDto.numOfRows();
+        int numOfColumns = sheetDto.numOfColumns();
+        int initializedRowHeight = sheetDto.rowHeight();
+        int initializedColumnWidth = sheetDto.columnWidth();
+
+        Map<CoordinateDto, CellDto> coordinateToCellDtoMap = sheetDto.coordinateToCellDtoMap();
 
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
 
-                Coordinate coordinate = CoordinateFactory.getCoordinate(currentRowNum, currentColumnNum);
                 String effectiveValueOfCellAsString;
-                if (sheet.getActiveCells().containsKey(coordinate)) {
-                    EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
-                    if (effectiveValueOfCell == null) {
-                        effectiveValueOfCellAsString = addThousandsSeparator(" ");
-                    } else {
-                        effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
-                    }
+                CoordinateDto coordinateDto = new CoordinateDto(currentRowNum, currentColumnNum);
+                CoordinateDto possibleCoordinateDtoFromKeySet = tryGetCoordinateDtoFromKeySet(coordinateToCellDtoMap.keySet(), coordinateDto);
+                if (possibleCoordinateDtoFromKeySet != null) {
+                    coordinateDto = possibleCoordinateDtoFromKeySet; //update the coordinateDto to the object from the keySet - for later use
+                    CellDto cellDto = coordinateToCellDtoMap.get(possibleCoordinateDtoFromKeySet);
+                    effectiveValueOfCellAsString = cellDto.effectiveValueStr();
                 } else {
                     effectiveValueOfCellAsString = addThousandsSeparator(" ");
                 }
@@ -103,13 +108,10 @@ public class TablePartController {
 
                 cellLabel.prefHeightProperty().set(initializedRowHeight);
                 cellLabel.prefWidthProperty().set(initializedColumnWidth);
-//                cellLabel.prefWidthProperty().set(100);
-
-//                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
                 cellLabel.setAlignment(Pos.CENTER);
                 cellLabel.getStyleClass().add("single-cell");
-                cellLabel.setOnMouseClicked(event -> handleCellClick(sheet, coordinate));
+                CoordinateDto finalCoordinateDto = coordinateDto;
+                cellLabel.setOnMouseClicked(event -> handleCellClick(sheetDto, finalCoordinateDto));
                 gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
                 Insets margin = new Insets(3,3,3,3); // Define the margin (top, right, bottom, left)
                 GridPane.setMargin(cellLabel, margin);
@@ -119,55 +121,41 @@ public class TablePartController {
         }
     }
 
-    private void handleCellClick(SheetReadActions sheet, Coordinate selectedCoordinate) {
-        Coordinate previouslySelectedCoordinate = currentlySelectedCoordinate;
-        currentlySelectedCoordinate = selectedCoordinate;
-        Cell selectedCell = sheet.getCell(selectedCoordinate.getRow(), selectedCoordinate.getColumn());
-//        Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
+    private CoordinateDto tryGetCoordinateDtoFromKeySet(Set<CoordinateDto> coordinateDtoSet,CoordinateDto coordinateDto) {
+        int selectedRow = coordinateDto.getRow();
+        int selectedColumn = coordinateDto.getColumn();
 
-        sheetWindowController.handleCellClick(sheet, selectedCoordinate);
+        for (CoordinateDto currentCoordinateDto : coordinateDtoSet) {
+            if (currentCoordinateDto.getRow() == selectedRow && currentCoordinateDto.getColumn() == selectedColumn) {
+                return currentCoordinateDto;
+            }
+        }
+        return null;
+    }
 
-//        style cleanup - should be done inside the next block?
-
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("selected-cell"));
+    private void handleCellClick(SheetDto sheetDto, CoordinateDto selectedCoordinateDto) {
+        CoordinateDto previouslySelectedCoordinate = currentlySelectedCoordinate;
+        currentlySelectedCoordinate = selectedCoordinateDto;
+        sheetWindowController.handleCellClick(sheetDto, selectedCoordinateDto);
 
         removeStyleClassForPreviouslySelectedCell(previouslySelectedCoordinate);
-        addStyleClassForCurrentlySelectedCell(selectedCoordinate);
+        addStyleClassForCurrentlySelectedCell(selectedCoordinateDto);
         removeStyleClassOfCellsInRange();
         removeStyleClassesInfluenceAndDependsOnFromAllCells();
 
-//        gridPaneActualCells.getChildren().stream()
-//                .filter(node -> GridPane.getRowIndex(node) == previouslySelectedCoordinate.getRow() && GridPane.getColumnIndex(node) == previouslySelectedCoordinate.getColumn())
-//                .findFirst()
-//                .ifPresent(node -> ((Label) node).getStyleClass().remove("selected-cell"));
+        CoordinateDto coordinateDto = tryGetCoordinateDtoFromKeySet(sheetDto.coordinateToCellDtoMap().keySet(), selectedCoordinateDto);
 
-//        gridPaneActualCells.getChildren().stream()
-//                .filter(node -> GridPane.getRowIndex(node) == selectedCoordinate.getRow() && GridPane.getColumnIndex(node) == selectedCoordinate.getColumn())
-//                .findFirst()
-//                .ifPresent(node -> ((Label) node).getStyleClass().add("selected-cell"));
+        if (coordinateDto != null) {
+            CellDto selectedCell = sheetDto.coordinateToCellDtoMap().get(coordinateDto);
 
-
-
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("depends-on-cell"));
-//
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("influence-on-cell"));
-
-        if (sheet.getActiveCells().containsKey(selectedCoordinate)) {
-
-            for (Coordinate coordinateTheCellDependsOn : selectedCell.getDependsOnMap().keySet()) {
+            for (CoordinateDto coordinateTheCellDependsOn : selectedCell.dependsOnCoordinatesSet()) {
                 gridPaneActualCells.getChildren().stream()
                         .filter(node -> GridPane.getRowIndex(node) == coordinateTheCellDependsOn.getRow() && GridPane.getColumnIndex(node) == coordinateTheCellDependsOn.getColumn())
                         .findFirst()
                         .ifPresent(node -> ((Label) node).getStyleClass().add("depends-on-cell"));
             }
 
-            for (Coordinate coordinateTheCellInfluencesOn : selectedCell.getInfluencingOnMap().keySet()) {
+            for (CoordinateDto coordinateTheCellInfluencesOn : selectedCell.influencesOnCoordinatesSet()) {
                 gridPaneActualCells.getChildren().stream()
                         .filter(node -> GridPane.getRowIndex(node) == coordinateTheCellInfluencesOn.getRow() && GridPane.getColumnIndex(node) == coordinateTheCellInfluencesOn.getColumn())
                         .findFirst()
@@ -176,16 +164,14 @@ public class TablePartController {
         }
     }
 
-    //assuming rangeName parameter exists in the system - user chooses only from existing ranges
-    public void highlightCellsInSelectedRange(Range selectedRange) {
-//        SheetWindowController.handleChoosingRangeAndHighlightCellsInRange(sheet, rangeName);
+//    assuming rangeName parameter exists in the system - user chooses only from existing ranges
+    public void highlightCellsInSelectedRange(RangeDto selectedRangeDto) {
         cleanUnnecessaryStyleClassesForAllCells();
 
-//        Range selectedRange = RangeFactory.getRangeByItsName(rangeName);
-        int rowStart = selectedRange.getRowStart();
-        int rowEnd = selectedRange.getRowEnd();
-        int columnStart = selectedRange.getColumnStart();
-        int columnEnd = selectedRange.getColumnEnd();
+        int rowStart = selectedRangeDto.rowStart();
+        int rowEnd = selectedRangeDto.rowEnd();
+        int columnStart = selectedRangeDto.columnStart();
+        int columnEnd = selectedRangeDto.columnEnd();
 
         for (Node node : gridPaneActualCells.getChildren()) {
             int currentNodeRowIndex = GridPane.getRowIndex(node);
@@ -197,22 +183,20 @@ public class TablePartController {
         }
     }
 
-
-
-    private void cleanUnnecessaryStyleClassesForAllCells() {
+    public void cleanUnnecessaryStyleClassesForAllCells() {
         removeStyleClassForPreviouslySelectedCell(currentlySelectedCoordinate);
         removeStyleClassesInfluenceAndDependsOnFromAllCells();
         removeStyleClassOfCellsInRange();
     }
 
-    private void removeStyleClassForPreviouslySelectedCell(Coordinate previouslySelectedCoordinate) {
+    private void removeStyleClassForPreviouslySelectedCell(CoordinateDto previouslySelectedCoordinate) {
         gridPaneActualCells.getChildren().stream()
                 .filter(node -> GridPane.getRowIndex(node) == previouslySelectedCoordinate.getRow() && GridPane.getColumnIndex(node) == previouslySelectedCoordinate.getColumn())
                 .findFirst()
                 .ifPresent(node -> ((Label) node).getStyleClass().remove("selected-cell"));
     }
 
-    private void addStyleClassForCurrentlySelectedCell(Coordinate selectedCoordinate) {
+    private void addStyleClassForCurrentlySelectedCell(CoordinateDto selectedCoordinate) {
         gridPaneActualCells.getChildren().stream()
                 .filter(node -> GridPane.getRowIndex(node) == selectedCoordinate.getRow() && GridPane.getColumnIndex(node) == selectedCoordinate.getColumn())
                 .findFirst()
@@ -244,17 +228,15 @@ public class TablePartController {
         }
     }
 
-    public void createAndDisplayRowNumbers(SheetReadActions sheet){
-        int numOfRows = sheet.getNumOfRows();
-        int initializedRowHeightWidth = sheet.getRowHeight();
-        int initializedColumnWidth = sheet.getColumnWidth();
+    public void createAndDisplayRowNumbers(SheetDto sheet){
+        int numOfRows = sheet.numOfRows();
+        int initializedRowHeightWidth = sheet.rowHeight();
+        int initializedColumnWidth = sheet.columnWidth();
 
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             Label rowLabel = new Label(String.valueOf(currentRowNum));
             rowLabel.prefWidthProperty().set(initializedColumnWidth);
-//            rowLabel.prefWidthProperty().set(100);
             rowLabel.prefHeightProperty().set(initializedRowHeightWidth);
-//            rowLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
             rowLabel.setAlignment(Pos.CENTER);
             rowLabel.getStyleClass().add("single-cell");
             gridPaneRowNumbers.add(rowLabel, 0, currentRowNum);
@@ -265,13 +247,12 @@ public class TablePartController {
         }
     }
 
-    public void createAndDisplayColumnsLetters(SheetReadActions sheet){
-        int numOfColumns = sheet.getNumOfColumns();
-        int initializedRowHeight = sheet.getRowHeight();
-        int initializedColumnWidth = sheet.getColumnWidth();
+    public void createAndDisplayColumnsLetters(SheetDto sheet){
+        int numOfColumns = sheet.numOfColumns();
+        int initializedRowHeight = sheet.rowHeight();
+        int initializedColumnWidth = sheet.columnWidth();
 
         Label leftTopCornerLabel = new Label("");
-//        leftTopCornerLabel.prefWidthProperty().set(100);
         leftTopCornerLabel.prefHeightProperty().set(initializedRowHeight);
         leftTopCornerLabel.prefWidthProperty().set(initializedColumnWidth);
         leftTopCornerLabel.getStyleClass().add("single-cell");
@@ -281,9 +262,6 @@ public class TablePartController {
 
         for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
             Label columnLabel = new Label(String.valueOf((char) ('A' + currentColumnNum - 1)));
-            //columnLabel.prefHeightProperty().set(30);
-//            columnLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//            columnLabel.prefWidthProperty().set(100);
             columnLabel.prefHeightProperty().set(initializedRowHeight);
             columnLabel.prefWidthProperty().set(initializedColumnWidth);
             columnLabel.setAlignment(Pos.CENTER);
@@ -295,41 +273,49 @@ public class TablePartController {
         }
     }
 
+    public void updateCurrentSheetNameInTablePart(String sheetName) {
+        currentSheetName = sheetName;
+    }
 
-    public void displaySheetWithFilteredOrSortedRange(SheetReadActions sheet, RangeWithRowsInArea filteredRangeArea) {
-        int numOfRows = sheet.getNumOfRows();
-        int numOfColumns = sheet.getNumOfColumns();
-        int initializedRowHeight = sheet.getRowHeight();
-        int initializedColumnWidth = sheet.getColumnWidth();
-
-
-        Range selectedRange = filteredRangeArea.getRange();
-        int filteredRangeRowStart = selectedRange.getRowStart();
-        int filteredRangeRowEnd = selectedRange.getRowEnd();
-        int filteredRangeColumnStart = selectedRange.getColumnStart();
-        int filteredRangeColumnEnd = selectedRange.getColumnEnd();
-
+    public void displaySheetWithSortedOrFilteredRange(SheetWithSortedOrFilteredRangeDto sheetWithSortedOrFilteredRangeDto) {
         clearAllCellsDisplay();
+
+        SheetDto sheetDto = sheetWithSortedOrFilteredRangeDto.sheetDto();
+        Map<CoordinateDto, CellDto> coordinateToCellDtoMap = sheetDto.coordinateToCellDtoMap();
+
+        RangeWithEffectiveValuesDto rangeWithEffectiveValuesDto = sheetWithSortedOrFilteredRangeDto.rangeWithEffectiveValuesDto();
+        RangeDto sortedRangeDto = sheetWithSortedOrFilteredRangeDto.rangeWithEffectiveValuesDto().rangeDto();
+        Map<CoordinateDto, String> allEffectiveValuesStringsInRange = rangeWithEffectiveValuesDto.allEffectiveValuesStrings();
+
+        int numOfRows = sheetDto.numOfRows();
+        int numOfColumns = sheetDto.numOfColumns();
+        int initializedRowHeight = sheetDto.rowHeight();
+        int initializedColumnWidth = sheetDto.columnWidth();
+
+        int filteredRangeRowStart = sortedRangeDto.rowStart();
+        int filteredRangeRowEnd = sortedRangeDto.rowEnd();
+        int filteredRangeColumnStart = sortedRangeDto.columnStart();
+        int filteredRangeColumnEnd = sortedRangeDto.columnEnd();
+
+        String effectiveValueOfCellAsString;
 
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
-                Coordinate coordinate = CoordinateFactory.getCoordinate(currentRowNum, currentColumnNum);
-                String effectiveValueOfCellAsString;
+
+                CoordinateDto coordinateDto = new CoordinateDto(currentRowNum, currentColumnNum);
 
                 //check if the cell is in the filtered range
                 if (currentRowNum >= filteredRangeRowStart && currentRowNum <= filteredRangeRowEnd
                         && currentColumnNum >= filteredRangeColumnStart && currentColumnNum <= filteredRangeColumnEnd) {
 
-                    effectiveValueOfCellAsString = filteredRangeArea.getEffectiveValueOfCellAsString(currentRowNum, currentColumnNum);
-//                    effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCellAsString);
+                    CoordinateDto coordinateDtoFromRange = tryGetCoordinateDtoFromKeySet(allEffectiveValuesStringsInRange.keySet(), coordinateDto);
+                    effectiveValueOfCellAsString = allEffectiveValuesStringsInRange.get(coordinateDtoFromRange);
                 } else { //cell is not in the filtered range - display the original value
-                    if (sheet.getActiveCells().containsKey(coordinate)) {
-                        EffectiveValue effectiveValueOfCell = sheet.getActiveCells().get(coordinate).getCurrentEffectiveValue();
-                        if (effectiveValueOfCell == null) {
-                            effectiveValueOfCellAsString = addThousandsSeparator(" ");
-                        } else {
-                            effectiveValueOfCellAsString = addThousandsSeparator(effectiveValueOfCell.getValue().toString());
-                        }
+                    CoordinateDto possibleCoordinateDtoFromKeySet = tryGetCoordinateDtoFromKeySet(coordinateToCellDtoMap.keySet(), coordinateDto);
+                    if (possibleCoordinateDtoFromKeySet != null) {
+                        coordinateDto = possibleCoordinateDtoFromKeySet; //update the coordinateDto to the object from the keySet - for later use
+                        CellDto cellDto = coordinateToCellDtoMap.get(possibleCoordinateDtoFromKeySet);
+                        effectiveValueOfCellAsString = cellDto.effectiveValueStr();
                     } else {
                         effectiveValueOfCellAsString = addThousandsSeparator(" ");
                     }
@@ -337,13 +323,9 @@ public class TablePartController {
 
                 javafx.scene.control.Label cellLabel = new javafx.scene.control.Label(effectiveValueOfCellAsString);
 
-//                cellLabel.prefHeightProperty().set(initializedRowHeight);
                 cellLabel.setMinHeight(initializedRowHeight);
                 cellLabel.setMinWidth(initializedColumnWidth);
-//                cellLabel.prefWidthProperty().set(100);
 
-//                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
                 cellLabel.setAlignment(Pos.CENTER);
                 cellLabel.getStyleClass().add("single-cell");
                 gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
@@ -354,4 +336,5 @@ public class TablePartController {
             }
         }
     }
+
 }

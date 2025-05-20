@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/ClientJavaFx/ClientJavaFx.iml" filepath="$PROJECT_DIR$/ClientJavaFx/ClientJavaFx.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" filepath="$PROJECT_DIR$/ConsoleEngine/ConsoleEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" filepath="$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DTO/DTO.iml" filepath="$PROJECT_DIR$/DTO/DTO.iml" />
       <module fileurl="file://$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" filepath="$PROJECT_DIR$/EngineForJavaFX/EngineForJavaFX.iml" />
       <module fileurl="file://$PROJECT_DIR$/EngineForServer/EngineForServer.iml" filepath="$PROJECT_DIR$/EngineForServer/EngineForServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" filepath="$PROJECT_DIR$/GUI-JavaFX/GUI-JavaFX.iml" />

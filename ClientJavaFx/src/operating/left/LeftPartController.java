@@ -1,5 +1,10 @@
 package operating.left;
 
+import com.google.gson.reflect.TypeToken;
+import dto.range.RangeDto;
+import dto.sheet.SheetWithSortedOrFilteredRangeDto;
+import dto.sort.SortParametersDto;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,18 +12,21 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.util.Callback;
+import okhttp3.*;
 import operating.window.SheetWindowController;
-import shticell.range.Range;
-import shticell.sheet.api.Sheet;
+import util.Constants;
+import util.http.HttpClientUtil;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static util.Constants.GSON_INSTANCE;
+
 public class LeftPartController {
     private SheetWindowController sheetWindowController;
-    private Range currentFilteringRange;
     private boolean isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = false;
     private char currentColumnLetterForFiltering;
     @FXML private ComboBox<String> selectRangeComboBox;
@@ -42,13 +50,24 @@ public class LeftPartController {
     @FXML private TextField thirdColumnLetterToSortByTextField;
     @FXML private TextField fourthColumnLetterToSortByTextField;
     @FXML private TextField fifthColumnLetterToSortByTextField;
-
     @FXML private Button undoFilteringButton;
     @FXML private Button undoSortingButton;
+    @FXML private Button deleteSelectedRangeButton;
+    @FXML private Button addNewRangeButton;
+
+    private String currentSheetName;
+    private RangeDto currentRangeDto;
+    private String currentFilteringStartCoordinate;
+    private String currentFilteringEndCoordinate;
+    private RangesNamesRefresher rangesNamesRefresher;
+    private List<String> currentRangesNamesInClient;
 
 
     @FXML
     public void initialize() {
+
+        rangesNamesRefresher = new RangesNamesRefresher(this::updateRangesNamesFromRefresher);
+
         // Set a custom cell factory to render CheckBox for each item
         listViewWithCheckBoxesContainingPossibleUniqueValuesToFilter.setCellFactory(new Callback<>() {
             @Override
@@ -79,6 +98,15 @@ public class LeftPartController {
         });
     }
 
+    public void updateRangesNamesFromRefresher(List<String> rangesNamesListFromServer) {
+        Platform.runLater(() -> {
+            selectRangeComboBox.getItems().clear();
+            selectRangeComboBox.getItems().addAll(rangesNamesListFromServer);
+            selectRangeComboBox.setPromptText("Select range");
+            currentRangesNamesInClient = rangesNamesListFromServer;
+            sheetWindowController.cleanUnnecessaryStyleClassesForAllCells();
+        });
+    }
 
     public void setMainController(SheetWindowController sheetWindowController) {
         this.sheetWindowController = sheetWindowController;
@@ -110,52 +138,54 @@ public class LeftPartController {
             return;
         }
         try {
-            String newFilterStartCoordinateStr = newFilterStartCoordinateTextField.getText().trim();
-            String newFilterEndCoordinateStr = newFilterEndCoordinateTextField.getText().trim();
+            String filterAreaStartCoordinateStr = newFilterStartCoordinateTextField.getText().trim();
+            String filterAreaEndCoordinateStr = newFilterEndCoordinateTextField.getText().trim();
             String stringWithLetterOfColumnToGetUniqueValuesToFilter = selectColumnLetterForFilteringTextField.getText().trim().toUpperCase();
             newFilterStartCoordinateTextField.clear();
             newFilterEndCoordinateTextField.clear();
             selectColumnLetterForFilteringTextField.clear();
-            Range updatedFilteringRange;
 
-            boolean isFilteringAreaValid = sheetWindowController.isFilteringOrSortingAreaValid(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
-            if (!isFilteringAreaValid) {
-                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
-                    ("The filtering area " + newFilterStartCoordinateStr + " to" + newFilterEndCoordinateStr +
-                        " is not valid. Please enter valid area for filtering and column letter in this area.");
-                return;
-            } else {
-                //method will be invoked only if the area and coordinates are valid
-                updatedFilteringRange = sheetWindowController.createRangeToSortOrFilter(newFilterStartCoordinateStr, newFilterEndCoordinateStr);
-            }
-
-            boolean isColumnLetterInFilteringArea = sheetWindowController.isColumnLetterInFilteringOrSortingArea(stringWithLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
-            if (!isColumnLetterInFilteringArea) {
-                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
-                    ("The column letter is not in selected filtering area - please enter valid area for filtering and column letter in this area.");
-                return;
-            }
-
-            char charLetterOfColumnToGetUniqueValuesToFilter = stringWithLetterOfColumnToGetUniqueValuesToFilter.charAt(0);
-
-            //if got here, all fields are filled and valid
-            List<String> uniqueValuesInSelectedColumn = sheetWindowController.getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(charLetterOfColumnToGetUniqueValuesToFilter, newFilterStartCoordinateStr, newFilterEndCoordinateStr);
-            if (uniqueValuesInSelectedColumn.isEmpty()) {
-                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values found in selected column '" + charLetterOfColumnToGetUniqueValuesToFilter + "'.");
-                return;
-            }
-
+            List<String> uniqueValuesInSelectedColumn = getUniqueValuesForFilteringFromServer(filterAreaStartCoordinateStr, filterAreaEndCoordinateStr, stringWithLetterOfColumnToGetUniqueValuesToFilter);
             updateFilteringOptionsListViewWithUniqueValuesFroSelectedColumnAndArea(uniqueValuesInSelectedColumn);
 
             //updating for handleShowFilteredLinesButton method
             isUniqueValuesUpdatedFromRecentFilteringAreaAndColumnLetter = true;
-            currentFilteringRange = updatedFilteringRange;
-            currentColumnLetterForFiltering = charLetterOfColumnToGetUniqueValuesToFilter;
-
+            currentFilteringStartCoordinate = filterAreaStartCoordinateStr;
+            currentFilteringEndCoordinate = filterAreaEndCoordinateStr;
+            currentColumnLetterForFiltering = stringWithLetterOfColumnToGetUniqueValuesToFilter.charAt(0);
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Please select one or more unique values to filter in column '" + stringWithLetterOfColumnToGetUniqueValuesToFilter + "'.");
         } catch (Exception e) {
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
+    }
+
+    private List<String> getUniqueValuesForFilteringFromServer(String filterAreaStartCoordinateStr, String filterAreaEndCoordinateStr, String stringWithLetterOfColumnToGetUniqueValuesToFilter) {
+        List<String> uniqueValuesInSelectedColumn = new ArrayList<>();
+        String finalUrl = HttpUrl
+                .parse(Constants.GET_UNIQUE_VALUES_FOR_FILTERING)
+                .newBuilder()
+                .addQueryParameter(Constants.SHEET_NAME, currentSheetName)
+                .addQueryParameter(Constants.LEFT_TOP_START_COORDINATE, filterAreaStartCoordinateStr)
+                .addQueryParameter(Constants.RIGHT_BOTTOM_END_COORDINATE, filterAreaEndCoordinateStr)
+                .addQueryParameter(Constants.COLUMN_CHAR_STRING, stringWithLetterOfColumnToGetUniqueValuesToFilter)
+                .build()
+                .toString();
+
+        try {
+            Response response = HttpClientUtil.runSync(finalUrl);
+            if (response.isSuccessful()) {
+                // Parse the response into List<String> using GSON
+                Type listType = new TypeToken<List<String>>(){}.getType();
+                uniqueValuesInSelectedColumn = GSON_INSTANCE.fromJson(response.body().string(), listType);
+            } else {
+                // Handle non-200 HTTP responses
+                String responseBody = response.body().string();
+                throw new IllegalArgumentException(responseBody);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return uniqueValuesInSelectedColumn;
     }
 
     @FXML
@@ -173,12 +203,14 @@ public class LeftPartController {
                 .toList();
 
         if (selectedUniqueValuesOptions.isEmpty()) {
-            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No unique values were selected to filter. Please select one or more unique values to filter.");
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
+                    ("No unique values were selected to filter. Please select one or more unique values to filter.");
             return;
         }
 
-        disableAllButtonsInSceneExceptOne(undoFilteringButton);
-        sheetWindowController.handleShowFilteredLinesButton(currentFilteringRange, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
+        disableAllButtonsInSceneExceptSelectedAndReturnToMainWindowButton(undoFilteringButton);
+
+        sheetWindowController.handleShowFilteredLinesButton(currentFilteringStartCoordinate, currentFilteringEndCoordinate, currentColumnLetterForFiltering, selectedUniqueValuesOptions);
 
         listViewOptionsForFiltering.clear();
         selectionMapOfFilteringListView.clear();
@@ -190,7 +222,7 @@ public class LeftPartController {
     @FXML
     public void handleUndoFilteringButton() {
         enableAllButtonsInScene();
-        sheetWindowController.displaySheetBeforeSortingOrFiltering();
+        sheetWindowController.displayRecentSheetBeforeSortingOrFilteringCachedInTablePart();
     }
 
 
@@ -199,16 +231,71 @@ public class LeftPartController {
         String rangeName = newRangeNameTextField.getText().trim();
         String leftTopStartCoordinateStr = newRangeStartCoordinateTextField.getText().trim();
         String rightBottomEndCoordinateStr = newRangeEndCoordinateTextField.getText().trim();
-        if (sheetWindowController.getMostRecentSheetFromEngine() == null) {
-            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("No sheet is loaded - the system can not create a new range. Please load a sheet first.");
-        } else if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
+
+        if (rangeName.isEmpty() || leftTopStartCoordinateStr.isEmpty() || rightBottomEndCoordinateStr.isEmpty()) {
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("One or more fields are empty - the system can not create a new range. Please fill all fields.");
         } else {
-            sheetWindowController.handleCreatingNewRange(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+            handleCreatingNewRangeInServer(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
             newRangeNameTextField.clear(); //will get here even if the range was not created and error caught
             newRangeStartCoordinateTextField.clear();
             newRangeEndCoordinateTextField.clear();
         }
+    }
+
+    public void handleCreatingNewRangeInServer(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
+        try {
+            rangesNamesRefresher.pause();
+            sheetWindowController.cleanUnnecessaryStyleClassesForAllCells();
+            boolean isRangeCreated = tryCreateNewRangeInServer(rangeName, leftTopStartCoordinateStr, rightBottomEndCoordinateStr);
+            //if the range was not created, the method will throw an exception
+            if (isRangeCreated) {
+                addNewRangeNameToRangesComboBox(rangeName);
+                rangesNamesRefresher.resume();
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("New range created successfully: '" + rangeName + "' . The range is from cell "
+                        + leftTopStartCoordinateStr.toUpperCase() + " to cell " + rightBottomEndCoordinateStr.toUpperCase());
+            }
+        } catch (Exception e) {
+            rangesNamesRefresher.resume();
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+        }
+    }
+
+    private boolean tryCreateNewRangeInServer(String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
+
+        String finalUrl = HttpUrl
+                .parse(Constants.ADD_NEW_RANGE)
+                .newBuilder()
+                .addQueryParameter(Constants.SHEET_NAME, currentSheetName)
+                .addQueryParameter(Constants.RANGE_NAME, rangeName)
+                .addQueryParameter(Constants.LEFT_TOP_START_COORDINATE, leftTopStartCoordinateStr)
+                .addQueryParameter(Constants.RIGHT_BOTTOM_END_COORDINATE, rightBottomEndCoordinateStr)
+                .build()
+                .toString();
+
+        try {
+            Response response = HttpClientUtil.runSyncWithPost(finalUrl);
+            //if the range was created successfully, the response will be 201 and the method will return true
+            //if the range was not created, the response will be 500 and the method will throw an exception
+            if (response.isSuccessful()) {
+                return true;
+            } else {
+                // Handle non-200 HTTP responses
+                String responseBody = response.body().string();
+                throw new IllegalArgumentException(responseBody);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+    }
+
+    public void deleteRangesNamesFromRangesComboBox() {
+        selectRangeComboBox.getItems().clear();
+    }
+
+    public void addNewRangesNamesToRangesComboBox(List<String> rangesNames) {
+        selectRangeComboBox.getItems().addAll(rangesNames);
+        currentRangesNamesInClient = rangesNames;
     }
 
     public void addNewRangeNameToRangesComboBox(String rangeName) {
@@ -223,17 +310,44 @@ public class LeftPartController {
         } else if (selectRangeComboBox.getValue() == null) {
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("There is nothing to delete - no range is selected.");
             return;
-        } else if (sheetWindowController.isSelectedRangeUsedInAnyCellWithRelevantFunction(selectRangeComboBox.getValue())) {
-            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("The selected range is used in a cell/cells with relevant functions - can not delete it.");
-            return;
         }
+
         try {
+            rangesNamesRefresher.pause();
+            sheetWindowController.cleanUnnecessaryStyleClassesForAllCells();
             String rangeName = selectRangeComboBox.getValue();
-            sheetWindowController.deleteRangeFromRangeFactoryMainController(rangeName);
-            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Range '" + rangeName + "' was deleted successfully.");
-            selectRangeComboBox.getItems().remove(rangeName);
+            boolean isRangeDeleted = deleteRangeFromRangesManagerInServer(rangeName);
+            if (isRangeDeleted) {
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Range '" + rangeName + "' was deleted successfully.");
+                selectRangeComboBox.getItems().remove(rangeName);
+            }
+            rangesNamesRefresher.resume();
         } catch (Exception e) {
+            rangesNamesRefresher.resume();
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
+        }
+    }
+
+    private boolean deleteRangeFromRangesManagerInServer(String rangeName) {
+        String finalUrl = HttpUrl
+                .parse(Constants.DELETE_RANGE)
+                .newBuilder()
+                .addQueryParameter(Constants.SHEET_NAME, currentSheetName)
+                .addQueryParameter(Constants.RANGE_NAME, rangeName)
+                .build()
+                .toString();
+
+        try {
+            Response response = HttpClientUtil.runSyncWithDelete(finalUrl);
+            if (response.isSuccessful()) {
+                return true;
+            } else {
+                // Handle non-200 HTTP responses
+                String responseBody = response.body().string();
+                throw new IllegalArgumentException(responseBody);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error: " + e.getMessage());
         }
     }
 
@@ -248,26 +362,51 @@ public class LeftPartController {
         }
         try {
             String rangeName = selectRangeComboBox.getValue();
-            Range range = sheetWindowController.getRangeByItsName(rangeName);
-            String topLeftStartCoordinateStr = range.getTopLeftStartCoordinate().toString();
-            String bottomRightEndCoordinateStr = range.getBottomRightEndCoordinate().toString();
-            sheetWindowController.handleChoosingRangeAndHighlightCellsInRangeMainController(range);
+            RangeDto rangeDto = getRangeDtoFromServer(rangeName); //if there's an error, the method will set the notification message
+            if (rangeDto != null) {
+            String topLeftStartCoordinateStr = rangeDto.topLeftStartCoordinate().toString();
+            String bottomRightEndCoordinateStr = rangeDto.bottomRightEndCoordinate().toString();
+            sheetWindowController.handleChoosingRangeAndHighlightCellsInRangeMainController(rangeDto);
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Cells in selected range '" + rangeName +
                     "' are now highlighted with purple border. The range is from "
                     + topLeftStartCoordinateStr + " to " + bottomRightEndCoordinateStr +".");
+            }
         } catch (Exception e) {
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
-    public void handleInitialRangesFromNewSheet(Sheet sheet) {
-        selectRangeComboBox.getItems().clear();
-        if (sheetWindowController.isThereAnyRangeInRangesFactory()) {
-            selectRangeComboBox.getItems().addAll(sheetWindowController.getAllRangeNamesInTheSystem());
-        }
-        selectRangeComboBox.setPromptText("Select range");
-    }
+    private RangeDto getRangeDtoFromServer(String rangeName) {
+        RangeDto rangeDto = null;
+        String finalUrl = HttpUrl
+                .parse(Constants.GET_RANGE_DTO_FROM_SELECTED_SHEET)
+                .newBuilder()
+                .addQueryParameter(Constants.SHEET_NAME, currentSheetName)
+                .addQueryParameter(Constants.RANGE_NAME, rangeName)
+                .build()
+                .toString();
 
+        try {
+            Response response = HttpClientUtil.runSync(finalUrl);
+            if (response.isSuccessful()) {
+                // Parse the response into RangeDto using GSON
+                rangeDto = GSON_INSTANCE.fromJson(response.body().string(), RangeDto.class);
+            } else {
+                // Handle non-200 HTTP responses
+                String responseBody = response.body().string();
+                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(responseBody);
+                if (responseBody.contains("does not exist")) {
+                    selectRangeComboBox.getItems().remove(rangeName);
+                    sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
+                    ("Range '" + rangeName + "' does not exist anymore. This name was removed from the list of ranges.");
+                }
+            }
+        } catch (Exception e) {
+            // Handle exceptions
+            sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel("Something went wrong: " + e.getMessage());
+        }
+        return rangeDto;
+    }
 
     @FXML
     public void handleShowSortedLinesButton() {
@@ -292,68 +431,54 @@ public class LeftPartController {
         try {
             String newSortStartCoordinateStr = newSortStartCoordinateTextField.getText().trim();
             String newSortEndCoordinateStr = newSortEndCoordinateTextField.getText().trim();
-            List<String> allColumnLettersToSortByAsString = fillArrayListWithColumnLettersToSortBy (firstColumnTextFieldEmpty, secondColumnTextFieldEmpty,
+            List<String> allColumnLettersToSortByAsStrings = fillArrayListWithColumnLettersToSortBy (firstColumnTextFieldEmpty, secondColumnTextFieldEmpty,
                                                              thirdColumnTextFieldEmpty, fourthColumnTextFieldEmpty, fifthColumnTextFieldEmpty);
             clearAllTextFieldsRelatedToSorting();
 
-            Range newSortingRange;
+            SheetWithSortedOrFilteredRangeDto sheetWithSortedRangeDto =
+            getFromServerSheetWithSortedRangeDto(newSortStartCoordinateStr, newSortEndCoordinateStr, allColumnLettersToSortByAsStrings);
 
-            boolean isSortingAreaValid = sheetWindowController.isFilteringOrSortingAreaValid(newSortStartCoordinateStr, newSortEndCoordinateStr);
-            if (!isSortingAreaValid) {
-                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
-                        ("The sorting area " + newSortStartCoordinateStr + " to" + newSortEndCoordinateStr +
-                                " is not valid. Please enter valid area for sorting and column letters in this area.");
-                return;
-            } else {
-                //method will be invoked only if the area and coordinates are valid
-                newSortingRange = sheetWindowController.createRangeToSortOrFilter(newSortStartCoordinateStr, newSortEndCoordinateStr);
-            }
-
-            boolean areAllColumnLetterInSortingArea = checkIfAllColumnLettersInSortingArea(allColumnLettersToSortByAsString, newSortStartCoordinateStr, newSortEndCoordinateStr);
-            if (!areAllColumnLetterInSortingArea) {
-                sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel
-                        ("One or more column letters is not in selected sorting area - please enter valid area and column letters in this area.");
-                return;
-            }
-
-            List<Character> listOfColumnLettersCharactersToSortBy = convertArrayOfColumnLettersStringsToArrayOfCharacters(allColumnLettersToSortByAsString);
-            //if got here, all fields are filled and valid
-
-        disableAllButtonsInSceneExceptOne(undoSortingButton);
-        sheetWindowController.handleShowSortedLinesButton(newSortingRange, listOfColumnLettersCharactersToSortBy);
+            disableAllButtonsInSceneExceptSelectedAndReturnToMainWindowButton(undoSortingButton);
+            sheetWindowController.DisplaySheetWithSortedOrFilteredLines(sheetWithSortedRangeDto);
 
         } catch (Exception e) {
             sheetWindowController.setNotificationMessageOfRecentActionOutcomeLabel(e.getMessage());
         }
     }
 
+    private SheetWithSortedOrFilteredRangeDto getFromServerSheetWithSortedRangeDto(String newSortStartCoordinateStr, String newSortEndCoordinateStr, List<String> allColumnLettersToSortByAsStrings) {
+        SheetWithSortedOrFilteredRangeDto sheetWithSortedRangeDto;
+        String finalUrl = HttpUrl
+                .parse(Constants.GET_SHEET_WITH_SORTED_RANGE)
+                .newBuilder()
+                .addQueryParameter(Constants.SHEET_NAME, currentSheetName)
+                .build()
+                .toString();
+
+        SortParametersDto sortParametersDto = new SortParametersDto(newSortStartCoordinateStr, newSortEndCoordinateStr, allColumnLettersToSortByAsStrings);
+        String jsonResult = GSON_INSTANCE.toJson(sortParametersDto);
+        RequestBody body = RequestBody.create(GSON_INSTANCE.toJson(sortParametersDto), MediaType.get("application/json"));
+
+        try {
+            Response response = HttpClientUtil.runSyncWithPostAndBody(finalUrl, body);
+            if (response.isSuccessful()) {
+                // Parse the response into SheetWithSortedOrFilteredRangeDto using GSON
+                sheetWithSortedRangeDto = GSON_INSTANCE.fromJson(response.body().string(), SheetWithSortedOrFilteredRangeDto.class);
+            } else {
+                // Handle non-200 HTTP responses
+                String responseBody = response.body().string();
+                throw new IllegalArgumentException(responseBody);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return sheetWithSortedRangeDto;
+    }
+
     @FXML
     public void handleUndoSortingButton() {
         enableAllButtonsInScene();
-        sheetWindowController.displaySheetBeforeSortingOrFiltering();
-    }
-
-    private List<Character> convertArrayOfColumnLettersStringsToArrayOfCharacters(List<String> allColumnLettersToSortByAsString) {
-        List<Character> allColumnLettersToSortByAsCharacters = new ArrayList<>();
-
-        for (String currentString : allColumnLettersToSortByAsString) {
-            allColumnLettersToSortByAsCharacters.add(currentString.charAt(0));
-        }
-
-        return allColumnLettersToSortByAsCharacters;
-    }
-
-    private boolean checkIfAllColumnLettersInSortingArea(List<String> allColumnLettersToSortByAsString, String newSortStartCoordinateStr, String newSortEndCoordinateStr) {
-        boolean allColumnLettersInSortingArea = true;
-        for (String currentColumnLetterString : allColumnLettersToSortByAsString) {
-            boolean currentColumnInSortingArea = sheetWindowController.isColumnLetterInFilteringOrSortingArea(currentColumnLetterString, newSortStartCoordinateStr, newSortEndCoordinateStr);
-            if (!currentColumnInSortingArea) {
-                allColumnLettersInSortingArea = false;
-                break;
-            }
-        }
-
-        return allColumnLettersInSortingArea;
+        sheetWindowController.displayRecentSheetBeforeSortingOrFilteringCachedInTablePart();
     }
 
     private void clearAllTextFieldsRelatedToSorting() {
@@ -377,6 +502,38 @@ public class LeftPartController {
         String stringLetterOfThirdColumnToSortBy = thirdColumnLetterToSortByTextField.getText().trim().toUpperCase();
         String stringLetterOfFourthColumnToSortBy = fourthColumnLetterToSortByTextField.getText().trim().toUpperCase();
         String stringLetterOfFifthColumnToSortBy = fifthColumnLetterToSortByTextField.getText().trim().toUpperCase();
+
+        boolean thereIsColumnLetterThatAppearsMoreThanOneTime;
+        if (numOfLastTextFieldWhichIsFilled >= 2) {
+            thereIsColumnLetterThatAppearsMoreThanOneTime = stringLetterOfFirstColumnToSortBy.equals(stringLetterOfSecondColumnToSortBy);
+            if (thereIsColumnLetterThatAppearsMoreThanOneTime) {
+                throw new IllegalArgumentException("Column letter '" + stringLetterOfFirstColumnToSortBy + "' appears more than one time - please enter different column letters to sort by.");
+            }
+        }
+        if (numOfLastTextFieldWhichIsFilled >= 3) {
+            thereIsColumnLetterThatAppearsMoreThanOneTime = stringLetterOfFirstColumnToSortBy.equals(stringLetterOfThirdColumnToSortBy)
+                    || stringLetterOfSecondColumnToSortBy.equals(stringLetterOfThirdColumnToSortBy);
+            if (thereIsColumnLetterThatAppearsMoreThanOneTime) {
+                throw new IllegalArgumentException("Column letter '" + stringLetterOfThirdColumnToSortBy + "' appears more than one time - please enter different column letters to sort by.");
+            }
+        }
+        if (numOfLastTextFieldWhichIsFilled >= 4) {
+            thereIsColumnLetterThatAppearsMoreThanOneTime = stringLetterOfFirstColumnToSortBy.equals(stringLetterOfFourthColumnToSortBy)
+                    || stringLetterOfSecondColumnToSortBy.equals(stringLetterOfFourthColumnToSortBy)
+                    || stringLetterOfThirdColumnToSortBy.equals(stringLetterOfFourthColumnToSortBy);
+            if (thereIsColumnLetterThatAppearsMoreThanOneTime) {
+                throw new IllegalArgumentException("Column letter '" + stringLetterOfFourthColumnToSortBy + "' appears more than one time - please enter different column letters to sort by.");
+            }
+        }
+        if (numOfLastTextFieldWhichIsFilled == 5) {
+            thereIsColumnLetterThatAppearsMoreThanOneTime = stringLetterOfFirstColumnToSortBy.equals(stringLetterOfFifthColumnToSortBy)
+                    || stringLetterOfSecondColumnToSortBy.equals(stringLetterOfFifthColumnToSortBy)
+                    || stringLetterOfThirdColumnToSortBy.equals(stringLetterOfFifthColumnToSortBy)
+                    || stringLetterOfFourthColumnToSortBy.equals(stringLetterOfFifthColumnToSortBy);
+            if (thereIsColumnLetterThatAppearsMoreThanOneTime) {
+                throw new IllegalArgumentException("Column letter '" + stringLetterOfFifthColumnToSortBy + "' appears more than one time - please enter different column letters to sort by.");
+            }
+        }
 
         //add letters to sort by to the list, according to the number of filled text fields
         if (numOfLastTextFieldWhichIsFilled >= 2) {
@@ -462,7 +619,7 @@ public class LeftPartController {
     }
 
 
-    public void disableAllButtonsInSceneExceptOne(Button buttonToKeepEnabled) {
+    public void disableAllButtonsInSceneExceptSelectedAndReturnToMainWindowButton(Button buttonToKeepEnabled) {
         Scene scene = buttonToKeepEnabled.getScene();
         if (scene != null) {
             for (Node node : scene.getRoot().lookupAll(".button")) {
@@ -472,6 +629,8 @@ public class LeftPartController {
                 }
             }
         }
+
+        sheetWindowController.enableReturnToMainWindowButton();
     }
 
     public void enableAllButtonsInScene() {
@@ -486,7 +645,21 @@ public class LeftPartController {
         }
     }
 
+    public void updateCurrentSheetNameAndDataForRefresherInLeftPart(String sheetName) {
+        currentSheetName = sheetName;
+        rangesNamesRefresher.onSheetSelected(() -> currentSheetName, currentRangesNamesInClient);
     }
 
+    public void disableEditingButtonsInLeftPart() {
+        deleteSelectedRangeButton.setDisable(true);
+        addNewRangeButton.setDisable(true);
+    }
 
+    public void resumeRangesNamesRefresher() {
+        rangesNamesRefresher.resume();
+    }
 
+    public void close() {
+        rangesNamesRefresher.stop();
+    }
+}

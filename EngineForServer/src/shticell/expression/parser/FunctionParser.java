@@ -296,13 +296,6 @@ public enum FunctionParser {
             if (!thirdExpressionCellType.equals(CellType.NUMERIC) && !thirdExpressionCellType.equals(CellType.UNKNOWN)) {
                 throw new IllegalArgumentException("Invalid argument types for SUB function. Expected NUMERIC, but got " + thirdExpressionCellType);
             }
-//            // Validate that the arguments are strings or unknown
-//            for (Expression currentExpression : expressions) {
-//                expressionCellType = currentExpression.getFunctionResultType();
-//                if (!expressionCellType.equals(CellType.STRING) && !expressionCellType.equals(CellType.UNKNOWN)) {
-//                    throw new IllegalArgumentException("Invalid argument types for SUB function. Expected STRING, but got " + expressionCellType);
-//                }
-//            }
 
             // Create and return the ConcatExpression
             return new SubExpression(expressions.get(0), expressions.get(1), expressions.get(2));

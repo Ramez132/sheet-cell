@@ -4,17 +4,18 @@ import shticell.coordinate.Coordinate;
 import shticell.coordinate.CoordinateFactory;
 import shticell.sheet.api.SheetReadActions;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public class RangeFactory {
+public class RangesManager implements Serializable {
 
-    private final static Map<String,Range> allCachedRanges = new HashMap<>();
+    private final Map<String,Range> allCachedRanges = new HashMap<>();
     private final static Map<String,Range> cachedRangesFromPreviousFile = new HashMap<>();
 
-    public static Range createNewRangeOrGetExistingRange(String rangeName, Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
+    public Range createNewRangeOrGetExistingRange(String rangeName, Coordinate topLeftStartCoordinate, Coordinate bottomRightEndCoordinate) {
         if (allCachedRanges.containsKey(rangeName)) {
             return allCachedRanges.get(rangeName);
         }
@@ -25,11 +26,11 @@ public class RangeFactory {
         return range;
     }
 
-    public static boolean isRangeNameAlreadyExistsInTheSystem(String rangeName) {
+    public boolean isRangeNameAlreadyExistsForThisSheet(String rangeName) {
         return allCachedRanges.containsKey(rangeName);
     }
 
-    public static Range getRangeByItsName(String rangeName) {
+    public Range getRangeByItsName(String rangeName) {
         if (allCachedRanges.containsKey(rangeName)) {
             return allCachedRanges.get(rangeName);
         } else {
@@ -37,12 +38,12 @@ public class RangeFactory {
         }
     }
 
-    public static Range createRangeFromTwoCoordinateStringsAndNameString
+    public Range createRangeFromTwoCoordinateStringsAndNameString
             (SheetReadActions sheet, String rangeName, String leftTopStartCoordinateStr, String rightBottomEndCoordinateStr) {
 
         Coordinate topLeftStartCoordinate, bottomRightEndCoordinate;
 
-        if (isRangeNameAlreadyExistsInTheSystem(rangeName)) {
+        if (isRangeNameAlreadyExistsForThisSheet(rangeName)) {
             throw new IllegalArgumentException("Range with name " + rangeName + " already exists. The system does not allow duplicate range names.");
         }
 
@@ -61,17 +62,17 @@ public class RangeFactory {
         }
     }
 
-    public static boolean isCoordinatesCreateValidRange(Coordinate leftTopStartCoordinate, Coordinate rightBottomEndCoordinate) {
+    public boolean isCoordinatesCreateValidRange(Coordinate leftTopStartCoordinate, Coordinate rightBottomEndCoordinate) {
         boolean isRowStartEqualOrSmallerThanRowEnd = leftTopStartCoordinate.getRow() <= rightBottomEndCoordinate.getRow();
         boolean isColumnStartEqualOrSmallerThanColumnEnd = leftTopStartCoordinate.getColumn() <= rightBottomEndCoordinate.getColumn();
         return isRowStartEqualOrSmallerThanRowEnd && isColumnStartEqualOrSmallerThanColumnEnd;
     }
 
-    public static void deleteAllRangesInRangesFactoryBeforeLoadingSheetFromNewFile() {
+    public void deleteAllRangesInRangesFactoryBeforeLoadingSheetFromNewFile() {
         allCachedRanges.clear();
     }
 
-    public static void deleteRangeFromRangesFactory(String rangeName) {
+    public void deleteRangeFromRangesManager(String rangeName) {
         if (allCachedRanges.containsKey(rangeName)) {
             allCachedRanges.remove(rangeName);
         } else {
@@ -79,23 +80,12 @@ public class RangeFactory {
         }
     }
 
-    public static boolean isThereAnyRangeInRangesFactory() {
+    public boolean isThereAnyRangeInRangesManager() {
         return !allCachedRanges.isEmpty();
     }
 
-    public static List<String> getAllRangesNames() {
+    public List<String> getAllRangesNames() {
         return List.copyOf(allCachedRanges.keySet());
     }
 
-    public static void cacheRangesBeforeLoadingNewFileInCaseFileLoadingFails() {
-        cachedRangesFromPreviousFile.clear();
-        cachedRangesFromPreviousFile.putAll(allCachedRanges);
-        allCachedRanges.clear();
-    }
-
-    public static void restoreRangesFromPreviousFileAfterFileLoadingFailed() {
-        allCachedRanges.clear();
-        allCachedRanges.putAll(cachedRangesFromPreviousFile);
-        cachedRangesFromPreviousFile.clear();
-    }
 }

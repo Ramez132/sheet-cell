@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--        prefHeight="270.0" prefWidth="935.0"-->
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>

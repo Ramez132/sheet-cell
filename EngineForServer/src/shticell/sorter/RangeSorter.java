@@ -114,9 +114,6 @@ public class RangeSorter {
             if (!uniqueValuesInFirstColumnToSortByAsStrings.contains(valueInFirstColumnToSortBy)) {
                 uniqueValuesInFirstColumnToSortByAsStrings.add(valueInFirstColumnToSortBy);
             }
-//            if (rangeToSort.mapRowNumberToRowInArea.get(currentRow).isColumnInRow(firstColumnToSortByAsNumber)) {
-//                rangeToSort.mapRowNumberToRowInArea.get(currentRow).getEffectiveValueOfColumn(firstColumnToSortByAsNumber);
-//            }
         }
 
         List<Double> uniqueNumbersInFirstColumnToSortBy = new ArrayList<>();
@@ -126,13 +123,6 @@ public class RangeSorter {
         
         uniqueNumbersInFirstColumnToSortBy.sort(Comparator.naturalOrder());
         sortedUniqueNumbersInFirstColumnToSortBy = uniqueNumbersInFirstColumnToSortBy;
-//        List<String> uniqueValuesInFirstColumnToSortByAsStrings = sheet.getUniqueValuesForFilteringInSelectedColumnAndRelevantArea(firstColumnLetterToSortBy,
-//                rangeToSort.getTopLeftStartCoordinate().toString(), rangeToSort.getBottomRightEndCoordinate().toString());
-//        List<Double> uniqueValuesInFirstColumnToSortByAsNumbers = new ArrayList<>();
-//
-//        Coordinate topLeftStartCoordinate = rangeToSort.getTopLeftStartCoordinate();
-//        Coordinate bottomRightEndCoordinate = rangeToSort.getBottomRightEndCoordinate();
-//        return rangeToSort.getRowsInAreaList().get(0).getMapColumnToEffectiveValueString().keySet();
     }
 
     public void updateSortedRangeFromArrayOfSortedPartialRangeSorters(ArrayList<RangeSorter> arrayOfPartialRangeSorters) {

@@ -2,6 +2,7 @@ package shticell.sheet.api;
 
 import shticell.cell.api.Cell;
 import shticell.coordinate.Coordinate;
+import shticell.range.RangesManager;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ public interface SheetReadActions {
     int getNumOfColumns();
     int getRowHeight();
     int getColumnWidth();
+    RangesManager getRangesManager();
     boolean isCoordinateInSheetRange(int row, int column);
     boolean isCellEmpty(int row, int column);
     boolean isCellsCollectionContainsCoordinate(int row, int column);

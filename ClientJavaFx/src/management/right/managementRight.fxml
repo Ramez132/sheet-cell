@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="620.0" prefWidth="286.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="management.right.ManagementRightController">
+   <children>
+      <Label prefHeight="25.0" prefWidth="241.0" text="Actions Regarding selected sheet" underline="true">
+         <VBox.margin>
+            <Insets bottom="3.0" left="35.0" top="90.0" />
+         </VBox.margin>
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Button fx:id="viewSelectedSheetButton" mnemonicParsing="false" onAction="#handlePressingViewSelectedSheetButton" text="View selected sheet">
+         <VBox.margin>
+            <Insets bottom="10.0" left="75.0" top="10.0" />
+         </VBox.margin>
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
+      <Button fx:id="requestReadingPermissionButton" mnemonicParsing="false" onAction="#handlePressingRequestReadingPermissionButton" text="Request reading permission">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="10.0" left="52.0" top="10.0" />
+         </VBox.margin>
+      </Button>
+      <Button fx:id="requestWritingPermissionButton" mnemonicParsing="false" onAction="#handlePressingRequestWritingPermissionButton" text="Request writing permission">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="10.0" left="53.0" top="10.0" />
+         </VBox.margin>
+      </Button>
+      <Label layoutX="40.0" layoutY="14.0" prefHeight="25.0" prefWidth="241.0" text="Manage requests for your sheets" underline="true">
+         <font>
+            <Font size="16.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="3.0" left="35.0" top="100.0" />
+         </VBox.margin>
+      </Label>
+      <Button fx:id="approveSelectedRequestButton" layoutX="63.0" layoutY="152.0" mnemonicParsing="false" onAction="#handlePressingApproveSelectedRequestButton" text="Approve selected request">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="10.0" left="55.0" top="10.0" />
+         </VBox.margin>
+      </Button>
+      <Button fx:id="denySelectedRequestButton" layoutX="10.0" layoutY="237.0" mnemonicParsing="false" onAction="#handlePressingDenySelectedRequestButton" text="Deny selected request">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="10.0" left="65.0" top="10.0" />
+         </VBox.margin>
+      </Button>
+   </children>
+</VBox>

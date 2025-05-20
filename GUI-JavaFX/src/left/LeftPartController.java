@@ -366,7 +366,11 @@ public class LeftPartController {
         fifthColumnLetterToSortByTextField.clear();
     }
 
-    private List<String> fillArrayListWithColumnLettersToSortBy(boolean firstColumnTextFieldEmpty, boolean secondColumnTextFieldEmpty, boolean thirdColumnTextFieldEmpty, boolean fourthColumnTextFieldEmpty, boolean fifthColumnTextFieldEmpty) {
+    private List<String> fillArrayListWithColumnLettersToSortBy(boolean firstColumnTextFieldEmpty,
+                                                                boolean secondColumnTextFieldEmpty,
+                                                                boolean thirdColumnTextFieldEmpty,
+                                                                boolean fourthColumnTextFieldEmpty,
+                                                                boolean fifthColumnTextFieldEmpty) {
         List<String> columnLettersToSortBy = new ArrayList<>();
         String stringLetterOfFirstColumnToSortBy = firstColumnLetterToSortByTextField.getText().trim().toUpperCase();
         columnLettersToSortBy.add(stringLetterOfFirstColumnToSortBy);

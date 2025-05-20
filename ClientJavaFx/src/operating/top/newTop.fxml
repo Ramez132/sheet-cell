@@ -1,28 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--        prefHeight="270.0" prefWidth="935.0"-->
-
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@newTopStyle.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="operating.top.TopPartController">
    <children>
-      <HBox>
+      <HBox VBox.vgrow="ALWAYS">
          <children>
-            <Button fx:id="loadNewFileButton" mnemonicParsing="false" onAction="#handleLoadNewFile" text="Load new xml file">
+            <Button fx:id="returnToMainWindowButton" mnemonicParsing="false" onAction="#handleReturnToMainWindowButton" text="Return to main window">
                <HBox.margin>
-                  <Insets bottom="7.0" left="15.0" right="15.0" top="7.0" />
+                  <Insets bottom="7.0" left="15.0" right="10.0" top="7.0" />
                </HBox.margin>
             </Button>
-            <Label prefHeight="19.0" prefWidth="176.0" text="Path of currently loaded File:">
+            <Label prefHeight="19.0" prefWidth="92.0" text="Your user name:">
                <HBox.margin>
-                  <Insets bottom="7.0" left="15.0" top="12.0" />
+                  <Insets bottom="7.0" left="10.0" top="12.0" />
                </HBox.margin>
             </Label>
-            <Label fx:id="filePathLabel" prefHeight="19.0" prefWidth="565.0" text="There is no file loaded to the system">
+            <Label fx:id="userNameLabel" prefHeight="19.0" prefWidth="101.0" text="" HBox.hgrow="ALWAYS">
                <HBox.margin>
-                  <Insets bottom="7.0" left="15.0" top="12.0" />
+                  <Insets bottom="7.0" left="5.0" top="12.0" />
+               </HBox.margin>
+            </Label>
+            <Label text="Sheet name:">
+               <HBox.margin>
+                  <Insets bottom="7.0" left="5.0" top="12.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="sheetNameLabel" prefHeight="17.0" prefWidth="69.0" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets bottom="7.0" left="5.0" top="12.0" />
+               </HBox.margin>
+            </Label>
+            <Label layoutX="420.0" layoutY="22.0" text="Your current permission level:">
+               <HBox.margin>
+                  <Insets bottom="7.0" left="10.0" top="12.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="currentPermissionLabel" prefHeight="17.0" prefWidth="83.0">
+               <HBox.margin>
+                  <Insets bottom="7.0" left="5.0" top="12.0" />
                </HBox.margin>
             </Label>
          </children>
@@ -37,7 +61,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label fx:id="messageOfRecentActionOutcomeLabel" text="System launched - there were no attempts to load a file" textFill="#1124f2" wrapText="true" HBox.hgrow="ALWAYS">
+            <Label fx:id="messageOfRecentActionOutcomeLabel" prefHeight="17.0" text="System launched - there were no attempts to load a file" textFill="#1124f2" wrapText="true" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="12.0" left="20.0" top="12.0" />
                </HBox.margin>
@@ -51,19 +75,19 @@
                   <Insets bottom="10.0" left="15.0" top="10.0" />
                </HBox.margin>
             </TextField>
-            <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#handleUpdateCellValueButtonAndClearTextField" prefHeight="27.0" prefWidth="156.0" text="Update selected cell">
+            <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#handleUpdateCellValueButtonAndClearTextField" prefHeight="27.0" prefWidth="133.0" text="Update selected cell">
                <HBox.margin>
                   <Insets bottom="10.0" left="15.0" top="10.0" />
                </HBox.margin>
             </Button>
-            <Label prefHeight="19.0" prefWidth="98.0" style="-fx-background-color: LightGray;" text="Selected Cell ID:">
+            <Label prefHeight="19.0" prefWidth="90.0" style="-fx-background-color: LightGray;" text="Selected Cell ID:">
                <HBox.margin>
                   <Insets bottom="15.0" left="15.0" top="15.0" />
                </HBox.margin>
             </Label>
             <Label fx:id="idOfSelectedCell" prefHeight="19.0" prefWidth="33.0">
                <HBox.margin>
-                  <Insets bottom="15.0" left="10.0" top="15.0" />
+                  <Insets bottom="15.0" left="5.0" top="15.0" />
                </HBox.margin>
             </Label>
             <Label style="-fx-background-color: LightGray;" text="Version of last change">
@@ -71,7 +95,17 @@
                   <Insets bottom="15.0" left="10.0" top="15.0" />
                </HBox.margin>
             </Label>
-            <Label fx:id="versionNumOfLastChange" minWidth="30.0" prefHeight="19.0" HBox.hgrow="ALWAYS">
+            <Label fx:id="versionNumOfLastChange" minWidth="30.0" prefHeight="19.0" prefWidth="51.0" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets bottom="15.0" left="5.0" top="15.0" />
+               </HBox.margin>
+            </Label>
+            <Label layoutX="644.0" layoutY="25.0" style="-fx-background-color: LightGray;" text="User of last change">
+               <HBox.margin>
+                  <Insets bottom="15.0" left="5.0" top="15.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="userNameOfLastChangeLabel" layoutX="772.0" layoutY="25.0" minWidth="30.0" prefHeight="19.0" prefWidth="71.0">
                <HBox.margin>
                   <Insets bottom="15.0" left="10.0" top="15.0" />
                </HBox.margin>
@@ -81,7 +115,7 @@
                   <Insets bottom="15.0" left="10.0" top="15.0" />
                </HBox.margin>
             </Label>
-            <Label fx:id="originalValueStrOfSelectedCell" prefHeight="19.0" prefWidth="254.0" HBox.hgrow="ALWAYS">
+            <Label fx:id="originalValueStrOfSelectedCell" prefHeight="19.0" prefWidth="229.0" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets bottom="15.0" left="15.0" top="15.0" />
                </HBox.margin>
@@ -105,56 +139,51 @@
                   <Insets bottom="10.0" left="15.0" top="10.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="returnToRecentSheetButton" mnemonicParsing="false" onAction="#handleReturnToRecentSheetButton" text="Return to Recent sheet">
+            <Button fx:id="displayRecentSheetButton" mnemonicParsing="false" onAction="#handleDisplayRecentSheetButton" text="Display recent sheet">
                <HBox.margin>
                   <Insets bottom="10.0" left="15.0" top="10.0" />
                </HBox.margin>
             </Button>
          </children>
       </HBox>
-<!--      <HBox prefWidth="200.0">-->
-<!--         <children>-->
-<!--            <Label prefHeight="19.0" prefWidth="52.0" text="Ranges:">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets left="10.0" top="18.0" />-->
-<!--               </HBox.margin>-->
-<!--            </Label>-->
-<!--            <ComboBox fx:id="selectRangeComboBox" prefHeight="27.0" prefWidth="173.0" promptText="Select range">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="10.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </ComboBox>-->
-<!--            <Button fx:id="displayCellsInSelectedRangeButton" mnemonicParsing="false" onAction="#handleDisplayCellsInSelectedRangeButton" text="Display selected range">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="25.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </Button>-->
-<!--            <Button fx:id="deleteSelectedRangeButton" layoutX="195.0" layoutY="30.0" mnemonicParsing="false" onAction="#handleDeleteSelectedRangeButton" text="Delete selected range">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="25.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </Button>-->
-<!--            <Button fx:id="addNewRangeButton" layoutX="362.0" layoutY="30.0" mnemonicParsing="false" onAction="#handleAddNewRangeButtonAndClearRelevantTextFields" text="Add new range">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="25.0" right="10.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </Button>-->
-<!--            <TextField fx:id="newRangeNameTextField" promptText="new range name">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="10.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </TextField>-->
-<!--            <TextField fx:id="newRangeStartCoordinateTextField" layoutX="631.0" layoutY="25.0" prefHeight="27.0" prefWidth="94.0" promptText="From (i.e A1)">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="15.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </TextField>-->
-<!--            <TextField fx:id="newRangeEndCoordinateTextField" layoutX="793.0" layoutY="25.0" prefHeight="27.0" prefWidth="87.0" promptText="To (i.e C3)">-->
-<!--               <HBox.margin>-->
-<!--                  <Insets bottom="15.0" left="15.0" right="20.0" top="15.0" />-->
-<!--               </HBox.margin>-->
-<!--            </TextField>-->
-<!--         </children>-->
-<!--      </HBox>-->
+      <HBox layoutX="10.0" layoutY="142.0">
+         <children>
+            <Label prefHeight="19.0" prefWidth="190.0" text="Dynamic analysis with selected cell:">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="15.0" top="15.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="minValueForDynamicAnalysisTextField" prefHeight="25.0" prefWidth="115.0" promptText="Min numeric value">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+               </HBox.margin>
+            </TextField>
+            <TextField fx:id="maxValueForDynamicAnalysisTextField" prefHeight="25.0" prefWidth="117.0" promptText="Max numeric value">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+               </HBox.margin>
+            </TextField>
+            <TextField fx:id="stepSizeForDynamicAnalysisTextField" prefHeight="25.0" prefWidth="118.0" promptText="Step size (numeric)">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+               </HBox.margin>
+            </TextField>
+            <Button fx:id="updateSliderForDynamicAnalysisButton" mnemonicParsing="false" onAction="#handleUpdateSliderForDynamicAnalysisButton" text="Update slider for dynamic analysis">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </Button>
+            <Slider fx:id="sliderForDynamicAnalysis" onMouseDragReleased="#handleMouseDragReleasedOnSlider" onMouseReleased="#handleMouseReleasedOnSlider" prefHeight="14.0" prefWidth="267.0">
+               <HBox.margin>
+                  <Insets bottom="15.0" left="5.0" top="15.0" />
+               </HBox.margin>
+            </Slider>
+            <Button fx:id="stopDynamicAnalysisButton" layoutX="645.0" layoutY="20.0" mnemonicParsing="false" onAction="#handleStopDynamicAnalysisButton" text="Stop dynamic analysis">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
    </children>
 </VBox>

@@ -103,10 +103,7 @@ public class SheetController {
 
                 cellLabel.prefHeightProperty().set(initializedRowHeight);
                 cellLabel.prefWidthProperty().set(initializedColumnWidth);
-//                cellLabel.prefWidthProperty().set(100);
 
-//                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
                 cellLabel.setAlignment(Pos.CENTER);
                 cellLabel.getStyleClass().add("single-cell");
                 cellLabel.setOnMouseClicked(event -> handleCellClick(sheet, coordinate));
@@ -123,40 +120,13 @@ public class SheetController {
         Coordinate previouslySelectedCoordinate = currentlySelectedCoordinate;
         currentlySelectedCoordinate = selectedCoordinate;
         Cell selectedCell = sheet.getCell(selectedCoordinate.getRow(), selectedCoordinate.getColumn());
-//        Cell selectedCell = sheet.getActiveCells().get(selectedCoordinate);
 
         mainController.handleCellClick(sheet, selectedCoordinate);
-
-//        style cleanup - should be done inside the next block?
-
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("selected-cell"));
 
         removeStyleClassForPreviouslySelectedCell(previouslySelectedCoordinate);
         addStyleClassForCurrentlySelectedCell(selectedCoordinate);
         removeStyleClassOfCellsInRange();
         removeStyleClassesInfluenceAndDependsOnFromAllCells();
-
-//        gridPaneActualCells.getChildren().stream()
-//                .filter(node -> GridPane.getRowIndex(node) == previouslySelectedCoordinate.getRow() && GridPane.getColumnIndex(node) == previouslySelectedCoordinate.getColumn())
-//                .findFirst()
-//                .ifPresent(node -> ((Label) node).getStyleClass().remove("selected-cell"));
-
-//        gridPaneActualCells.getChildren().stream()
-//                .filter(node -> GridPane.getRowIndex(node) == selectedCoordinate.getRow() && GridPane.getColumnIndex(node) == selectedCoordinate.getColumn())
-//                .findFirst()
-//                .ifPresent(node -> ((Label) node).getStyleClass().add("selected-cell"));
-
-
-
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("depends-on-cell"));
-//
-//        gridPaneActualCells.getChildren().stream()
-//                .map(node -> (Label) node)
-//                .forEach(cell -> cell.getStyleClass().remove("influence-on-cell"));
 
         if (sheet.getActiveCells().containsKey(selectedCoordinate)) {
 
@@ -178,10 +148,8 @@ public class SheetController {
 
     //assuming rangeName parameter exists in the system - user chooses only from existing ranges
     public void highlightCellsInSelectedRange(Range selectedRange) {
-//        mainController.handleChoosingRangeAndHighlightCellsInRange(sheet, rangeName);
         cleanUnnecessaryStyleClassesForAllCells();
 
-//        Range selectedRange = RangeFactory.getRangeByItsName(rangeName);
         int rowStart = selectedRange.getRowStart();
         int rowEnd = selectedRange.getRowEnd();
         int columnStart = selectedRange.getColumnStart();
@@ -252,9 +220,7 @@ public class SheetController {
         for (int currentRowNum = 1; currentRowNum <= numOfRows; currentRowNum++) {
             Label rowLabel = new Label(String.valueOf(currentRowNum));
             rowLabel.prefWidthProperty().set(initializedColumnWidth);
-//            rowLabel.prefWidthProperty().set(100);
             rowLabel.prefHeightProperty().set(initializedRowHeightWidth);
-//            rowLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
             rowLabel.setAlignment(Pos.CENTER);
             rowLabel.getStyleClass().add("single-cell");
             gridPaneRowNumbers.add(rowLabel, 0, currentRowNum);
@@ -271,7 +237,6 @@ public class SheetController {
         int initializedColumnWidth = sheet.getColumnWidth();
 
         Label leftTopCornerLabel = new Label("");
-//        leftTopCornerLabel.prefWidthProperty().set(100);
         leftTopCornerLabel.prefHeightProperty().set(initializedRowHeight);
         leftTopCornerLabel.prefWidthProperty().set(initializedColumnWidth);
         leftTopCornerLabel.getStyleClass().add("single-cell");
@@ -281,9 +246,7 @@ public class SheetController {
 
         for (int currentColumnNum = 1; currentColumnNum <= numOfColumns; currentColumnNum++) {
             Label columnLabel = new Label(String.valueOf((char) ('A' + currentColumnNum - 1)));
-            //columnLabel.prefHeightProperty().set(30);
-//            columnLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//            columnLabel.prefWidthProperty().set(100);
+
             columnLabel.prefHeightProperty().set(initializedRowHeight);
             columnLabel.prefWidthProperty().set(initializedColumnWidth);
             columnLabel.setAlignment(Pos.CENTER);
@@ -337,13 +300,9 @@ public class SheetController {
 
                 javafx.scene.control.Label cellLabel = new javafx.scene.control.Label(effectiveValueOfCellAsString);
 
-//                cellLabel.prefHeightProperty().set(initializedRowHeight);
                 cellLabel.setMinHeight(initializedRowHeight);
                 cellLabel.setMinWidth(initializedColumnWidth);
-//                cellLabel.prefWidthProperty().set(100);
 
-//                cellLabel.prefWidthProperty().bind(widthForEachColumnMapping.get(currentColumnNum));
-//                cellLabel.prefHeightProperty().bind(heightForEachRowMapping.get(currentRowNum));
                 cellLabel.setAlignment(Pos.CENTER);
                 cellLabel.getStyleClass().add("single-cell");
                 gridPaneActualCells.add(cellLabel, currentColumnNum, currentRowNum);
