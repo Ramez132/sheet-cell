@@ -1,3 +1,5 @@
+### Sheet-Cell is a Java desktop & server application enabling multi-user, real-time editing of tabular data with role-based access control. Architected server on Apache Tomcat, exposing REST endpoints consumed via OkHttp; implemented JavaFX GUI for seamless UX.
+
 This repository contains the code of a Java application that allow users to manage and manipulate data in a tabular format. The system refers to it as a sheet (the concept is similar in principle to Excel and Google Sheet).
 
 Written as part of a Java college course, by Meir Zoref and Ramez Mannaa.
